@@ -196,7 +196,8 @@ const page = "index2";
                     <div class="row">
                       <div class="col-md-8">
                         <p class="text-center">
-                          <strong>最近一分钟的每5s采样</strong>
+                          <strong id="chartName"></strong>
+                           (近一分钟的每5s采样)
                         </p>
 
                         <div id="latency-throughput-chart"></div>
@@ -345,7 +346,7 @@ const page = "index2";
                 <!--begin::Latest Order Widget-->
                 <div class="card">
                   <div class="card-header">
-                    <h3 class="card-title">最新块概览</h3>
+                    <h3 class="card-title"><strong>最新块概览</strong></h3>
                     <div class="card-tools">
                       <button
                         type="button"
@@ -376,126 +377,7 @@ const page = "index2";
                             <th>块阶段计时</th>
                           </tr>
                         </thead>
-                        <tbody>
-                          <tr>
-                            <td>
-                              <a
-                                href="pages/examples/invoice.html"
-                                class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-                                >OR9842</a
-                              >
-                            </td>
-                            <td>Call of Duty IV</td>
-                            <td>
-                              <span class="badge text-bg-success">
-                                Shipped
-                              </span>
-                            </td>
-                            <td>
-                              <div id="table-sparkline-1"></div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <a
-                                href="pages/examples/invoice.html"
-                                class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-                                >OR1848</a
-                              >
-                            </td>
-                            <td>Samsung Smart TV</td>
-                            <td>
-                              <span class="badge text-bg-warning">Pending</span>
-                            </td>
-                            <td>
-                              <div id="table-sparkline-2"></div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <a
-                                href="pages/examples/invoice.html"
-                                class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-                                >OR7429</a
-                              >
-                            </td>
-                            <td>iPhone 6 Plus</td>
-                            <td>
-                              <span class="badge text-bg-danger">
-                                Delivered
-                              </span>
-                            </td>
-                            <td>
-                              <div id="table-sparkline-3"></div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <a
-                                href="pages/examples/invoice.html"
-                                class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-                                >OR7429</a
-                              >
-                            </td>
-                            <td>Samsung Smart TV</td>
-                            <td>
-                              <span class="badge text-bg-info">Processing</span>
-                            </td>
-                            <td>
-                              <div id="table-sparkline-4"></div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <a
-                                href="pages/examples/invoice.html"
-                                class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-                                >OR1848</a
-                              >
-                            </td>
-                            <td>Samsung Smart TV</td>
-                            <td>
-                              <span class="badge text-bg-warning">Pending</span>
-                            </td>
-                            <td>
-                              <div id="table-sparkline-5"></div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <a
-                                href="pages/examples/invoice.html"
-                                class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-                                >OR7429</a
-                              >
-                            </td>
-                            <td>iPhone 6 Plus</td>
-                            <td>
-                              <span class="badge text-bg-danger">
-                                Delivered
-                              </span>
-                            </td>
-                            <td>
-                              <div id="table-sparkline-6"></div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <a
-                                href="pages/examples/invoice.html"
-                                class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-                                >OR9842</a
-                              >
-                            </td>
-                            <td>Call of Duty IV</td>
-                            <td>
-                              <span class="badge text-bg-success">Shipped</span>
-                            </td>
-                            <td>
-                              <div id="table-sparkline-7"></div>
-                            </td>
-                          </tr>
-                        </tbody>
+                        <tbody id="latestBlockTable"> </tbody>
                       </table>
                     </div>
                     <!-- /.table-responsive -->
@@ -612,7 +494,6 @@ const page = "index2";
       integrity="sha256-+vh8GkaU7C9/wbSLIcwq82tQ2wTf44aOHA8HlBMwRI8="
       crossorigin="anonymous"></script>
     <script is:inline>
-      
       //-----------------------
       // - THROUGHPUT/LATENCY CHART -
       //-----------------------
@@ -621,7 +502,7 @@ const page = "index2";
        * -------
        * Here we will create a few charts using apexcharts
        */
-       const chartData = {
+      const chartData = {
         txnThroughputChart: {
           name: "事务吞吐率",
           data: [30, 40, 35, 50, 45, 60, 55, 70, 10, 1, 2, 3, 4],
@@ -681,13 +562,14 @@ const page = "index2";
           ],
         },
       };
-
+      const chartName = document.getElementById("chartName");
+      chartName.innerHTML = "事务吞吐率";
       const latencyThroughputChart = new ApexCharts(
         document.querySelector("#latency-throughput-chart"),
         chartOptions,
       );
       latencyThroughputChart.render();
-            //设置切换监听函数并切换曲线图
+      //设置切换监听函数并切换曲线图
       document.querySelectorAll(".dropdown-item").forEach((item) => {
         item.addEventListener("click", () => {
           const selectedChart = item.getAttribute("data-chart");
@@ -698,12 +580,67 @@ const page = "index2";
               data: chartConfig.data,
             },
           ]);
+          const chartName = document.getElementById("chartName");
+          chartName.innerHTML = chartConfig.name;
         });
       });
 
       //---------------------------
       // - END THROUGHPUT/LATENCY CHART -
       //---------------------------
+
+      //-------------------------
+      //   Create Timer Chart
+      //-------------------------
+
+      function createSparklineChart(selector, data) {
+        const options = {
+          series: [{ data }],
+          xaxis: {
+            categories: ["发布", "排队", "提交", "确认"],
+          },
+          chart: {
+            type: "line",
+            width: 150,
+            height: 30,
+            sparkline: {
+              enabled: true,
+            },
+          },
+          colors: ["var(--bs-primary)"],
+          stroke: {
+            width: 2,
+          },
+          tooltip: {
+            fixed: {
+              enabled: false,
+            },
+            x: {
+              show: true,
+            },
+            y: {
+              title: {
+                formatter: function (seriesName) {
+                  return "计时:";
+                },
+              },
+              formatter: function (value) {
+                return value + "ms";
+              },
+            },
+            marker: {
+              show: false,
+            },
+          },
+        };
+
+        const chart = new ApexCharts(document.querySelector(selector), options);
+        chart.render();
+      }
+
+      //-------------------------
+      //   END CREATE Timer Chart
+      //-------------------------
 
       //-----------------------
       // - Normal Info Box-
@@ -721,10 +658,7 @@ const page = "index2";
           .then((data) => {
             const { blockNum, txnNum, nodeNum, chainCodeNum } = data;
 
-            console.log("blockNum:", blockNum);
-            console.log("txnNum:", txnNum);
-            console.log("nodeNum:", nodeNum);
-            console.log("chainCodeNum:", chainCodeNum);
+            console.log(data);
 
             //更新盒子信息
             const blockNumBox = document.getElementById("blockNumBox");
@@ -774,19 +708,7 @@ const page = "index2";
               txnThroughputMax,
             } = data;
 
-            console.log("Block Latency:", blockLatency);
-            console.log("Block Latency Average:", blockLatencyAvg);
-            console.log("Block Latency Maximum:", blockLatencyMax);
-            console.log("Block Throughput:", blockThroughput);
-            console.log("Block Throughput Average:", blockThroughputAvg);
-            console.log("Block Throughput Maximum:", blockThroughputMax);
-
-            console.log("Transaction Latency:", txnLatency);
-            console.log("Transaction Latency Average:", txnLatencyAvg);
-            console.log("Transaction Latency Maximum:", txnLatencyMax);
-            console.log("Transaction Throughput:", txnThroughput);
-            console.log("Transaction Throughput Average:", txnThroughputAvg);
-            console.log("Transaction Throughput Maximum:", txnThroughputMax);
+            console.log(data);
 
             //更新box盒子信息
             const blockLatencyText =
@@ -835,8 +757,8 @@ const page = "index2";
             txnThroughputAvgText.innerHTML = txnThroughputAvg;
 
             //更新曲线信息
-            chartData.txnThroughputChart.data.shift(); 
-            chartData.txnThroughputChart.data.push(data.txnThroughput); 
+            chartData.txnThroughputChart.data.shift();
+            chartData.txnThroughputChart.data.push(data.txnThroughput);
 
             chartData.blockThroughputChart.data.shift();
             chartData.blockThroughputChart.data.push(data.blockThroughput);
@@ -847,8 +769,7 @@ const page = "index2";
             chartData.blockLatencyChart.data.shift();
             chartData.blockLatencyChart.data.push(data.blockLatency);
 
-            latencyThroughputChart.render();
-
+            latencyThroughputChart.updateOptions({});
           })
           .catch((error) => {
             console.error("Error:", error);
@@ -860,74 +781,80 @@ const page = "index2";
       // - Running Info Box-
       //-----------------------
 
-      function createSparklineChart(selector, data) {
-        const options = {
-          series: [{ data }],
-          chart: {
-            type: "line",
-            width: 150,
-            height: 30,
-            sparkline: {
-              enabled: true,
-            },
-          },
-          colors: ["var(--bs-primary)"],
-          stroke: {
-            width: 2,
-          },
-          tooltip: {
-            fixed: {
-              enabled: false,
-            },
-            x: {
-              show: false,
-            },
-            y: {
-              title: {
-                formatter: function (seriesName) {
-                  return "";
-                },
-              },
-            },
-            marker: {
-              show: false,
-            },
-          },
-        };
+      function requestBlockInfo() {
+        fetch("http://localhost:8000/LatestBlock")
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              throw new Error("Failed to fetch data");
+            }
+          })
+          .then((data) => {
+            // 获取父元素，用于添加生成的标签
+            const parentElement = document.getElementById("latestBlockTable");
+            const blockList = data;
+            parentElement.innerHTML = "";
+            console.log(blockList);
 
-        const chart = new ApexCharts(document.querySelector(selector), options);
-        chart.render();
+            // 遍历块数据并生成标签
+            blockList.forEach((block) => {
+              // 创建一个新表格行
+              console.log(block);
+              const newRow = document.createElement("tr");
+              // 创建表格单元格并填充数据
+              const cell1 = document.createElement("td");
+              const blockNum = document.createElement("b");
+              blockNum.textContent = "#" + block.blockNum;
+              cell1.appendChild(blockNum);
+
+              const cell2 = document.createElement("td");
+              cell2.textContent = block.blockTxnNum;
+
+              const cell3 = document.createElement("td");
+              const statusBadge = document.createElement("span");
+
+              statusBadge.textContent = block.blockStatus;
+              switch (block.blockStatus) {
+                case "Pending":
+                  statusBadge.className = "badge text-bg-primary";
+                  break;
+                case "Committed":
+                  statusBadge.className = "badge text-bg-warning";
+                  break;
+                case "Finalized":
+                  statusBadge.className = "badge text-bg-success";
+                  break;
+                case "Failed":
+                  statusBadge.className = "badge text-bg-danger";
+                  break;
+                default:
+                  // 默认情况下使用蓝色
+                  statusBadge.className = "badge text-bg-primary";
+              }
+              cell3.appendChild(statusBadge);
+
+              const cell4 = document.createElement("td");
+              const sparklineDiv = document.createElement("div");
+              sparklineDiv.id = "table-sparkline-" + block.blockNum;
+
+              cell4.appendChild(sparklineDiv);
+
+              // 将单元格添加到表格行
+              newRow.appendChild(cell1);
+              newRow.appendChild(cell2);
+              newRow.appendChild(cell3);
+              newRow.appendChild(cell4);
+              // 将新行添加到父元素中
+              parentElement.appendChild(newRow);
+              createSparklineChart("#" + sparklineDiv.id, block.blockTimer);
+            });
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
       }
-
-      const table_sparkline_1_data = [
-        25, 66, 41, 89, 63, 25, 44, 12, 36, 9, 54,
-      ];
-      const table_sparkline_2_data = [
-        12, 56, 21, 39, 73, 45, 64, 52, 36, 59, 44,
-      ];
-      const table_sparkline_3_data = [
-        15, 46, 21, 59, 33, 15, 34, 42, 56, 19, 64,
-      ];
-      const table_sparkline_4_data = [
-        30, 56, 31, 69, 43, 35, 24, 32, 46, 29, 64,
-      ];
-      const table_sparkline_5_data = [
-        20, 76, 51, 79, 53, 35, 54, 22, 36, 49, 64,
-      ];
-      const table_sparkline_6_data = [
-        5, 36, 11, 69, 23, 15, 14, 42, 26, 19, 44,
-      ];
-      const table_sparkline_7_data = [
-        12, 56, 21, 39, 73, 45, 64, 52, 36, 59, 74,
-      ];
-
-      createSparklineChart("#table-sparkline-1", table_sparkline_1_data);
-      createSparklineChart("#table-sparkline-2", table_sparkline_2_data);
-      createSparklineChart("#table-sparkline-3", table_sparkline_3_data);
-      createSparklineChart("#table-sparkline-4", table_sparkline_4_data);
-      createSparklineChart("#table-sparkline-5", table_sparkline_5_data);
-      createSparklineChart("#table-sparkline-6", table_sparkline_6_data);
-      createSparklineChart("#table-sparkline-7", table_sparkline_7_data);
+      setInterval(requestBlockInfo, 5000);
 
       //-------------
       // - PIE CHART -

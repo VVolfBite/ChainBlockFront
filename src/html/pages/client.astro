@@ -1,0 +1,284 @@
+---
+import Head from "../components/_head.astro";
+import Footer from "../components/dashboard/_footer.astro";
+import Topbar from "../components/dashboard/_topbar.astro";
+import Sidenav from "../components/dashboard/_sidenav.astro";
+import Scripts from "../components/_scripts.astro";
+
+const title = "AdminLTE v4 | Dashboard";
+const path = "../../dist";
+const mainPage = "dashboard";
+const page = "index";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <Head title={title} path={path} />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.css"
+      integrity="sha256-4MX+61mt9NVvvuPjUWdUdyfZfxSB1/Rf9WtqRHgG5S0="
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/css/jsvectormap.min.css"
+      integrity="sha256-+uGLJmmTKOqBr+2E6KDYs/NRsHxSkONXFHUL0fy2O/4="
+      crossorigin="anonymous"
+    />
+  </head>
+  <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+    <div class="app-wrapper">
+      <Topbar path={path} />
+      <Sidenav path={path} mainPage={mainPage} page={page} />
+      <main class="app-main">
+        <div class="app-content-header">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-sm-6">
+                <h3 class="mb-0">客户面板</h3>
+              </div>
+              <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                  <li class="breadcrumb-item"><a href="#">客户面板</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">
+                    面板
+                  </li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="app-content">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="card card-info card-outline mb-4">
+                <div class="card-header">
+                  <div class="card-title">单次事务提交</div>
+                </div>
+                <form class="needs-validation" novalidate>
+                  <div class="card-body">
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <label for="validationTxnNum" class="form-label"
+                          >事务编号:</label
+                        >
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="validationTxnNum"
+                          required
+                          pattern="[A-Za-z0-9]{1,50}"
+                        />
+                        <div class="valid-feedback">格式正确。</div>
+                        <div class="invalid-feedback">
+                          事务编号只能由大小写字母和数字构成，且长度不能超过50个字节。
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">事务时间戳:</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="validationTimestamp"
+                          required
+                          disabled
+                        />
+                      </div>
+                      <div class="col-md-6">
+                        <label for="validationFrom" class="form-label"
+                          >-----来自:</label
+                        >
+                        <div class="input-group has-validation">
+                          <span class="input-group-text" id="inputGroupPrepend"
+                            >用户</span
+                          >
+                          <input
+                            type="text"
+                            class="form-control"
+                            id="validationFrom"
+                            aria-describedby="inputGroupPrepend"
+                            required
+                            pattern="[A-Za-z0-9_]+"
+                          />
+                          <div class="valid-feedback">格式正确。</div>
+                          <div class="invalid-feedback">
+                            用户名只能包含大小写字母、数字和下划线。
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <label for="validationTo" class="form-label"
+                          >-----发往:</label
+                        >
+                        <div class="input-group has-validation">
+                          <span class="input-group-text" id="inputGroupPrepend"
+                            >用户</span
+                          >
+                          <input
+                            type="text"
+                            class="form-control"
+                            id="validationTo"
+                            aria-describedby="inputGroupPrepend"
+                            required
+                            pattern="[A-Za-z0-9_]+"
+                          />
+                          <div class="valid-feedback">格式正确。</div>
+                          <div class="invalid-feedback">
+                            用户名只能包含大小写字母、数字和下划线。
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <label for="validationAmount" class="form-label"
+                          >交易额度:</label
+                        >
+                        <div class="input-group has-validation">
+                          <span class="input-group-text" id="inputGroupPrepend"
+                            >$</span
+                          >
+                          <input
+                            type="text"
+                            class="form-control"
+                            id="validationAmount"
+                            aria-describedby="inputGroupPrepend"
+                            required
+                            pattern="^([1-9][0-9]*|0)(\.[0-9]+)?$"
+                          />
+                          <div class="valid-feedback">格式正确。</div>
+                          <div class="invalid-feedback">请输入合法的数字。</div>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <label for="validationNode" class="form-label"
+                          >发送节点:</label
+                        >
+                        <select
+                          class="form-select"
+                          id="validationNode"
+                          required
+                        >
+                        </select>
+                      </div>
+                    </div>
+                    <!--end::Row-->
+                  </div>
+                  <!--end::Body-->
+                  <!--begin::Footer-->
+                  <div class="card-footer">
+                    <button type="reset" class="btn btn-warning col-md-1"
+                      >重置</button
+                    >
+                    <button
+                      type="button"
+                      class="btn btn-primary col-md-1 float-end"
+                      id="submitForm">提交</button
+                    >
+                  </div>
+                  <!--end::Footer-->
+                </form>
+                <!--end::Form-->
+                <!--begin::JavaScript-->
+                <script is:inline>
+                  const validationNode =
+                    document.getElementById("validationNode");
+                  // 定义一个函数，用于从服务器获取Node信息并更新<select>元素
+                  function updateOptions() {
+                    fetch("http://localhost:8000/Node")
+                      .then((response) => response.json())
+                      .then((data) => {
+                        // 清除现有的<option>元素
+                        validationNode.innerHTML = "";
+
+                        // 添加新的<option>元素
+                        validationNode.options[0] = new Option("广播", "");
+
+                        // 添加来自服务器响应的Node信息
+                        data.forEach(function (nodeName, index) {
+                          validationNode.options[index + 1] = new Option(
+                            nodeName,
+                            nodeName,
+                          );
+                        });
+                      })
+                      .catch((error) => console.error("请求出错: " + error));
+                  }
+
+                  // 在页面加载时调用函数，初始化<select>元素的选项
+                  updateOptions();
+                  // 每5秒请求一次数据
+                  setInterval(updateOptions, 5000);
+
+                  // document
+                  //   .getElementById("submitForm")
+                  //   .addEventListener("click", function () {
+                  //     const txnNum =
+                  //       document.getElementById("validationTxnNum").value;
+                  //     const from =
+                  //       document.getElementById("validationFrom").value;
+                  //     const to = document.getElementById("validationTo").value;
+                  //     const amount =
+                  //       document.getElementById("validationAmount").value;
+                  //     const selectedNode = validationNode.value;
+
+                  //     // 构建表单数据
+                  //     const formData = new FormData();
+                  //     formData.append("txnNum", txnNum);
+                  //     formData.append("from", from);
+                  //     formData.append("to", to);
+                  //     formData.append("amount", amount);
+                  //     formData.append("node", selectedNode);
+
+                  //     // 发起 POST 请求
+                  //     fetch("http://localhost:8000/SubmittingOneTxn", {
+                  //       method: "POST",
+                  //       body: formData,
+                  //     })
+                  //       .then((response) => {
+                  //         if (response.ok) {
+                  //           console.log("表单提交成功！");
+                  //         } else {
+                  //           console.error("表单提交失败");
+                  //         }
+                  //       })
+                  //       .catch((error) => console.error("请求出错: " + error));
+                  //   });
+                </script>
+              </div>
+            </div>
+            <div class="row">
+              <div class="card card-info card-outline mb-4">
+                <div class="card-header">
+                  <div class="card-title">Form Validation</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      <Footer />
+      <Scripts path={path} />
+      <script>
+        const timestampInput = document.getElementById("validationTimestamp");
+
+        function updateTimestamp() {
+          const currentTimestamp = Math.floor(Date.now() / 1000); // 获取当前时间的 UNIX 时间戳（秒）
+          timestampInput.value = currentTimestamp; // 更新时间戳字段
+        }
+        updateTimestamp();
+        setInterval(updateTimestamp, 1000);
+
+        const form = document.querySelector(".needs-validation");
+        form.addEventListener("submit", function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add("was-validated");
+        });
+      </script>
+    </div>
+  </body>
+</html>

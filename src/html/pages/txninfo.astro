@@ -93,10 +93,10 @@ const page = "index4";
                     <table class="table flex">
                       <thead>
                         <tr>
-                          <th>事务编号</th>
-                          <th>事务量摘要</th>
-                          <th>事务状态</th>
-                          <th>事务阶段计时</th>
+                          <th class="col-md-1">事务编号</th>
+                          <th class="col-md-1">事务量摘要</th>
+                          <th class="col-md-1">事务状态</th>
+                          <th class="col-md-1">事务阶段计时</th>
                         </tr>
                       </thead>
                       <tbody id="blockInfoTableBody"> </tbody>
@@ -274,15 +274,18 @@ const page = "index4";
               cardHeaderContent.style.justifyContent = "space-between";
 
               const blockNum = document.createElement("b");
-              blockNum.className = "card-title";
+              blockNum.className = "card-title col-md-1";
               blockNum.textContent = "#";
 
               const blockTxnNum = document.createElement("p");
+              blockTxnNum.className = "col-md-1";
               blockTxnNum.textContent = "0";
 
               const blockStatus = document.createElement("p");
+              blockStatus.className = "col-md-1";
 
               const blockTimer = document.createElement("p");
+              blockTimer.className = "col-md-1";
 
               const button = document.createElement("button");
               button.type = "button";

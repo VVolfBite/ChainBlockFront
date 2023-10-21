@@ -4,7 +4,7 @@ import mdx from '@astrojs/mdx'
 // https://astro.build/config
 export default defineConfig({
   build: {
-    // Example: Generate `page.html` instead of `page/index.html` during build.
+    // Example: Generate `page.html` instead of `page/client.html` during build.
     format: 'file'
   },
   markdown: {

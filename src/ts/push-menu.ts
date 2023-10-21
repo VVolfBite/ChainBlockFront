@@ -1,10 +1,3 @@
-/**
- * --------------------------------------------
- * @file AdminLTE push-menu.ts
- * @description Push menu for AdminLTE.
- * @license MIT
- * --------------------------------------------
- */
 
 import {
   onDOMContentLoaded

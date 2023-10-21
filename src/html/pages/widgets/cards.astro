@@ -371,3 +371,43 @@ const page = "cards";
     <!--end::Script-->
   </body><!--end::Body-->
 </html>
+
+
+
+<!-- // 创建表格单元格并填充数据
+const cell1 = document.createElement("td");
+const blockNum = document.createElement("b");
+blockNum.textContent = "#" + block.blockNum;
+cell1.appendChild(blockNum);
+
+const cell2 = document.createElement("td");
+cell2.textContent = block.blockTxnNum;
+
+const cell3 = document.createElement("td");
+const statusBadge = document.createElement("span");
+
+statusBadge.textContent = block.blockStatus;
+switch (block.blockStatus) {
+  case "Pending":
+    statusBadge.className = "badge text-bg-primary";
+    break;
+  case "Committed":
+    statusBadge.className = "badge text-bg-warning";
+    break;
+  case "Finalized":
+    statusBadge.className = "badge text-bg-success";
+    break;
+  case "Failed":
+    statusBadge.className = "badge text-bg-danger";
+    break;
+  default:
+    // 默认情况下使用蓝色
+    statusBadge.className = "badge text-bg-primary";
+}
+cell3.appendChild(statusBadge);
+
+const cell4 = document.createElement("td");
+const sparklineDiv = document.createElement("div");
+sparklineDiv.id = "table-sparkline-" + block.blockNum;
+
+cell4.appendChild(sparklineDiv); -->

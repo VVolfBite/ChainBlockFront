@@ -8,7 +8,7 @@ import Scripts from "../components/_scripts.astro";
 const title = "AdminLTE | Dashboard v3";
 const path = "../../dist";
 const mainPage = "dashboard";
-const page = "index3";
+const page = "index4";
 ---
 
 <!doctype html>
@@ -54,13 +54,13 @@ const page = "index3";
             <!--begin::Row-->
             <div class="row">
               <div class="col-sm-6">
-                <h3 class="mb-0">块信息面板</h3>
+                <h3 class="mb-0">事务信息面板</h3>
               </div>
               <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-end">
                   <li class="breadcrumb-item"><a href="#">面板</a></li>
                   <li class="breadcrumb-item active" aria-current="page">
-                    块信息面板
+                    事务信息面板
                   </li>
                 </ol>
               </div>
@@ -76,7 +76,7 @@ const page = "index3";
             <div class="row">
               <div class="card mb-4">
                 <div class="card-header">
-                  <h3 class="card-title">块信息表</h3>
+                  <h3 class="card-title">事务信息表</h3>
 
                   <div class="card-tools">
                     <ul
@@ -93,10 +93,10 @@ const page = "index3";
                     <table class="table flex">
                       <thead>
                         <tr>
-                          <th>块编号</th>
-                          <th>块内事务量</th>
-                          <th>块状态</th>
-                          <th>块阶段计时</th>
+                          <th>事务编号</th>
+                          <th>事务量摘要</th>
+                          <th>事务状态</th>
+                          <th>事务阶段计时</th>
                         </tr>
                       </thead>
                       <tbody id="blockInfoTableBody"> </tbody>

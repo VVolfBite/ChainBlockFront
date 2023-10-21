@@ -73,6 +73,15 @@ const htmlPath = convertPathToHtml(path);
                 <p>块信息详情</p>
               </a>
             </li>
+            <li class="nav-item">
+              <a
+                href={htmlPath + "/txninfo.html"}
+                class:list={["nav-link", page === "index4" && "active"]}
+              >
+                <i class="nav-icon bi bi-circle"></i>
+                <p>事务信息详情</p>
+              </a>
+            </li>
           </ul>
         </li>
         <li class:list={["nav-item", mainPage === "widgets" && "menu-open"]}>

@@ -93,6 +93,6 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "element-plus": "^2.4.0"
+    "element-plus": "^2.4.1"
   }
 }

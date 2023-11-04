@@ -211,11 +211,11 @@ def returnTxnInfo():
 
 @app.route('/AllBlock',methods=['GET'])
 def returnAllBlockInfo():
-    return jsonify(totalBlockList)[::-1] 
+    return jsonify(totalBlockList[::-1] )
 
 @app.route('/AllTxn',methods=['GET'])
 def returnAllTxnInfo():
-    return jsonify(totalTxnList)[::-1] 
+    return jsonify(totalTxnList[::-1] )
 
 @app.route('/AllNode',methods=['GET'])
 def returnNodeInfo():

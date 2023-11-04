@@ -63,17 +63,32 @@ const page = "index3";
               <div class="card mb-4">
                 <div class="card-header">
                   <h3 class="card-title">块信息表</h3>
-
-                  <div class="card-tools">
-                    <ul
-                      class="pagination pagination-sm float-end"
-                      id="pagination"
-                    >
-                      <li class="page-item">
-                        <a class="page-link" href="#">&laquo;</a>
-                      </li>
-                    </ul>
+                  <hr class="hr-space my-4" />
+                  <div class="row">
+                    <div class="card-tools col-md-10">
+                      <input
+                        type="text"
+                        class="form-control bg-light bg-focus-white"
+                        autocomplete="off"
+                        spellcheck="false"
+                        id="search-panel"
+                        placeholder="按编号搜索"
+                        maxlength="65"
+                      />
+                    </div>
+                    <div class="card-tools col-md-2">
+                      <ul
+                        class="pagination pagination-sm float-end"
+                        id="pagination"
+                      >
+                        <li class="page-item">
+                          <a class="page-link" href="#">&laquo;</a>
+                        </li>
+                      </ul>
+                    </div>
                   </div>
+                  <hr class="hr-space my-4" />
+
                   <!-- /.card-header -->
                   <div class="card-body p-0">
                     <table class="table flex">
@@ -119,10 +134,13 @@ const page = "index3";
         <script
           src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js"
           integrity="sha256-+vh8GkaU7C9/wbSLIcwq82tQ2wTf44aOHA8HlBMwRI8="
-          crossorigin="anonymous">import { info } from "astro/dist/core/logger/core";
-</script>
+          crossorigin="anonymous"
+        >
+          import { info } from "astro/dist/core/logger/core";
+        </script>
 
         <script is:inline>
+          let totalblockList = [];
           function renderChart(selector, data) {
             const options = {
               series: [{ data }],
@@ -186,6 +204,23 @@ const page = "index3";
                 return "success";
             }
           }
+          const searchInput = document.getElementById("search-panel");
+          function searchBlocks(searchTerm, blockList) {
+            const searchResults = blockList.filter((block) => {
+              // 这里可以根据你的匹配逻辑来判断是否匹配
+              // 例如，如果 blockNum 包含 searchTerm，则认为匹配
+              return block.blockNum.toString().includes(searchTerm);
+            });
+            return searchResults;
+          }
+          searchInput.addEventListener("input", function () {
+            const searchTerm = searchInput.value;
+            const searchBlockList = searchBlocks(searchTerm, totalblockList);
+            updatePagination(searchBlockList);
+            fillComponentsWithData(searchBlockList);
+            //renderSearchResults(searchBlockList);
+          });
+
           const pagination = document.getElementById("pagination");
           let currentPage = 1;
 
@@ -219,168 +254,45 @@ const page = "index3";
               link.addEventListener("click", () => {
                 if (link.dataset.page) {
                   currentPage = parseInt(link.dataset.page);
-                  fetchBlock(); // 在点击按钮时调用 fetchBlock 函数
-                  updatePagination();
+                  console.log(currentPage);
+                  if (searchInput.value.trim() === "") {
+                    fetchBlock();    
+                  }
+                  updatePagination(blockList);
+                  fillComponentsWithData(blockList);
                 } else if (link.textContent === "«") {
                   currentPage = Math.max(1, currentPage - 3);
-                  fetchBlock(); // 在点击按钮时调用 fetchBlock 函数
-                  updatePagination();
+                  if (searchInput.value.trim() === "") {
+                    fetchBlock();
+                  }
+                  updatePagination(blockList);
+                  fillComponentsWithData(blockList);
                 } else if (link.textContent === "»") {
                   currentPage = Math.min(totalPages, currentPage + 3);
-                  fetchBlock(); // 在点击按钮时调用 fetchBlock 函数
-                  updatePagination();
+                  if (searchInput.value.trim() === "") {
+                    fetchBlock();
+                  }
+                  updatePagination(blockList);
+                  fillComponentsWithData(blockList);
                 }
               });
             });
           }
-
+          //渲染表格部分，先渲染空组件，再装填内容
           function fetchBlock() {
             fetch("http://localhost:8000/AllBlock")
               .then((response) => response.json())
               .then((data) => {
                 // 将从服务器获取的数据存储在 blockList 中
-                blockList = data;
+                totalblockList = data;
                 // 更新表格内容
-                updatePagination(blockList);
-                fillComponentsWithData(blockList);
+                updatePagination(totalblockList);
+                fillComponentsWithData(totalblockList);
               })
               .catch((error) => {
                 console.error("Error fetching data:", error);
               });
           }
-
-          function createBlockCardBodyElement(block) {
-            const blockCardBodyElement = document.createElement("div");
-            blockCardBodyElement.className = "blockCardBodyElement";
-            //header部分
-            const cardHeaderElement = document.createElement("div");
-            cardHeaderElement.className =
-              "card-header d-flex justify-content-between align-items-center p-0";
-
-            const ulElement = document.createElement("ul");
-            ulElement.className = "nav nav-tabs";
-            ulElement.id = "nav_tabs";
-            ulElement.setAttribute("role", "tablist");
-            const liElement = document.createElement("li");
-            liElement.className = "nav-item";
-            const aElement = document.createElement("a");
-            aElement.className = "nav-link active";
-            aElement.href = "#overview";
-            aElement.setAttribute("data-toggle", "tab");
-            aElement.textContent = "块详细信息";
-            liElement.appendChild(aElement);
-            ulElement.appendChild(liElement);
-
-            cardHeaderElement.appendChild(ulElement);
-            //header部分
-
-            //tab部分
-            const tabContentElement = document.createElement("div");
-            tabContentElement.className = "tab-content";
-
-            const tabPaneElement = document.createElement("div");
-            tabPaneElement.className = "tab-pane fade active show";
-            tabPaneElement.id = "overview";
-            tabPaneElement.setAttribute("role", "tabpanel");
-            tabPaneElement.setAttribute("aria-labelledby", "home-tab");
-
-            const cardBodyElement = document.createElement("div");
-            cardBodyElement.className = "card-body";
-
-            //展示内容
-            const blockInfo = [
-              { label: "块编号:", value: block.blockNum, mode:"Num"},
-              { label: "块高度:", value: block.blockHeight,mode:""},
-              { label: "块状态:", value: block.blockStatus , mode:"Status"},
-              { label: "块各阶段计时:", value: block.blockTimer,mode:"Timer"},
-              { label: "块哈希值", value: block.blockHash,mode:""},
-              { label: "块父哈希值:", value: block.blockParentHash,mode:""},
-              { label: "块年龄", value: block.blockAge,mode:""},
-            ];
-            blockInfo.forEach((info) => {
-              const row = document.createElement("div");
-              row.className = "row align-items-center";
-
-              const labelCol = document.createElement("div");
-              labelCol.className = "col-md-3 mb-1 mb-md-0e";
-              labelCol.textContent = info.label;
-
-              const valueCol = document.createElement("div");
-              valueCol.className = "col-md-9";
-              if(info.mode=="")
-                valueCol.textContent = info.value;
-              else if(info.mode=="Num")
-              {
-                valueCol.style.fontWeight = "bold";
-                valueCol.textContent = "#"+"\t\t"+info.value; 
-              }
-              else if(info.mode=="Status")
-              {
-                const statusBadge = document.createElement("span");
-                statusBadge.textContent=info.value;
-                statusBadge.className="badge text-bg-"+getStatusClassName(info.value);
-                valueCol.appendChild(statusBadge);
-              }
-              else if(info.mode=="Timer")
-              {
-                valueCol.textContent = "发布:"+info.value[0] +"ms"+"\t\t\t"+"排队:"+info.value[1]+ "ms"+"\t\t\t"+"提交:"+info.value[2]+"ms"+"\t\t\t"+"确认:"+info.value[3]+"ms"; 
-              }
-
-              const hr = document.createElement("hr");
-              hr.className = "hr-space";
-
-              row.appendChild(labelCol);
-              row.appendChild(valueCol);
-
-              cardBodyElement.appendChild(row);
-              cardBodyElement.appendChild(hr);
-            });
-
-            //展示详细内容
-            const blockDetailInfo = [
-              { label: "事务列表", value: block.blockTxnList ,mode:"TxnList"},
-              { label: "额外信息", value: block.blockInfo,mode:""},
-            ];
-            blockDetailInfo.forEach((detail) => {
-              const row = document.createElement("div");
-              row.className = "row align-items-center";
-              const labelCol = document.createElement("div");
-              labelCol.className = "col-md-3 mb-1 mb-md-0e";
-              labelCol.textContent = detail.label;
-              const valueCol = document.createElement("div");
-              valueCol.className = "col-md-9";
-              const textarea = document.createElement("textarea");
-              textarea.readOnly = true;
-              textarea.spellcheck = false;
-              textarea.className = "form-control";
-              textarea.rows = 5;
-              if(detail.mode=="")
-                textarea.textContent = detail.value;
-              else if(detail.mode =="TxnList")
-              {
-                textarea.style.fontWeight = "bold";
-                detail.value.forEach((txn)=>
-                {
-                  textarea.textContent = textarea.textContent+"#\t"+txn.txnNum+"\t\t";
-                });
-              }
-              valueCol.appendChild(textarea);
-              row.appendChild(labelCol);
-              row.appendChild(valueCol);
-
-              const hr = document.createElement("hr");
-              hr.className = "hr-space";
-
-              cardBodyElement.appendChild(row);
-              cardBodyElement.appendChild(hr);
-            });
-            blockCardBodyElement.appendChild(cardHeaderElement);
-            tabPaneElement.appendChild(cardBodyElement);
-            tabContentElement.appendChild(tabPaneElement);
-            blockCardBodyElement.appendChild(tabContentElement);
-            return blockCardBodyElement;
-          }
-
           function renderEmptyComponents() {
             const tbody = document.getElementById("blockInfoTableBody");
             tbody.innerHTML = "";
@@ -396,7 +308,7 @@ const page = "index3";
 
               const card = document.createElement("div");
               //可以根据状态设置颜色
-              card.className = "card card-outline "+"card-success";
+              card.className = "card card-outline " + "card-success";
               //card.style.border = "1px";
 
               const cardHeader = document.createElement("div");
@@ -460,21 +372,19 @@ const page = "index3";
               tbody.appendChild(row);
 
               button.addEventListener("click", function () {
-                if(card){
-                  if(card.classList.contains("card-outline"))
-                  {
+                if (card) {
+                  if (card.classList.contains("card-outline")) {
                     card.classList.remove("card-outline");
-                    blockNum.style.display="none";
-                    blockStatus.style.display="none";
-                    blockTxnNum.style.display="none";
-                    blockTimer.style.display="none";
-                    
-                  }else{
+                    blockNum.style.display = "none";
+                    blockStatus.style.display = "none";
+                    blockTxnNum.style.display = "none";
+                    blockTimer.style.display = "none";
+                  } else {
                     card.classList.add("card-outline");
-                    blockNum.style.display="block";
-                    blockStatus.style.display="block";
-                    blockTxnNum.style.display="block";
-                    blockTimer.style.display="block";
+                    blockNum.style.display = "block";
+                    blockStatus.style.display = "block";
+                    blockTxnNum.style.display = "block";
+                    blockTimer.style.display = "block";
                   }
                 }
                 if (cardBody) {
@@ -488,6 +398,149 @@ const page = "index3";
                 }
               });
             }
+          }
+          function createBlockCardBodyElement(block) {
+            const blockCardBodyElement = document.createElement("div");
+            blockCardBodyElement.className = "blockCardBodyElement";
+            //header部分
+            const cardHeaderElement = document.createElement("div");
+            cardHeaderElement.className =
+              "card-header d-flex justify-content-between align-items-center p-0";
+
+            const ulElement = document.createElement("ul");
+            ulElement.className = "nav nav-tabs";
+            ulElement.id = "nav_tabs";
+            ulElement.setAttribute("role", "tablist");
+            const liElement = document.createElement("li");
+            liElement.className = "nav-item";
+            const aElement = document.createElement("a");
+            aElement.className = "nav-link active";
+            aElement.href = "#overview";
+            aElement.setAttribute("data-toggle", "tab");
+            aElement.textContent = "块详细信息";
+            liElement.appendChild(aElement);
+            ulElement.appendChild(liElement);
+
+            cardHeaderElement.appendChild(ulElement);
+            //header部分
+
+            //tab部分
+            const tabContentElement = document.createElement("div");
+            tabContentElement.className = "tab-content";
+
+            const tabPaneElement = document.createElement("div");
+            tabPaneElement.className = "tab-pane fade active show";
+            tabPaneElement.id = "overview";
+            tabPaneElement.setAttribute("role", "tabpanel");
+            tabPaneElement.setAttribute("aria-labelledby", "home-tab");
+
+            const cardBodyElement = document.createElement("div");
+            cardBodyElement.className = "card-body";
+
+            //展示内容
+            const blockInfo = [
+              { label: "块编号:", value: block.blockNum, mode: "Num" },
+              { label: "块高度:", value: block.blockHeight, mode: "" },
+              { label: "块状态:", value: block.blockStatus, mode: "Status" },
+              {
+                label: "块各阶段计时:",
+                value: block.blockTimer,
+                mode: "Timer",
+              },
+              { label: "块哈希值", value: block.blockHash, mode: "" },
+              { label: "块父哈希值:", value: block.blockParentHash, mode: "" },
+              { label: "块年龄", value: block.blockAge, mode: "" },
+            ];
+            blockInfo.forEach((info) => {
+              const row = document.createElement("div");
+              row.className = "row align-items-center";
+
+              const labelCol = document.createElement("div");
+              labelCol.className = "col-md-3 mb-1 mb-md-0e";
+              labelCol.textContent = info.label;
+
+              const valueCol = document.createElement("div");
+              valueCol.className = "col-md-9";
+              if (info.mode == "") valueCol.textContent = info.value;
+              else if (info.mode == "Num") {
+                valueCol.style.fontWeight = "bold";
+                valueCol.textContent = "#" + "\t\t" + info.value;
+              } else if (info.mode == "Status") {
+                const statusBadge = document.createElement("span");
+                statusBadge.textContent = info.value;
+                statusBadge.className =
+                  "badge text-bg-" + getStatusClassName(info.value);
+                valueCol.appendChild(statusBadge);
+              } else if (info.mode == "Timer") {
+                valueCol.textContent =
+                  "发布:" +
+                  info.value[0] +
+                  "ms" +
+                  "\t\t\t" +
+                  "排队:" +
+                  info.value[1] +
+                  "ms" +
+                  "\t\t\t" +
+                  "提交:" +
+                  info.value[2] +
+                  "ms" +
+                  "\t\t\t" +
+                  "确认:" +
+                  info.value[3] +
+                  "ms";
+              }
+
+              const hr = document.createElement("hr");
+              hr.className = "hr-space";
+
+              row.appendChild(labelCol);
+              row.appendChild(valueCol);
+
+              cardBodyElement.appendChild(row);
+              cardBodyElement.appendChild(hr);
+            });
+
+            //展示详细内容
+            const blockDetailInfo = [
+              { label: "事务列表", value: block.blockTxnList, mode: "TxnList" },
+              { label: "额外信息", value: block.blockInfo, mode: "" },
+            ];
+            blockDetailInfo.forEach((detail) => {
+              const row = document.createElement("div");
+              row.className = "row align-items-center";
+              const labelCol = document.createElement("div");
+              labelCol.className = "col-md-3 mb-1 mb-md-0e";
+              labelCol.textContent = detail.label;
+              const valueCol = document.createElement("div");
+              valueCol.className = "col-md-9";
+              const textarea = document.createElement("textarea");
+              textarea.readOnly = true;
+              textarea.spellcheck = false;
+              textarea.className = "form-control";
+              textarea.rows = 5;
+              if (detail.mode == "") textarea.textContent = detail.value;
+              else if (detail.mode == "TxnList") {
+                textarea.style.fontWeight = "bold";
+                detail.value.forEach((txn) => {
+                  textarea.textContent =
+                    textarea.textContent + "#" + txn.txnNum + "\t\t";
+                });
+              }
+              valueCol.appendChild(textarea);
+              row.appendChild(labelCol);
+              row.appendChild(valueCol);
+
+              const hr = document.createElement("hr");
+              hr.className = "hr-space";
+
+              cardBodyElement.appendChild(row);
+              cardBodyElement.appendChild(hr);
+            });
+            blockCardBodyElement.appendChild(cardHeaderElement);
+            tabPaneElement.appendChild(cardBodyElement);
+            tabContentElement.appendChild(tabPaneElement);
+            blockCardBodyElement.appendChild(tabContentElement);
+            return blockCardBodyElement;
           }
           function fillComponentsWithData(blockList) {
             const itemsPerPage = 10;
@@ -504,9 +557,12 @@ const page = "index3";
 
               if (dataIndex < blockList.length) {
                 const block = blockList[dataIndex];
-                card.className = "card card-outline "+"card-"+getStatusClassName(block.blockStatus);
+                card.className =
+                  "card card-outline " +
+                  "card-" +
+                  getStatusClassName(block.blockStatus);
                 const cardChildren = card.querySelectorAll(".card");
-                cardChildren.forEach(childElement => {
+                cardChildren.forEach((childElement) => {
                   childElement.className = card.className;
                 });
                 const blockNum = card.querySelector(".card-title");
@@ -525,9 +581,8 @@ const page = "index3";
                 blockTxnNum.textContent = `${block.blockTxnNum}`;
                 blockStatus.innerHTML = "";
                 blockStatus.textContent = `${block.blockStatus}`;
-                blockStatus.className = "badge text-bg-"+getStatusClassName(
-                  block.blockStatus,
-                );
+                blockStatus.className =
+                  "badge text-bg-" + getStatusClassName(block.blockStatus);
                 blockTimer.innerHTML = "";
                 const sparklineDiv = document.createElement("div");
                 sparklineDiv.id = "table-sparkline-" + block.blockNum;
@@ -546,7 +601,6 @@ const page = "index3";
           }
           renderEmptyComponents();
           fetchBlock();
-
           // 初始页面加载时调用一次 fetchBlock，更新表格内容
         </script>
         <!--end::Script-->

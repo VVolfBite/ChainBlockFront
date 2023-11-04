@@ -136,7 +136,7 @@ const page = "index4";
           crossorigin="anonymous"></script>
 
         <script is:inline>
-          function createSparklineChart(selector, data) {
+          function renderChart(selector, data) {
             const options = {
               series: [{ data }],
               xaxis: {
@@ -389,7 +389,7 @@ const page = "index4";
                 const sparklineDiv = document.createElement("div");
                 sparklineDiv.id = "table-sparkline-" + block.blockNum;
                 blockTimer.appendChild(sparklineDiv);
-                createSparklineChart("#" + sparklineDiv.id, block.blockTimer);
+                renderChart("#" + sparklineDiv.id, block.blockTimer);
 
 
                 const blockFirst = row.querySelector(".card-body p:nth-child(1)");

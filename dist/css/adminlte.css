@@ -14157,9 +14157,6 @@ body:not(.app-loaded) .app-footer {
 .card.maximized-card [data-lte-toggle=card-collapse] {
   display: none;
 }
-.card.maximized-card [data-lte-icon=maximize] {
-  display: none;
-}
 .card.maximized-card .card-header,
 .card.maximized-card .card-footer {
   border-radius: 0 !important;

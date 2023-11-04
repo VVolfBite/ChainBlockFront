@@ -24,20 +24,6 @@ const page = "index3";
       integrity="sha256-4MX+61mt9NVvvuPjUWdUdyfZfxSB1/Rf9WtqRHgG5S0="
       crossorigin="anonymous"
     />
-    <style>
-      /* 添加隐藏样式，用于弹出的表格 */
-      #blockInfoPopup {
-        display: none;
-        position: fixed; /* 使用fixed定位 */
-        top: 50%; /* 居中垂直位置 */
-        left: 50%; /* 居中水平位置 */
-        transform: translate(-50%, -50%); /* 居中定位 */
-        background: white;
-        border: 1px solid #ccc;
-        padding: 10px;
-        z-index: 1000;
-      }
-    </style>
   </head>
 
   <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
@@ -133,10 +119,11 @@ const page = "index3";
         <script
           src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js"
           integrity="sha256-+vh8GkaU7C9/wbSLIcwq82tQ2wTf44aOHA8HlBMwRI8="
-          crossorigin="anonymous"></script>
+          crossorigin="anonymous">import { info } from "astro/dist/core/logger/core";
+</script>
 
         <script is:inline>
-          function createSparklineChart(selector, data) {
+          function renderChart(selector, data) {
             const options = {
               series: [{ data }],
               xaxis: {
@@ -176,12 +163,28 @@ const page = "index3";
                 },
               },
             };
-
             const chart = new ApexCharts(
               document.querySelector(selector),
               options,
             );
             chart.render();
+          }
+          function getStatusClassName(status) {
+            switch (status) {
+              case "Pending":
+                return "secondary";
+              case "Committed":
+                return "primary";
+              case "Finalized":
+                return "warning";
+              case "Failed":
+                return "danger";
+              case "Successed":
+                return "success";
+              default:
+                // 默认情况下使用蓝色
+                return "success";
+            }
           }
           const pagination = document.getElementById("pagination");
           let currentPage = 1;
@@ -189,10 +192,10 @@ const page = "index3";
           function updatePagination(blockList) {
             pagination.innerHTML = "";
             pagination.innerHTML += `
-      <li class="page-item">
-          <a class="page-link" href="#">&laquo;</a>
-      </li>
-  `;
+                  <li class="page-item">
+                      <a class="page-link" href="#">&laquo;</a>
+                  </li>
+              `;
             const itemsPerPage = 10; // 每页显示的项目数量
             const totalItems = blockList.length; // blockList 的长度
             const totalPages = Math.ceil(totalItems / itemsPerPage); // 总页数
@@ -200,16 +203,16 @@ const page = "index3";
             const endPage = Math.min(currentPage + 1, totalPages);
             for (let i = startPage; i <= endPage; i++) {
               pagination.innerHTML += `
-        <li class="page-item">
-            <a class="page-link" href="#" data-page="${i}">${i}</a>
-        </li>
-    `;
+                  <li class="page-item">
+                      <a class="page-link" href="#" data-page="${i}">${i}</a>
+                  </li>
+              `;
             }
             pagination.innerHTML += `
-      <li class="page-item">
-          <a class="page-link" href="#">&raquo;</a>
-      </li>
-  `;
+                  <li class="page-item">
+                      <a class="page-link" href="#">&raquo;</a>
+                  </li>
+              `;
             // 给分页按钮添加点击事件监听器
             const pageLinks = pagination.querySelectorAll(".page-link");
             pageLinks.forEach((link) => {
@@ -246,25 +249,155 @@ const page = "index3";
               });
           }
 
+          function createBlockCardBodyElement(block) {
+            const blockCardBodyElement = document.createElement("div");
+            blockCardBodyElement.className = "blockCardBodyElement";
+            //header部分
+            const cardHeaderElement = document.createElement("div");
+            cardHeaderElement.className =
+              "card-header d-flex justify-content-between align-items-center p-0";
+
+            const ulElement = document.createElement("ul");
+            ulElement.className = "nav nav-tabs";
+            ulElement.id = "nav_tabs";
+            ulElement.setAttribute("role", "tablist");
+            const liElement = document.createElement("li");
+            liElement.className = "nav-item";
+            const aElement = document.createElement("a");
+            aElement.className = "nav-link active";
+            aElement.href = "#overview";
+            aElement.setAttribute("data-toggle", "tab");
+            aElement.textContent = "块详细信息";
+            liElement.appendChild(aElement);
+            ulElement.appendChild(liElement);
+
+            cardHeaderElement.appendChild(ulElement);
+            //header部分
+
+            //tab部分
+            const tabContentElement = document.createElement("div");
+            tabContentElement.className = "tab-content";
+
+            const tabPaneElement = document.createElement("div");
+            tabPaneElement.className = "tab-pane fade active show";
+            tabPaneElement.id = "overview";
+            tabPaneElement.setAttribute("role", "tabpanel");
+            tabPaneElement.setAttribute("aria-labelledby", "home-tab");
+
+            const cardBodyElement = document.createElement("div");
+            cardBodyElement.className = "card-body";
+
+            //展示内容
+            const blockInfo = [
+              { label: "块编号:", value: block.blockNum, mode:"Num"},
+              { label: "块高度:", value: block.blockHeight,mode:""},
+              { label: "块状态:", value: block.blockStatus , mode:"Status"},
+              { label: "块各阶段计时:", value: block.blockTimer,mode:"Timer"},
+              { label: "块哈希值", value: block.blockHash,mode:""},
+              { label: "块父哈希值:", value: block.blockParentHash,mode:""},
+              { label: "块年龄", value: block.blockAge,mode:""},
+            ];
+            blockInfo.forEach((info) => {
+              const row = document.createElement("div");
+              row.className = "row align-items-center";
+
+              const labelCol = document.createElement("div");
+              labelCol.className = "col-md-3 mb-1 mb-md-0e";
+              labelCol.textContent = info.label;
+
+              const valueCol = document.createElement("div");
+              valueCol.className = "col-md-9";
+              if(info.mode=="")
+                valueCol.textContent = info.value;
+              else if(info.mode=="Num")
+              {
+                valueCol.style.fontWeight = "bold";
+                valueCol.textContent = "#"+"\t\t"+info.value; 
+              }
+              else if(info.mode=="Status")
+              {
+                const statusBadge = document.createElement("span");
+                statusBadge.textContent=info.value;
+                statusBadge.className="badge text-bg-"+getStatusClassName(info.value);
+                valueCol.appendChild(statusBadge);
+              }
+              else if(info.mode=="Timer")
+              {
+                valueCol.textContent = "发布:"+info.value[0] +"ms"+"\t\t\t"+"排队:"+info.value[1]+ "ms"+"\t\t\t"+"提交:"+info.value[2]+"ms"+"\t\t\t"+"确认:"+info.value[3]+"ms"; 
+              }
+
+              const hr = document.createElement("hr");
+              hr.className = "hr-space";
+
+              row.appendChild(labelCol);
+              row.appendChild(valueCol);
+
+              cardBodyElement.appendChild(row);
+              cardBodyElement.appendChild(hr);
+            });
+
+            //展示详细内容
+            const blockDetailInfo = [
+              { label: "事务列表", value: block.blockTxnList ,mode:"TxnList"},
+              { label: "额外信息", value: block.blockInfo,mode:""},
+            ];
+            blockDetailInfo.forEach((detail) => {
+              const row = document.createElement("div");
+              row.className = "row align-items-center";
+              const labelCol = document.createElement("div");
+              labelCol.className = "col-md-3 mb-1 mb-md-0e";
+              labelCol.textContent = detail.label;
+              const valueCol = document.createElement("div");
+              valueCol.className = "col-md-9";
+              const textarea = document.createElement("textarea");
+              textarea.readOnly = true;
+              textarea.spellcheck = false;
+              textarea.className = "form-control";
+              textarea.rows = 5;
+              if(detail.mode=="")
+                textarea.textContent = detail.value;
+              else if(detail.mode =="TxnList")
+              {
+                textarea.style.fontWeight = "bold";
+                detail.value.forEach((txn)=>
+                {
+                  textarea.textContent = textarea.textContent+"#\t"+txn.txnNum+"\t\t";
+                });
+              }
+              valueCol.appendChild(textarea);
+              row.appendChild(labelCol);
+              row.appendChild(valueCol);
+
+              const hr = document.createElement("hr");
+              hr.className = "hr-space";
+
+              cardBodyElement.appendChild(row);
+              cardBodyElement.appendChild(hr);
+            });
+            blockCardBodyElement.appendChild(cardHeaderElement);
+            tabPaneElement.appendChild(cardBodyElement);
+            tabContentElement.appendChild(tabPaneElement);
+            blockCardBodyElement.appendChild(tabContentElement);
+            return blockCardBodyElement;
+          }
+
           function renderEmptyComponents() {
             const tbody = document.getElementById("blockInfoTableBody");
-            // 清空现有的表格内容
             tbody.innerHTML = "";
-
             // 定义需要渲染的空组件数量
             const itemsPerPage = 10;
-
             for (let i = 0; i < itemsPerPage; i++) {
               const row = document.createElement("tr");
               row.className = "align-middle";
 
-              const cell = document.createElement("td");
-              cell.colSpan = 4;
-              cell.style.padding = "0";
+              const line = document.createElement("td");
+              line.colSpan = 4;
+              line.style.padding = "0";
 
               const card = document.createElement("div");
-              card.className = "card card-outline card-success";
-              card.style.border = "1px";
+              //可以根据状态设置颜色
+              card.className = "card card-outline "+"card-success";
+              //card.style.border = "1px";
 
               const cardHeader = document.createElement("div");
               cardHeader.className = "card-header";
@@ -290,20 +423,20 @@ const page = "index3";
               const button = document.createElement("button");
               button.type = "button";
               button.className = "btn btn-tool";
-              button.setAttribute("data-lte-toggle", "card-collapse");
-              button.style.color = "black";
-              button.title = "Block Number";
+              button.setAttribute("data-lte-toggle", "card-maximize");
+              //button.style.color = "black";
+              //button.title = "Block Number";
 
-              const plusIcon = document.createElement("i");
-              plusIcon.className = "bi bi-plus-lg";
-              plusIcon.setAttribute("data-lte-icon", "expand");
+              const maxIcon = document.createElement("i");
+              maxIcon.className = "bi bi-fullscreen";
+              maxIcon.setAttribute("data-lte-icon", "maximize");
 
-              const dashIcon = document.createElement("i");
-              dashIcon.className = "bi bi-dash-lg";
-              dashIcon.setAttribute("data-lte-icon", "collapse");
+              const minIcon = document.createElement("i");
+              minIcon.className = "bi bi-fullscree-exit";
+              minIcon.setAttribute("data-lte-icon", "minimize");
 
-              button.appendChild(plusIcon);
-              button.appendChild(dashIcon);
+              button.appendChild(maxIcon);
+              button.appendChild(minIcon);
 
               const cardTools = document.createElement("div");
               cardTools.className = "card-tools";
@@ -318,17 +451,42 @@ const page = "index3";
               cardHeader.appendChild(cardHeaderContent);
 
               const cardBody = document.createElement("div");
-              cardBody.className = "card-body";
-              const firstParagraph = document.createElement("p");
-              cardBody.appendChild(firstParagraph);
-              const secondParagraph = document.createElement("p");
-              cardBody.appendChild(secondParagraph);
+              cardBody.className = "card-body card-hidden";
 
               card.appendChild(cardHeader);
               card.appendChild(cardBody);
-              cell.appendChild(card);
-              row.appendChild(cell);
+              line.appendChild(card);
+              row.appendChild(line);
               tbody.appendChild(row);
+
+              button.addEventListener("click", function () {
+                if(card){
+                  if(card.classList.contains("card-outline"))
+                  {
+                    card.classList.remove("card-outline");
+                    blockNum.style.display="none";
+                    blockStatus.style.display="none";
+                    blockTxnNum.style.display="none";
+                    blockTimer.style.display="none";
+                    
+                  }else{
+                    card.classList.add("card-outline");
+                    blockNum.style.display="block";
+                    blockStatus.style.display="block";
+                    blockTxnNum.style.display="block";
+                    blockTimer.style.display="block";
+                  }
+                }
+                if (cardBody) {
+                  if (cardBody.classList.contains("card-hidden")) {
+                    cardBody.style.display = "block"; // 最大化时显示 card-body
+                    cardBody.classList.remove("card-hidden");
+                  } else {
+                    cardBody.style.display = "none"; // 最小化时隐藏 card-body
+                    cardBody.classList.add("card-hidden");
+                  }
+                }
+              });
             }
           }
           function fillComponentsWithData(blockList) {
@@ -340,68 +498,49 @@ const page = "index3";
             const endIndex = startIndex + itemsPerPage;
 
             for (let i = 0; i < itemsPerPage; i++) {
-              const row = tbody.children[i];
-              row.style.display = "none";
+              const card = tbody.children[i];
+              card.style.display = "none";
               const dataIndex = startIndex + i;
 
               if (dataIndex < blockList.length) {
                 const block = blockList[dataIndex];
-                const blockNum = row.querySelector(".card-title");
-                const blockTxnNum = row.querySelector(
+                card.className = "card card-outline "+"card-"+getStatusClassName(block.blockStatus);
+                const cardChildren = card.querySelectorAll(".card");
+                cardChildren.forEach(childElement => {
+                  childElement.className = card.className;
+                });
+                const blockNum = card.querySelector(".card-title");
+                const blockTxnNum = card.querySelector(
                   ".card-header p:nth-child(2)",
                 );
-                const blockStatus = row.querySelector(
+                const blockStatus = card.querySelector(
                   ".card-header p:nth-child(3)",
                 );
-                const blockTimer = row.querySelector(
+                const blockTimer = card.querySelector(
                   ".card-header p:nth-child(4)",
                 );
+                const cardBody = card.querySelector(".card-body");
 
                 blockNum.textContent = `#${block.blockNum}`;
                 blockTxnNum.textContent = `${block.blockTxnNum}`;
                 blockStatus.innerHTML = "";
-
-                // 设置新内容
                 blockStatus.textContent = `${block.blockStatus}`;
-
-                switch (block.blockStatus) {
-                  case "Pending":
-                    blockStatus.className = "badge text-bg-primary";
-                    break;
-                  case "Committed":
-                    blockStatus.className = "badge text-bg-warning";
-                    break;
-                  case "Finalized":
-                    blockStatus.className = "badge text-bg-success";
-                    break;
-                  case "Failed":
-                    blockStatus.className = "badge text-bg-danger";
-                    break;
-                  default:
-                    // 默认情况下使用蓝色
-                    blockStatus.className = "badge text-bg-primary";
-                }
-
-                // 清空 blockTimer 的内容
+                blockStatus.className = "badge text-bg-"+getStatusClassName(
+                  block.blockStatus,
+                );
                 blockTimer.innerHTML = "";
-
-                // 设置新内容
                 const sparklineDiv = document.createElement("div");
                 sparklineDiv.id = "table-sparkline-" + block.blockNum;
                 blockTimer.appendChild(sparklineDiv);
-                createSparklineChart("#" + sparklineDiv.id, block.blockTimer);
+                renderChart("#" + sparklineDiv.id, block.blockTimer);
+                const cardBodyElement = createBlockCardBodyElement(block);
 
-
-                const blockFirst = row.querySelector(".card-body p:nth-child(1)");
-                blockFirst.textContent = "Card content for row";
-                const blockSecond = row.querySelector(".card-body p:nth-child(2)");
-
-
-                // 使组件可见
-                row.style.display = "table-row";
+                cardBody.innerHTML = "";
+                cardBody.appendChild(cardBodyElement);
+                card.style.display = "table-row";
+                cardBody.style.display = "none";
               } else {
-                // 如果数据不足，将渲染的空组件设置为不可见
-                row.style.display = "none";
+                card.style.display = "none";
               }
             }
           }

@@ -16,7 +16,6 @@ const page = "index2";
   <!--begin::Head-->
   <head>
     <Head title={title} path={path} />
-
     <!-- apexcharts -->
     <link
       rel="stylesheet"
@@ -25,7 +24,6 @@ const page = "index2";
       crossorigin="anonymous"
     />
   </head>
-
   <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
     <!--begin::App Wrapper-->
     <div class="app-wrapper">
@@ -492,8 +490,7 @@ const page = "index2";
     <script
       src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js"
       integrity="sha256-+vh8GkaU7C9/wbSLIcwq82tQ2wTf44aOHA8HlBMwRI8="
-      crossorigin="anonymous">
-    </script>
+      crossorigin="anonymous"></script>
     <script is:inline>
       //-----------------------
       // - THROUGHPUT/LATENCY CHART -
@@ -594,7 +591,7 @@ const page = "index2";
       //   Create Timer Chart
       //-------------------------
 
-      function createSparklineChart(selector, data) {
+      function renderChart(selector, data) {
         const options = {
           series: [{ data }],
           xaxis: {
@@ -638,7 +635,23 @@ const page = "index2";
         const chart = new ApexCharts(document.querySelector(selector), options);
         chart.render();
       }
-
+      function getStatusBadgeClassName(status) {
+              switch (status) {
+                case "Pending":
+                  return "badge text-bg-secondary";
+                case "Committed":
+                  return "badge text-bg-primary";
+                case "Finalized":
+                  return "badge text-bg-warning";
+                case "Failed":
+                  return "badge text-bg-danger";
+                case "Successed":
+                  return "badge text-bg-success";
+                default:
+                  // 默认情况下使用蓝色
+                  return "badge text-bg-success";
+              }
+            }
       //-------------------------
       //   END CREATE Timer Chart
       //-------------------------
@@ -814,25 +827,8 @@ const page = "index2";
 
               const cell3 = document.createElement("td");
               const statusBadge = document.createElement("span");
-
               statusBadge.textContent = block.blockStatus;
-              switch (block.blockStatus) {
-                case "Pending":
-                  statusBadge.className = "badge text-bg-primary";
-                  break;
-                case "Committed":
-                  statusBadge.className = "badge text-bg-warning";
-                  break;
-                case "Finalized":
-                  statusBadge.className = "badge text-bg-success";
-                  break;
-                case "Failed":
-                  statusBadge.className = "badge text-bg-danger";
-                  break;
-                default:
-                  // 默认情况下使用蓝色
-                  statusBadge.className = "badge text-bg-primary";
-              }
+              statusBadge.className=getStatusBadgeClassName(block.blockStatus);
               cell3.appendChild(statusBadge);
 
               const cell4 = document.createElement("td");
@@ -848,7 +844,7 @@ const page = "index2";
               newRow.appendChild(cell4);
               // 将新行添加到父元素中
               parentElement.appendChild(newRow);
-              createSparklineChart("#" + sparklineDiv.id, block.blockTimer);
+              renderChart("#" + sparklineDiv.id, block.blockTimer);
             });
           })
           .catch((error) => {

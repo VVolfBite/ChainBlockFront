@@ -48,12 +48,49 @@ const page = "index";
                 </ol>
               </div>
             </div>
+            <div class="row">
+              <div class="col-12">
+                <div
+                  class="info-box text-bg-warning"
+                  style="padding: 1rem; margin-top: 2rem; margin-bottom: 1rem;"
+                >
+                  <span class="info-box-icon">
+                    <i class="bi bi-person-lines-fill"></i>
+                  </span>
+                  <div class="info-box-content">
+                    <strong class="info-box-text">
+                      用户地址:<input
+                        id="client"
+                        type="text"
+                        required
+                        pattern="[A-Za-z0-9]{1,50}"
+                        style="background: transparent; border: none; outline: none;"
+                      />
+                    </strong>
+                    <div class="progress">
+                      <div class="progress-bar" style="width: 100%"></div>
+                    </div>
+                    <span class="info-box-number">钱包余额</span>
+
+                    <strong class="progress-description">
+                      $<span id="balance">123</span>
+                    </strong>
+                  </div>
+                  <!-- /.info-box-content -->
+                </div>
+                <!-- /.info-box -->
+              </div>
+              <!-- /.info-box -->
+            </div>
           </div>
         </div>
         <div class="app-content">
           <div class="container-fluid">
             <div class="row">
-              <div class="card card-info card-outline mb-4">
+              <div
+                class="card card-info card-outline mb-4"
+                style="border-color: green;"
+              >
                 <div class="card-header">
                   <button
                     type="button"
@@ -176,100 +213,109 @@ const page = "index";
                   <!--end::Body-->
                   <!--begin::Footer-->
                   <div class="card-footer">
-                    <button type="reset" class="btn btn-warning col-md-1"
-                      >重置</button
+                    <button
+                      type="reset"
+                      class="btn btn-secondary col-md-1"
+                      style="background-color: gray;"
                     >
+                      重置
+                    </button>
                     <button
                       type="submit"
-                      class="btn btn-primary col-md-1 float-end"
-                      id="submitForm">提交</button
+                      class="btn btn-success col-md-1 float-end"
+                      id="submitForm"
                     >
+                      提交
+                    </button>
                   </div>
                   <!--end::Footer-->
                 </form>
                 <!--end::Form-->
                 <!--begin::JavaScript-->
                 <script is:inline>
-                const validationNode =
-                  document.getElementById("validationNode");
-                const form = document.getElementById("form");
+                  const validationNode =
+                    document.getElementById("validationNode");
+                  const form = document.getElementById("form");
 
-                function updateOptions() {
-                  fetch("http://localhost:8000/Node")
-                    .then((response) => response.json())
-                    .then((data) => {
-                      validationNode.innerHTML = "";
-                      validationNode.options[0] = new Option("广播", "");
-                      data.forEach(function (nodeName, index) {
-                        validationNode.options[index + 1] = new Option(
-                          nodeName,
-                          nodeName,
-                        );
-                      });
-                    })
-                    .catch((error) => console.error("请求出错: " + error));
-                }
-
-                form.addEventListener("submit", function (event) {
-                  if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                  }
-                  form.classList.add("was-validated");
-                });
-
-                updateOptions();
-                setInterval(updateOptions, 5000);
-
-                const timestampInput = document.getElementById(
-                  "validationTimestamp",
-                );
-
-                function updateTimestamp() {
-                  const currentTimestamp = Math.floor(Date.now() / 1000);
-                  timestampInput.value = currentTimestamp;
-                }
-
-                updateTimestamp();
-                setInterval(updateTimestamp, 1000);
-
-                document
-                  .getElementById("submitForm")
-                  .addEventListener("click", function () {
-                    const txnNum =
-                      document.getElementById("validationTxnNum").value;
-                    const from =
-                      document.getElementById("validationFrom").value;
-                    const to = document.getElementById("validationTo").value;
-                    const amount =
-                      document.getElementById("validationAmount").value;
-                    const selectedNode = validationNode.value;
-
-                    const formData = new FormData();
-                    formData.append("txnNum", txnNum);
-                    formData.append("from", from);
-                    formData.append("to", to);
-                    formData.append("amount", amount);
-                    formData.append("node", selectedNode);
-
-                    fetch("http://localhost:8000/SubmittingOneTxn", {
-                      method: "POST",
-                      body: formData,
-                    })
-                      .then((response) => {
-                        if (response.ok) {
-                          console.log("第一个表单提交成功！");
-                        } else {
-                          console.error("第一个表单提交失败");
-                        }
+                  function updateOptions() {
+                    fetch("http://localhost:8000/Node")
+                      .then((response) => response.json())
+                      .then((data) => {
+                        validationNode.innerHTML = "";
+                        validationNode.options[0] = new Option("广播", "");
+                        data.forEach(function (nodeName, index) {
+                          validationNode.options[index + 1] = new Option(
+                            nodeName,
+                            nodeName,
+                          );
+                        });
                       })
                       .catch((error) => console.error("请求出错: " + error));
+                  }
+
+                  form.addEventListener("submit", function (event) {
+                    if (!form.checkValidity()) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                    }
+                    form.classList.add("was-validated");
                   });
+
+                  updateOptions();
+                  setInterval(updateOptions, 5000);
+
+                  const timestampInput = document.getElementById(
+                    "validationTimestamp",
+                  );
+
+                  function updateTimestamp() {
+                    const currentTimestamp = Math.floor(Date.now() / 1000);
+                    timestampInput.value = currentTimestamp;
+                  }
+
+                  updateTimestamp();
+                  setInterval(updateTimestamp, 1000);
+
+                  document
+                    .getElementById("submitForm")
+                    .addEventListener("click", function () {
+                      const txnNum =
+                        document.getElementById("validationTxnNum").value;
+                      const from =
+                        document.getElementById("validationFrom").value;
+                      const to = document.getElementById("validationTo").value;
+                      const amount =
+                        document.getElementById("validationAmount").value;
+                      const selectedNode = validationNode.value;
+
+                      const formData = new FormData();
+                      formData.append("txnNum", txnNum);
+                      formData.append("from", from);
+                      formData.append("to", to);
+                      formData.append("amount", amount);
+                      formData.append("node", selectedNode);
+
+                      fetch("http://localhost:8000/SubmittingOneTxn", {
+                        method: "POST",
+                        body: formData,
+                      })
+                        .then((response) => {
+                          if (response.ok) {
+                            console.log("第一个表单提交成功！");
+                          } else {
+                            console.error("第一个表单提交失败");
+                          }
+                        })
+                        .catch((error) => console.error("请求出错: " + error));
+                    });
                 </script>
               </div>
             </div>
             <div class="row">
-              <div class="card card-info card-outline mb-4">
+              <div
+                class="card card-info card-outline mb-4"
+                style="border-color: orange;"
+              >
                 <div class="card-header">
                   <button
                     type="button"
@@ -320,18 +366,18 @@ const page = "index";
                             id="validationFromM"
                             aria-describedby="inputGroupPrepend"
                             required
-                            pattern="[A-Za-z0-9_]+"
+                            pattern="[A-Za-z0-9_]+(;[A-Za-z0-9_]+)*"
                           />
                           <div class="valid-feedback">格式正确。</div>
                           <div class="invalid-feedback">
-                            用户名只能包含大小写字母、数字和下划线。
+                            用户名只能包含大小写字母、数字和下划线，多个用户名用分号隔开并紧跟在分号后。
                           </div>
                         </div>
                       </div>
 
                       <div class="col-md-6">
                         <label for="validationToM" class="form-label"
-                          >-----发往:</label
+                          >发往用户:</label
                         >
                         <div class="input-group has-validation">
                           <span class="input-group-text" id="inputGroupPrependM"
@@ -343,17 +389,17 @@ const page = "index";
                             id="validationToM"
                             aria-describedby="inputGroupPrepend"
                             required
-                            pattern="[A-Za-z0-9_]+"
+                            pattern="[A-Za-z0-9_]+(;[A-Za-z0-9_]+)*"
                           />
                           <div class="valid-feedback">格式正确。</div>
                           <div class="invalid-feedback">
-                            用户名只能包含大小写字母、数字和下划线。
+                            用户名只能包含大小写字母、数字和下划线，多个用户名用分号隔开并紧跟在分号后。
                           </div>
                         </div>
                       </div>
-                      <div class="col-md-12">
-                        <label for="validationAmountM" class="form-label"
-                          >交易额度:</label
+                      <div class="col-md-6">
+                        <label for="validationAmountMinM" class="form-label"
+                          >交易额度下限:</label
                         >
                         <div class="input-group has-validation">
                           <span class="input-group-text" id="inputGroupPrependM"
@@ -362,7 +408,27 @@ const page = "index";
                           <input
                             type="text"
                             class="form-control"
-                            id="validationAmountM"
+                            id="validationAmountMinM"
+                            aria-describedby="inputGroupPrepend"
+                            required
+                            pattern="^([1-9][0-9]*|0)(\.[0-9]+)?$"
+                          />
+                          <div class="valid-feedback">格式正确。</div>
+                          <div class="invalid-feedback">请输入合法的数字。</div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <label for="validationAmountMaxM" class="form-label"
+                          >交易额度上限:</label
+                        >
+                        <div class="input-group has-validation">
+                          <span class="input-group-text" id="inputGroupPrependM"
+                            >$</span
+                          >
+                          <input
+                            type="text"
+                            class="form-control"
+                            id="validationAmountMaxM"
                             aria-describedby="inputGroupPrepend"
                             required
                             pattern="^([1-9][0-9]*|0)(\.[0-9]+)?$"
@@ -390,90 +456,101 @@ const page = "index";
                   <!--end::Body-->
                   <!--begin::Footer-->
                   <div class="card-footer">
-                    <button type="reset" class="btn btn-warning col-md-1"
-                      >重置</button
+                    <button
+                      type="reset"
+                      class="btn btn-secondary col-md-1"
+                      style="background-color: gray;"
                     >
+                      重置
+                    </button>
                     <button
                       type="submit"
-                      class="btn btn-primary col-md-1 float-end"
-                      id="submitFormM">提交</button
+                      class="btn btn-warning col-md-1 float-end"
+                      id="submitFormM"
                     >
+                      提交
+                    </button>
                   </div>
+
                   <!--end::Footer-->
                 </form>
                 <!--end::Form-->
                 <!--begin::JavaScript-->
                 <script is:inline>
-                const validationNodeM =
-                  document.getElementById("validationNodeM");
-                function updateOptions() {
-                  fetch("http://localhost:8000/Node")
-                    .then((response) => response.json())
-                    .then((data) => {
-                      validationNodeM.innerHTML = "";
-                      validationNodeM.options[0] = new Option("广播", "");
-                      data.forEach(function (nodeName, index) {
-                        validationNodeM.options[index + 1] = new Option(
-                          nodeName,
-                          nodeName,
-                        );
-                      });
-                    })
-                    .catch((error) => console.error("请求出错: " + error));
-                }
-
-                const formM = document.getElementById("formM");
-                formM.addEventListener("submit", function (event) {
-                  if (!formM.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                  }
-                  formM.classList.add("was-validated");
-                });
-                updateOptions();
-                setInterval(updateOptions, 5000);
-
-                const timestampInputM = document.getElementById(
-                  "validationTimestampM",
-                );
-                function updateTimestamp() {
-                  const currentTimestampM = Math.floor(Date.now() / 1000); // 获取当前时间的 UNIX 时间戳（秒）
-                  timestampInputM.value = currentTimestampM; // 更新时间戳字段
-                }
-                updateTimestamp();
-                setInterval(updateTimestamp, 1000);
-                document
-                  .getElementById("submitFormM")
-                  .addEventListener("click", function () {
-                    const txnNum =
-                      document.getElementById("validationTxnNumM").value;
-                    const from =
-                      document.getElementById("validationFromM").value;
-                    const to = document.getElementById("validationToM").value;
-                    const amount =
-                      document.getElementById("validationAmountM").value;
-                    const selectedNode = validationNodeM.value;
-
-                    const formData = new FormData();
-                    formData.append("txnNum", txnNum);
-                    formData.append("from", from);
-                    formData.append("to", to);
-                    formData.append("amount", amount);
-                    formData.append("node", selectedNode);
-
-                    fetch("http://localhost:8000/SubmittingOneTxn", {
-                      method: "POST",
-                      body: formData,
-                    })
-                      .then((response) => {
-                        if (response.ok) {
-                          console.log("表单提交成功！");
-                        } else {
-                          console.error("表单提交失败");
-                        }
+                  const validationNodeM =
+                    document.getElementById("validationNodeM");
+                  function updateOptions() {
+                    fetch("http://localhost:8000/Node")
+                      .then((response) => response.json())
+                      .then((data) => {
+                        validationNodeM.innerHTML = "";
+                        validationNodeM.options[0] = new Option("广播", "");
+                        data.forEach(function (nodeName, index) {
+                          validationNodeM.options[index + 1] = new Option(
+                            nodeName,
+                            nodeName,
+                          );
+                        });
                       })
                       .catch((error) => console.error("请求出错: " + error));
+                  }
+
+                  const formM = document.getElementById("formM");
+                  formM.addEventListener("submit", function (event) {
+                    if (!formM.checkValidity()) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                    }
+                    formM.classList.add("was-validated");
                   });
+                  updateOptions();
+                  setInterval(updateOptions, 5000);
+
+                  const timestampInputM = document.getElementById(
+                    "validationTimestampM",
+                  );
+                  function updateTimestamp() {
+                    const currentTimestampM = Math.floor(Date.now() / 1000); // 获取当前时间的 UNIX 时间戳（秒）
+                    timestampInputM.value = currentTimestampM; // 更新时间戳字段
+                  }
+                  updateTimestamp();
+                  setInterval(updateTimestamp, 1000);
+                  document
+                    .getElementById("submitFormM")
+                    .addEventListener("click", function () {
+                      const txnNum =
+                        document.getElementById("validationTxnNumM").value;
+                      const from =
+                        document.getElementById("validationFromM").value;
+                      const to = document.getElementById("validationToM").value;
+                      const amountMin = document.getElementById(
+                        "validationAmountMinM",
+                      ).value;
+                      const amountMax = document.getElementById(
+                        "validationAmountMaxM",
+                      ).value;
+                      const selectedNode = validationNodeM.value;
+
+                      const formData = new FormData();
+                      formData.append("txnNum", txnNum);
+                      formData.append("from", from);
+                      formData.append("to", to);
+                      formData.append("amount", amount);
+                      formData.append("node", selectedNode);
+
+                      fetch("http://localhost:8000/SubmittingOneTxn", {
+                        method: "POST",
+                        body: formData,
+                      })
+                        .then((response) => {
+                          if (response.ok) {
+                            console.log("表单提交成功！");
+                          } else {
+                            console.error("表单提交失败");
+                          }
+                        })
+                        .catch((error) => console.error("请求出错: " + error));
+                    });
                 </script>
               </div>
             </div>

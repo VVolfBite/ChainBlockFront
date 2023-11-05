@@ -87,6 +87,14 @@ const page = "index3";
                       </ul>
                     </div>
                   </div>
+                  <div class="row">
+                    <span class="card-tools bg-light bg-focus-white col-md-1" style="padding: 20px; display: inline-block;">
+                        共计结果:
+                    </span>
+                    <span class="card-tools bg-light bg-focus-white col-md-11" style="padding: 20px 0px; display: inline-block;">
+                      <span id="result-count" style="color: blue; font-weight: bold; padding: 10px;">0</span> 份块记录
+                  </span>
+                </div>
                   <hr class="hr-space my-4" />
 
                   <!-- /.card-header -->
@@ -95,6 +103,7 @@ const page = "index3";
                       <thead>
                         <tr>
                           <th class="col-md-1">块编号</th>
+                          <th class="col-md-1">块年龄</th>
                           <th class="col-md-1">块内事务量</th>
                           <th class="col-md-1">块当前状态</th>
                           <th class="col-md-1">块阶段计时</th>
@@ -188,6 +197,63 @@ const page = "index3";
             );
             chart.render();
           }
+          function formatTimestamp(timestamp, mode) {
+            const currentDate = new Date();
+            const targetDate = new Date(timestamp * 1000); // Convert to milliseconds
+
+            const yearDiff =
+              currentDate.getFullYear() - targetDate.getFullYear();
+            const monthDiff = currentDate.getMonth() - targetDate.getMonth();
+            const dayDiff = currentDate.getDate() - targetDate.getDate();
+            const hourDiff = currentDate.getHours() - targetDate.getHours();
+            const minuteDiff =
+              currentDate.getMinutes() - targetDate.getMinutes();
+            const secondDiff =
+              currentDate.getSeconds() - targetDate.getSeconds();
+
+            if (mode === "0") {
+              return `${targetDate.getFullYear()}-${(targetDate.getMonth() + 1)
+                .toString()
+                .padStart(2, "0")}-${targetDate
+                .getDate()
+                .toString()
+                .padStart(2, "0")} ${targetDate
+                .getHours()
+                .toString()
+                .padStart(2, "0")}:${targetDate
+                .getMinutes()
+                .toString()
+                .padStart(2, "0")}:${targetDate
+                .getSeconds()
+                .toString()
+                .padStart(2, "0")}`;
+            } else if (mode === "1") {
+              let result = "";
+
+              if (yearDiff > 0) {
+                result += `${yearDiff}年`;
+              }
+              if (monthDiff > 0) {
+                result += `${monthDiff}月`;
+              }
+              if (dayDiff > 0) {
+                result += `${dayDiff}天`;
+              }
+              if (hourDiff > 0) {
+                result += `${hourDiff}小时`;
+              }
+              if (minuteDiff > 0) {
+                result += `${minuteDiff}分钟`;
+              }
+              if (secondDiff > 0) {
+                result += `${secondDiff}秒`;
+              }
+
+              return result;
+            }
+
+            return "Invalid mode";
+          }
           function getStatusClassName(status) {
             switch (status) {
               case "Pending":
@@ -224,7 +290,9 @@ const page = "index3";
           });
 
           const pagination = document.getElementById("pagination");
+          const resultCount=document.getElementById("result-count");
           function updatePagination(blockList) {
+            resultCount.innerHTML=blockList.length;
             pagination.innerHTML = "";
             pagination.innerHTML += `
                   <li class="page-item">
@@ -303,7 +371,7 @@ const page = "index3";
               row.className = "align-middle";
 
               const line = document.createElement("td");
-              line.colSpan = 4;
+              line.colSpan = 5;
               line.style.padding = "0";
 
               const card = document.createElement("div");
@@ -319,8 +387,12 @@ const page = "index3";
               cardHeaderContent.style.justifyContent = "space-between";
 
               const blockNum = document.createElement("b");
-              blockNum.className = "card-title col-md-1";
+              blockNum.className = "card-title ";
+              blockNum.style = "flex: 0 0 auto; width: 8%; font-weight: bold;";
               blockNum.textContent = "#";
+
+              const blockAge = document.createElement("p");
+              blockAge.style = "flex: 0 0 auto; width: 10%;";
 
               const blockTxnNum = document.createElement("p");
               blockTxnNum.className = "col-md-1";
@@ -355,6 +427,7 @@ const page = "index3";
               cardTools.appendChild(button);
 
               cardHeaderContent.appendChild(blockNum);
+              cardHeaderContent.appendChild(blockAge);
               cardHeaderContent.appendChild(blockStatus);
               cardHeaderContent.appendChild(blockTxnNum);
               cardHeaderContent.appendChild(blockTimer);
@@ -376,12 +449,14 @@ const page = "index3";
                   if (card.classList.contains("card-outline")) {
                     card.classList.remove("card-outline");
                     blockNum.style.display = "none";
+                    blockAge.style.display = "none";
                     blockStatus.style.display = "none";
                     blockTxnNum.style.display = "none";
                     blockTimer.style.display = "none";
                   } else {
                     card.classList.add("card-outline");
                     blockNum.style.display = "block";
+                    blockAge.style.display = "none";
                     blockStatus.style.display = "block";
                     blockTxnNum.style.display = "block";
                     blockTimer.style.display = "block";
@@ -449,7 +524,7 @@ const page = "index3";
               },
               { label: "块哈希值", value: block.blockHash, mode: "" },
               { label: "块父哈希值:", value: block.blockParentHash, mode: "" },
-              { label: "块年龄", value: block.blockAge, mode: "" },
+              { label: "块年龄", value: block.blockAge, mode: "TimeStamp" },
             ];
             blockInfo.forEach((info) => {
               const row = document.createElement("div");
@@ -488,6 +563,10 @@ const page = "index3";
                   "确认:" +
                   info.value[3] +
                   "ms";
+              }
+              else if(info.mode=="TimeStamp")
+              {
+                valueCol.textContent = formatTimestamp(info.value,"0");
               }
 
               const hr = document.createElement("hr");
@@ -566,18 +645,22 @@ const page = "index3";
                   childElement.className = card.className;
                 });
                 const blockNum = card.querySelector(".card-title");
-                const blockTxnNum = card.querySelector(
+                const blockAge = card.querySelector(
                   ".card-header p:nth-child(2)",
                 );
-                const blockStatus = card.querySelector(
+                const blockTxnNum = card.querySelector(
                   ".card-header p:nth-child(3)",
                 );
-                const blockTimer = card.querySelector(
+                const blockStatus = card.querySelector(
                   ".card-header p:nth-child(4)",
                 );
+                const blockTimer = card.querySelector(
+                  ".card-header p:nth-child(5)",
+                );
                 const cardBody = card.querySelector(".card-body");
-
+                
                 blockNum.textContent = `#${block.blockNum}`;
+                blockAge.textContent = `${formatTimestamp(block.blockAge,"0")}`;
                 blockTxnNum.textContent = `${block.blockTxnNum}`;
                 blockStatus.innerHTML = "";
                 blockStatus.textContent = `${block.blockStatus}`;

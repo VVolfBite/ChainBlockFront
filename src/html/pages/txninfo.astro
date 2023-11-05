@@ -101,6 +101,24 @@ const page = "index4";
                       </ul>
                     </div>
                   </div>
+                  <div class="row">
+                    <span
+                      class="card-tools bg-light bg-focus-white col-md-1"
+                      style="padding: 20px; display: inline-block;"
+                    >
+                      共计结果:
+                    </span>
+                    <span
+                      class="card-tools bg-light bg-focus-white col-md-11"
+                      style="padding: 20px 0px; display: inline-block;"
+                    >
+                      <span
+                        id="result-count"
+                        style="color: blue; font-weight: bold; padding: 10px;"
+                        >0</span
+                      > 条事务记录
+                    </span>
+                  </div>
                   <hr class="hr-space my-4" />
 
                   <!-- /.card-header -->
@@ -114,7 +132,9 @@ const page = "index4";
                           <th style="flex: 0 0 auto; width: 21%;">来自</th>
                           <th style="flex: 0 0 auto; width: 21%;">发往</th>
                           <th style="flex: 0 0 auto; width: 6%;">状态</th>
-                          <th style="flex: 0 0 auto; width: 20%;">事务阶段计时</th>
+                          <th style="flex: 0 0 auto; width: 20%;"
+                            >事务阶段计时</th
+                          >
                         </tr>
                       </thead>
                       <tbody id="txnInfoTableBody"> </tbody>
@@ -222,6 +242,63 @@ const page = "index4";
                 return "success";
             }
           }
+          function formatTimestamp(timestamp, mode) {
+            const currentDate = new Date();
+            const targetDate = new Date(timestamp * 1000); // Convert to milliseconds
+
+            const yearDiff =
+              currentDate.getFullYear() - targetDate.getFullYear();
+            const monthDiff = currentDate.getMonth() - targetDate.getMonth();
+            const dayDiff = currentDate.getDate() - targetDate.getDate();
+            const hourDiff = currentDate.getHours() - targetDate.getHours();
+            const minuteDiff =
+              currentDate.getMinutes() - targetDate.getMinutes();
+            const secondDiff =
+              currentDate.getSeconds() - targetDate.getSeconds();
+
+            if (mode === "0") {
+              return `${targetDate.getFullYear()}-${(targetDate.getMonth() + 1)
+                .toString()
+                .padStart(2, "0")}-${targetDate
+                .getDate()
+                .toString()
+                .padStart(2, "0")} ${targetDate
+                .getHours()
+                .toString()
+                .padStart(2, "0")}:${targetDate
+                .getMinutes()
+                .toString()
+                .padStart(2, "0")}:${targetDate
+                .getSeconds()
+                .toString()
+                .padStart(2, "0")}`;
+            } else if (mode === "1") {
+              let result = "";
+
+              if (yearDiff > 0) {
+                result += `${yearDiff}年`;
+              }
+              if (monthDiff > 0) {
+                result += `${monthDiff}月`;
+              }
+              if (dayDiff > 0) {
+                result += `${dayDiff}天`;
+              }
+              if (hourDiff > 0) {
+                result += `${hourDiff}小时`;
+              }
+              if (minuteDiff > 0) {
+                result += `${minuteDiff}分钟`;
+              }
+              if (secondDiff > 0) {
+                result += `${secondDiff}秒`;
+              }
+
+              return result;
+            }
+
+            return "Invalid mode";
+          }
           const searchInput = document.getElementById("search-panel");
           function searchTxns(searchTerm, txnList) {
             const searchResults = txnList.filter((txn) => {
@@ -234,14 +311,16 @@ const page = "index4";
           searchInput.addEventListener("input", function () {
             const searchTerm = searchInput.value;
             const searchTxnList = searchTxns(searchTerm, totaltxnList);
-            currentPage=1;
+            currentPage = 1;
             updatePagination(searchTxnList);
             fillComponentsWithData(searchTxnList);
             //renderSearchResults(searchTxnList);
           });
 
           const pagination = document.getElementById("pagination");
+          const resultCount = document.getElementById("result-count");
           function updatePagination(txnList) {
+            resultCount.innerHTML = txnList.length;
             pagination.innerHTML = "";
             pagination.innerHTML += `
                   <li class="page-item">
@@ -273,7 +352,7 @@ const page = "index4";
                   currentPage = parseInt(link.dataset.page);
                   console.log(currentPage);
                   if (searchInput.value.trim() === "") {
-                    fetchTxn();    
+                    fetchTxn();
                   }
                   updatePagination(txnList);
                   fillComponentsWithData(txnList);
@@ -336,28 +415,28 @@ const page = "index4";
               cardHeaderContent.style.justifyContent = "space-between";
 
               const txnNum = document.createElement("b");
-              txnNum.className="card-title";
-              txnNum.style="flex: 0 0 auto; width: 8%;";
+              txnNum.className = "card-title";
+              txnNum.style = "flex: 0 0 auto; width: 8%; font-weight: bold;";
               txnNum.textContent = "#";
 
               const txnOperation = document.createElement("p");
-              txnOperation.style="flex: 0 0 auto; width: 8%;";
+              txnOperation.style = "flex: 0 0 auto; width: 8%;";
               txnOperation.textContent = "0";
 
               const txnTimeStamp = document.createElement("p");
-              txnTimeStamp.style="flex: 0 0 auto; width: 10%;";
+              txnTimeStamp.style = "flex: 0 0 auto; width: 10%;";
 
               const txnFrom = document.createElement("p");
-              txnFrom.style="flex: 0 0 auto; width: 20%;";
+              txnFrom.style = "flex: 0 0 auto; width: 20%;";
 
               const txnTo = document.createElement("p");
-              txnTo.style="flex: 0 0 auto; width: 20%;";
+              txnTo.style = "flex: 0 0 auto; width: 20%;";
 
               const txnStatus = document.createElement("p");
-              txnStatus.className="col-md-2";
+              txnStatus.className = "col-md-2";
 
               const txnTimer = document.createElement("p");
-              txnTimer.className="col-md-2";
+              txnTimer.className = "col-md-2";
 
               const button = document.createElement("button");
               button.type = "button";
@@ -477,8 +556,8 @@ const page = "index4";
             const txnInfo = [
               { label: "事务编号:", value: txn.txnNum, mode: "Num" },
               { label: "事务状态:", value: txn.txnStatus, mode: "Status" },
-              { label: "事务时间戳", value: txn.txnTimeStamp, mode: "" },
-              { label: "事务哈希:", value: txn.txnHash, mode: "" },              
+              { label: "事务时间戳", value: txn.txnTimeStamp, mode: "TimeStamp" },
+              { label: "事务哈希:", value: txn.txnHash, mode: "" },
               {
                 label: "事务各阶段计时:",
                 value: txn.txnTimer,
@@ -491,7 +570,6 @@ const page = "index4";
               { label: "所属块:", value: txn.txnBelongBlock, mode: "Num" },
               { label: "所属批次", value: txn.txnBelongBatch, mode: "Num" },
               { label: "Nonce号", value: txn.txnNonce, mode: "" },
-
             ];
             txnInfo.forEach((info) => {
               const row = document.createElement("div");
@@ -530,6 +608,10 @@ const page = "index4";
                   "确认:" +
                   info.value[3] +
                   "ms";
+              }
+              else if(info.mode=="TimeStamp")
+              {
+                valueCol.textContent = formatTimestamp(info.value,"0");
               }
 
               const hr = document.createElement("hr");
@@ -616,9 +698,7 @@ const page = "index4";
                 const txnFrom = card.querySelector(
                   ".card-header p:nth-child(4)",
                 );
-                const txnTo = card.querySelector(
-                  ".card-header p:nth-child(5)",
-                );
+                const txnTo = card.querySelector(".card-header p:nth-child(5)");
                 const txnStatus = card.querySelector(
                   ".card-header p:nth-child(6)",
                 );
@@ -630,7 +710,7 @@ const page = "index4";
 
                 txnNum.textContent = `#${txn.txnNum}`;
                 txnOperation.textContent = `${txn.txnOperation}`;
-                txnTimeStamp.textContent = `${txn.txnTimeStamp}`;
+                txnTimeStamp.textContent = `${formatTimestamp(txn.txnTimeStamp,"0")}`;
                 txnFrom.textContent = `${txn.txnFrom}`;
                 txnTo.textContent = `${txn.txnTo}`;
                 txnStatus.innerHTML = "";

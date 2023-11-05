@@ -140,6 +140,7 @@ const page = "index3";
         </script>
 
         <script is:inline>
+          let currentPage = 1;
           let totalblockList = [];
           function renderChart(selector, data) {
             const options = {
@@ -216,14 +217,13 @@ const page = "index3";
           searchInput.addEventListener("input", function () {
             const searchTerm = searchInput.value;
             const searchBlockList = searchBlocks(searchTerm, totalblockList);
+            currentPage=1;
             updatePagination(searchBlockList);
             fillComponentsWithData(searchBlockList);
             //renderSearchResults(searchBlockList);
           });
 
           const pagination = document.getElementById("pagination");
-          let currentPage = 1;
-
           function updatePagination(blockList) {
             pagination.innerHTML = "";
             pagination.innerHTML += `

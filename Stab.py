@@ -49,6 +49,7 @@ def generateTxn(blockNum,blockStatus,blockTimer):
     txnValue=random.randint(0,3000)
     txnData=hashlib.sha256(("data"+str(txnValue)).encode()).hexdigest()[:32]
     txnTimer=blockTimer
+    txnInfo=""
     txn_data = {
         "txnNum": txnNum,
         "txnStatus":txnStatus,
@@ -63,6 +64,7 @@ def generateTxn(blockNum,blockStatus,blockTimer):
         "txnValue": txnValue,
         "txnData": txnData,
         "txnTimer":txnTimer,
+        "txnInfo":txnInfo,
     }
     txnCount+=1
     totalTxnList.append(txn_data)

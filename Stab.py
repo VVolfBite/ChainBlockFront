@@ -25,10 +25,12 @@ BLOCK_MAX_THROUGHTOUT = 30
 totalTxnList=[]
 totalBlockList=[]
 totalNodeList=[]
+totalClientList=[]
 BATCH_SIZE = 30
 txnCount=1
 blockCount=1  
 nodeCount=1
+clientCount=1
 def generateTxn(blockNum,blockStatus,blockTimer):
     global txnCount,totalTxnList
     txnNum=txnCount
@@ -116,8 +118,38 @@ def generateBlock():
     totalBlockList.append(block_data)
     return block_data
 
+def generateClient():
+    global clientCount,totalClientList,totalTxnList
+    clientNum=clientCount
+    clientName="client"+str(clientNum)
+    clientAddress= clientCount
+    # hashlib.sha256("client"+str(clientCount).encode()).hexdigest()[:32]
+    clientCommitedNonce=random.randint(0,100)
+    clientVerifiedNonce=random.randint(clientCommitedNonce-random.randint(0,clientCommitedNonce),clientCommitedNonce)
+    clientPublishedTxnNum=clientCommitedNonce
+    clientPublishedTxnList=[]
+    for i in range(0,clientPublishedTxnNum):
+        clientPublishedTxnList.append(totalTxnList[random.randint(0,len(totalTxnList)-1)])
+    clientAssetList=[]
+    clientAssetList.append(["USD",random.randint(0,10000)])
+    clientAssetList.append(["YUAN",random.randint(0,10000)])
+    clientAssetList.append(["ERU",random.randint(0,10000)])
+    client_data={
+        "clientNum":clientNum,
+        "clientName":clientName,
+        "clientAddress":clientAddress,
+        "clientCommitedNonce":clientCommitedNonce,
+        "clientVerifiedNonce":clientVerifiedNonce,
+        "clientPublishedTxnNum":clientPublishedTxnNum,
+        "clientPublishedTxnList":clientPublishedTxnList,
+        "clientAssetList":clientAssetList,
+    }
+    clientCount+=1
+    totalClientList.append(client_data)
+    return client_data
+
+
 # 暂时节点模拟在这里
-nodeCount=10
 def generateNode():
     global nodeCount,totalNodeList
     nodeNum=nodeCount
@@ -136,6 +168,9 @@ chainCodeCount=2
 
 for i in range(0,300):
     generateBlock()
+for i in range(0,30):
+    generateClient()
+
 for i in range(0,nodeCount):
     generateNode()
 
@@ -223,7 +258,12 @@ def returnAllTxnInfo():
 def returnNodeInfo():
     return jsonify(totalNodeList)
 
-
+@app.route('/GetClient',methods=['POST'])
+def getOneClient():
+    if request.method == 'POST':
+        clientAddress = request.form.get("clientAddress")
+        print(clientAddress)
+        return totalClientList[int(clientAddress)]
 
 @app.route('/SubmittingOneTxn',methods=['POST'])
 def receivingOneTxn():

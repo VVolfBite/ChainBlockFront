@@ -57,508 +57,669 @@ const page = "index";
                   <span class="info-box-icon">
                     <i class="bi bi-person-lines-fill"></i>
                   </span>
-                  <div class="info-box-content">
-                    <strong class="info-box-text">
-                      用户地址:<input
-                        id="client"
-                        type="text"
-                        required
-                        pattern="[A-Za-z0-9]{1,50}"
-                        style="background: transparent; border: none; outline: none;"
-                      />
-                    </strong>
-                    <div class="progress">
-                      <div class="progress-bar" style="width: 100%"></div>
+                  <div class="col-4">
+                    <div class="info-box-content">
+                      <div class="info-box-number">
+                        用户名: <strong>
+                          <span
+                            id="clientName"
+                            style="padding-left: 10px; padding-right: 10px;"
+                          ></span></strong
+                        >
+                      </div>
+                      <strong class="info-box-text">
+                        用户地址:<input
+                          id="clientAddress"
+                          type="text"
+                          required
+                          pattern="[A-Za-z0-9]{1,50}"
+                          style="background: transparent; border: none; outline: none; padding-left: 10px; padding-right: 10px;"
+                        />
+                      </strong>
+                      <hr />
+                      <div class="info-box-number">
+                        提交Nonce数: <strong>
+                          <span
+                            id="CommitedNonce"
+                            style="padding-left: 10px; padding-right: 10px;"
+                          ></span></strong
+                        >
+                      </div>
+                      <div class="info-box-number">
+                        验证Nonce数: <strong
+                          ><span
+                            id="VerifiedNonce"
+                            style="padding-left: 10px; padding-right: 10px;"
+                          ></span></strong
+                        >
+                      </div>
                     </div>
-                    <span class="info-box-number">钱包余额</span>
-
-                    <strong class="progress-description">
-                      $<span id="balance">123</span>
+                  </div>
+                  <hr
+                    style="border-left: 1px solid #000; height: full; margin: 0 10px;"
+                  />
+                  <span class="info-box-icon">
+                    <i class="bi bi-wallet2"></i>
+                  </span>
+                  <div class="info-box-content">
+                    <strong>
+                      <table>
+                        <thead>
+                          <tr>
+                            <th class="col-md-1">资产</th>
+                            <th class="col-md-1">余额</th>
+                          </tr>
+                        </thead>
+                        <tbody id="assetsList"></tbody>
+                      </table>
                     </strong>
                   </div>
-                  <!-- /.info-box-content -->
                 </div>
+                <script>
+                  function fillClientCompomentsWithData(clientData) {
+                    const clientNameElement =
+                      document.getElementById("clientName");
+                    if (clientNameElement) {
+                      clientNameElement.textContent = clientData.clientName;
+                    }
+                    const commitedNonceElement =
+                      document.getElementById("CommitedNonce");
+                    if (commitedNonceElement) {
+                      commitedNonceElement.textContent =
+                        clientData.clientCommitedNonce;
+                    }
+                    const verifiedNonceElement =
+                      document.getElementById("VerifiedNonce");
+                    if (verifiedNonceElement) {
+                      verifiedNonceElement.textContent =
+                        clientData.clientVerifiedNonce;
+                    }
+                    const assetsListContainer =
+                      document.getElementById("assetsList");
+
+                    if (assetsListContainer) {
+                      assetsListContainer.innerHTML = "";
+                      const hrline = document.createElement("tr");
+                      const hrCell1 = document.createElement("td");
+                      hrCell1.innerHTML = "<hr/>";
+                      const hrCell2 = document.createElement("td");
+                      hrCell2.innerHTML = "<hr/>";
+                      hrline.appendChild(hrCell1);
+                      hrline.appendChild(hrCell2);
+                      assetsListContainer.appendChild(hrline);
+
+                      for (const asset of clientData.clientAssetList) {
+                        const assetName = asset[0];
+                        const assetAmount = asset[1];
+
+                        const row = document.createElement("tr");
+
+                        const assetNameCell = document.createElement("td");
+                        assetNameCell.textContent = assetName;
+
+                        const assetAmountCell = document.createElement("td");
+                        assetAmountCell.textContent = assetAmount;
+
+                        row.appendChild(assetNameCell);
+                        row.appendChild(assetAmountCell);
+
+                        assetsListContainer.appendChild(row);
+                      }
+                    }
+                  }
+                  function fetchClient(clientAddress) {
+                    const formData = new FormData();
+                    formData.append("clientAddress", clientAddress);
+                    const requestOptions = {
+                      method: "POST",
+                      body: formData,
+                    };
+                    fetch("http://localhost:8000/GetClient", requestOptions)
+                      .then((response) => {
+                        if (response.ok) {
+                          return response.json();
+                        } else {
+                          throw new Error("Failed to fetch client data");
+                        }
+                      })
+                      .then((data) => {
+                        fillClientCompomentsWithData(data);
+                        console.log("Client data:", data);
+                      })
+                      .catch((error) => {
+                        console.error("Error:", error);
+                      });
+                  }
+                  const clientInput = document.getElementById(
+                    "clientAddress",
+                  ) as HTMLInputElement;
+                  clientInput?.addEventListener("keyup", function (event) {
+                    if (event.key === "Enter") {
+                      fetchClient(clientInput.value);
+                    }
+                  });
+                </script>
                 <!-- /.info-box -->
               </div>
               <!-- /.info-box -->
             </div>
           </div>
         </div>
+
         <div class="app-content">
           <div class="container-fluid">
             <div class="row">
+              <div class="col-md-6">123</div>
               <div
-                class="card card-info card-outline mb-4"
+                class="card card-info card-outline mb-4 col-md-6"
                 style="border-color: green;"
               >
                 <div class="card-header">
-                  <button
-                    type="button"
-                    class="card-title"
-                    data-lte-toggle="card-collapse"
-                    style="padding: 0; text-align: left; width: 100%; border: 0; background-color: transparent;"
-                    >单次事务提交</button
-                  >
+                  <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                      <button
+                        class="nav-link active"
+                        id="singleTxn-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#singleTxn"
+                        
+                        type="button"
+                        aria-selected="true">单次事务提交</button
+                      >
+                    </li>
+                    <li class="nav-item">
+                      <button
+                        class="nav-link"
+                        id="multiTxn-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#multiTxn"
+                        
+                        type="button"
+                        aria-selected="false">多次事务提交</button
+                      >
+                    </li>
+                  </ul>
                 </div>
-                <form class="needs-validation" id="form" novalidate>
-                  <div class="card-body">
-                    <div class="row g-3">
-                      <div class="col-md-6">
-                        <label for="validationTxnNum" class="form-label"
-                          >事务编号:</label
-                        >
-                        <input
-                          type="text"
-                          class="form-control"
-                          id="validationTxnNum"
-                          required
-                          pattern="[A-Za-z0-9]{1,50}"
-                        />
-                        <div class="valid-feedback">格式正确。</div>
-                        <div class="invalid-feedback">
-                          事务编号只能由大小写字母和数字构成，且长度不能超过50个字节。
-                        </div>
-                      </div>
-                      <div class="col-md-6">
-                        <label class="form-label">事务时间戳:</label>
-                        <input
-                          type="text"
-                          class="form-control"
-                          id="validationTimestamp"
-                          required
-                          disabled
-                        />
-                      </div>
-                      <div class="col-md-6">
-                        <label for="validationFrom" class="form-label"
-                          >-----来自:</label
-                        >
-                        <div class="input-group has-validation">
-                          <span class="input-group-text" id="inputGroupPrepend"
-                            >用户</span
-                          >
-                          <input
-                            type="text"
-                            class="form-control"
-                            id="validationFrom"
-                            aria-describedby="inputGroupPrepend"
-                            required
-                            pattern="[A-Za-z0-9_]+"
-                          />
-                          <div class="valid-feedback">格式正确。</div>
-                          <div class="invalid-feedback">
-                            用户名只能包含大小写字母、数字和下划线。
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="col-md-6">
-                        <label for="validationTo" class="form-label"
-                          >-----发往:</label
-                        >
-                        <div class="input-group has-validation">
-                          <span class="input-group-text" id="inputGroupPrepend"
-                            >用户</span
-                          >
-                          <input
-                            type="text"
-                            class="form-control"
-                            id="validationTo"
-                            aria-describedby="inputGroupPrepend"
-                            required
-                            pattern="[A-Za-z0-9_]+"
-                          />
-                          <div class="valid-feedback">格式正确。</div>
-                          <div class="invalid-feedback">
-                            用户名只能包含大小写字母、数字和下划线。
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-md-12">
-                        <label for="validationAmount" class="form-label"
-                          >交易额度:</label
-                        >
-                        <div class="input-group has-validation">
-                          <span class="input-group-text" id="inputGroupPrepend"
-                            >$</span
-                          >
-                          <input
-                            type="text"
-                            class="form-control"
-                            id="validationAmount"
-                            aria-describedby="inputGroupPrepend"
-                            required
-                            pattern="^([1-9][0-9]*|0)(\.[0-9]+)?$"
-                          />
-                          <div class="valid-feedback">格式正确。</div>
-                          <div class="invalid-feedback">请输入合法的数字。</div>
-                        </div>
-                      </div>
-                      <div class="col-md-12">
-                        <label for="validationNode" class="form-label"
-                          >发送节点:</label
-                        >
-                        <select
-                          class="form-select"
-                          id="validationNode"
-                          required
-                        >
-                        </select>
-                        <div class="valid-feedback">选择合法。</div>
-                        <div class="invalid-feedback">必须选择一种节点。</div>
-                      </div>
-                    </div>
-                    <!--end::Row-->
-                  </div>
-                  <!--end::Body-->
-                  <!--begin::Footer-->
-                  <div class="card-footer">
-                    <button
-                      type="reset"
-                      class="btn btn-secondary col-md-1"
-                      style="background-color: gray;"
-                    >
-                      重置
-                    </button>
-                    <button
-                      type="submit"
-                      class="btn btn-success col-md-1 float-end"
-                      id="submitForm"
-                    >
-                      提交
-                    </button>
-                  </div>
-                  <!--end::Footer-->
-                </form>
-                <!--end::Form-->
-                <!--begin::JavaScript-->
-                <script is:inline>
-                  const validationNode =
-                    document.getElementById("validationNode");
-                  const form = document.getElementById("form");
-
-                  function updateOptions() {
-                    fetch("http://localhost:8000/Node")
-                      .then((response) => response.json())
-                      .then((data) => {
-                        validationNode.innerHTML = "";
-                        validationNode.options[0] = new Option("广播", "");
-                        data.forEach(function (nodeName, index) {
-                          validationNode.options[index + 1] = new Option(
-                            nodeName,
-                            nodeName,
-                          );
-                        });
-                      })
-                      .catch((error) => console.error("请求出错: " + error));
-                  }
-
-                  form.addEventListener("submit", function (event) {
-                    if (!form.checkValidity()) {
-                      event.preventDefault();
-                      event.stopPropagation();
-                    }
-                    form.classList.add("was-validated");
-                  });
-
-                  updateOptions();
-                  setInterval(updateOptions, 5000);
-
-                  const timestampInput = document.getElementById(
-                    "validationTimestamp",
-                  );
-
-                  function updateTimestamp() {
-                    const currentTimestamp = Math.floor(Date.now() / 1000);
-                    timestampInput.value = currentTimestamp;
-                  }
-
-                  updateTimestamp();
-                  setInterval(updateTimestamp, 1000);
-
-                  document
-                    .getElementById("submitForm")
-                    .addEventListener("click", function () {
-                      const txnNum =
-                        document.getElementById("validationTxnNum").value;
-                      const from =
-                        document.getElementById("validationFrom").value;
-                      const to = document.getElementById("validationTo").value;
-                      const amount =
-                        document.getElementById("validationAmount").value;
-                      const selectedNode = validationNode.value;
-
-                      const formData = new FormData();
-                      formData.append("txnNum", txnNum);
-                      formData.append("from", from);
-                      formData.append("to", to);
-                      formData.append("amount", amount);
-                      formData.append("node", selectedNode);
-
-                      fetch("http://localhost:8000/SubmittingOneTxn", {
-                        method: "POST",
-                        body: formData,
-                      })
-                        .then((response) => {
-                          if (response.ok) {
-                            console.log("第一个表单提交成功！");
-                          } else {
-                            console.error("第一个表单提交失败");
-                          }
-                        })
-                        .catch((error) => console.error("请求出错: " + error));
-                    });
-                </script>
-              </div>
-            </div>
-            <div class="row">
-              <div
-                class="card card-info card-outline mb-4"
-                style="border-color: orange;"
-              >
-                <div class="card-header">
-                  <button
-                    type="button"
-                    class="card-title"
-                    data-lte-toggle="card-collapse"
-                    style="padding: 0; text-align: left; width: 100%; border: 0; background-color: transparent;"
-                    >多次事务提交</button
+                <div class="tab-content">
+                  <div
+                    class="tab-pane fade show active"
+                    id="singleTxn"
+                    role="tabpanel"
+                    aria-labelledby="singleTxn-tab"
                   >
-                </div>
-                <form class="needs-validation" id="formM" novalidate>
-                  <div class="card-body">
-                    <div class="row g-3">
-                      <div class="col-md-6">
-                        <label for="validationTxnNumM" class="form-label"
-                          >事务生成数量:</label
-                        >
-                        <input
-                          type="text"
-                          class="form-control"
-                          id="validationTxnNumM"
-                          required
-                          pattern="^([1-9][0-9]*|0)(\.[0-9]+)?$"
-                        />
-                        <div class="valid-feedback">格式正确。</div>
-                        <div class="invalid-feedback">请输入合法数字。</div>
-                      </div>
-                      <div class="col-md-6">
-                        <label class="form-label">事务时间戳:</label>
-                        <input
-                          type="text"
-                          class="form-control"
-                          id="validationTimestampM"
-                          required
-                          disabled
-                        />
-                      </div>
-                      <div class="col-md-6">
-                        <label for="validationFromM" class="form-label"
-                          >-----来自:</label
-                        >
-                        <div class="input-group has-validation">
-                          <span class="input-group-text" id="inputGroupPrependM"
-                            >用户</span
-                          >
-                          <input
-                            type="text"
-                            class="form-control"
-                            id="validationFromM"
-                            aria-describedby="inputGroupPrepend"
-                            required
-                            pattern="[A-Za-z0-9_]+(;[A-Za-z0-9_]+)*"
-                          />
-                          <div class="valid-feedback">格式正确。</div>
-                          <div class="invalid-feedback">
-                            用户名只能包含大小写字母、数字和下划线，多个用户名用分号隔开并紧跟在分号后。
+                    <form class="needs-validation" id="form" novalidate>
+                      <div class="card-body">
+                        <div class="row g-3">
+                          <div class="col-md-6">
+                            <label for="validationTxnNum" class="form-label"
+                              >事务编号:</label
+                            >
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="validationTxnNum"
+                              required
+                              pattern="[A-Za-z0-9]{1,50}"
+                            />
+                            <div class="valid-feedback">格式正确。</div>
+                            <div class="invalid-feedback">
+                              事务编号只能由大小写字母和数字构成，且长度不能超过50个字节。
+                            </div>
+                          </div>
+                          <div class="col-md-3">
+                            <label class="form-label">事务时间戳:</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="validationTimestamp"
+                              required
+                              disabled
+                            />
+                          </div>
+                          <div class="col-md-3">
+                            <label for="validationFrom" class="form-label"
+                              >-----来自:</label
+                            >
+                            <div class="input-group has-validation">
+                              <span
+                                class="input-group-text"
+                                id="inputGroupPrepend">用户</span
+                              >
+                              <input
+                                type="text"
+                                class="form-control"
+                                id="validationFrom"
+                                aria-describedby="inputGroupPrepend"
+                                required
+                                pattern="[A-Za-z0-9_]+"
+                              />
+                              <div class="valid-feedback">格式正确。</div>
+                              <div class="invalid-feedback">
+                                用户名只能包含大小写字母、数字和下划线。
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="col-md-3">
+                            <label for="validationTo" class="form-label"
+                              >-----发往:</label
+                            >
+                            <div class="input-group has-validation">
+                              <span
+                                class="input-group-text"
+                                id="inputGroupPrepend">用户</span
+                              >
+                              <input
+                                type="text"
+                                class="form-control"
+                                id="validationTo"
+                                aria-describedby="inputGroupPrepend"
+                                required
+                                pattern="[A-Za-z0-9_]+"
+                              />
+                              <div class="valid-feedback">格式正确。</div>
+                              <div class="invalid-feedback">
+                                用户名只能包含大小写字母、数字和下划线。
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <label for="validationAmount" class="form-label"
+                              >交易额度:</label
+                            >
+                            <div class="input-group has-validation">
+                              <span
+                                class="input-group-text"
+                                id="inputGroupPrepend">$</span
+                              >
+                              <input
+                                type="text"
+                                class="form-control"
+                                id="validationAmount"
+                                aria-describedby="inputGroupPrepend"
+                                required
+                                pattern="^([1-9][0-9]*|0)(\.[0-9]+)?$"
+                              />
+                              <div class="valid-feedback">格式正确。</div>
+                              <div class="invalid-feedback">
+                                请输入合法的数字。
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <label for="validationNode" class="form-label"
+                              >发送节点:</label
+                            >
+                            <select
+                              class="form-select"
+                              id="validationNode"
+                              required
+                            >
+                            </select>
+                            <div class="valid-feedback">选择合法。</div>
+                            <div class="invalid-feedback">
+                              必须选择一种节点。
+                            </div>
                           </div>
                         </div>
+                        <!--end::Row-->
                       </div>
+                      <!--end::Body-->
+                      <!--begin::Footer-->
+                      <div class="card-footer">
+                        <button
+                          type="reset"
+                          class="btn btn-secondary col-md-1"
+                          style="background-color: gray;"
+                        >
+                          重置
+                        </button>
+                        <button
+                          type="submit"
+                          class="btn btn-success col-md-1 float-end"
+                          id="submitForm"
+                        >
+                          提交
+                        </button>
+                      </div>
+                      <!--end::Footer-->
+                    </form>
+                    <script is:inline>
+                      const validationNode =
+                        document.getElementById("validationNode");
+                      const form = document.getElementById("form");
 
-                      <div class="col-md-6">
-                        <label for="validationToM" class="form-label"
-                          >发往用户:</label
-                        >
-                        <div class="input-group has-validation">
-                          <span class="input-group-text" id="inputGroupPrependM"
-                            >用户</span
-                          >
-                          <input
-                            type="text"
-                            class="form-control"
-                            id="validationToM"
-                            aria-describedby="inputGroupPrepend"
-                            required
-                            pattern="[A-Za-z0-9_]+(;[A-Za-z0-9_]+)*"
-                          />
-                          <div class="valid-feedback">格式正确。</div>
-                          <div class="invalid-feedback">
-                            用户名只能包含大小写字母、数字和下划线，多个用户名用分号隔开并紧跟在分号后。
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-md-6">
-                        <label for="validationAmountMinM" class="form-label"
-                          >交易额度下限:</label
-                        >
-                        <div class="input-group has-validation">
-                          <span class="input-group-text" id="inputGroupPrependM"
-                            >$</span
-                          >
-                          <input
-                            type="text"
-                            class="form-control"
-                            id="validationAmountMinM"
-                            aria-describedby="inputGroupPrepend"
-                            required
-                            pattern="^([1-9][0-9]*|0)(\.[0-9]+)?$"
-                          />
-                          <div class="valid-feedback">格式正确。</div>
-                          <div class="invalid-feedback">请输入合法的数字。</div>
-                        </div>
-                      </div>
-                      <div class="col-md-6">
-                        <label for="validationAmountMaxM" class="form-label"
-                          >交易额度上限:</label
-                        >
-                        <div class="input-group has-validation">
-                          <span class="input-group-text" id="inputGroupPrependM"
-                            >$</span
-                          >
-                          <input
-                            type="text"
-                            class="form-control"
-                            id="validationAmountMaxM"
-                            aria-describedby="inputGroupPrepend"
-                            required
-                            pattern="^([1-9][0-9]*|0)(\.[0-9]+)?$"
-                          />
-                          <div class="valid-feedback">格式正确。</div>
-                          <div class="invalid-feedback">请输入合法的数字。</div>
-                        </div>
-                      </div>
-                      <div class="col-md-12">
-                        <label for="validationNodeM" class="form-label"
-                          >发送节点:</label
-                        >
-                        <select
-                          class="form-select"
-                          id="validationNodeM"
-                          required
-                        >
-                        </select>
-                        <div class="valid-feedback">选择合法。</div>
-                        <div class="invalid-feedback">必须选择一种节点。</div>
-                      </div>
-                    </div>
-                    <!--end::Row-->
-                  </div>
-                  <!--end::Body-->
-                  <!--begin::Footer-->
-                  <div class="card-footer">
-                    <button
-                      type="reset"
-                      class="btn btn-secondary col-md-1"
-                      style="background-color: gray;"
-                    >
-                      重置
-                    </button>
-                    <button
-                      type="submit"
-                      class="btn btn-warning col-md-1 float-end"
-                      id="submitFormM"
-                    >
-                      提交
-                    </button>
-                  </div>
-
-                  <!--end::Footer-->
-                </form>
-                <!--end::Form-->
-                <!--begin::JavaScript-->
-                <script is:inline>
-                  const validationNodeM =
-                    document.getElementById("validationNodeM");
-                  function updateOptions() {
-                    fetch("http://localhost:8000/Node")
-                      .then((response) => response.json())
-                      .then((data) => {
-                        validationNodeM.innerHTML = "";
-                        validationNodeM.options[0] = new Option("广播", "");
-                        data.forEach(function (nodeName, index) {
-                          validationNodeM.options[index + 1] = new Option(
-                            nodeName,
-                            nodeName,
+                      function updateOptions() {
+                        fetch("http://localhost:8000/AllNode")
+                          .then((response) => response.json())
+                          .then((data) => {
+                            validationNode.innerHTML = "";
+                            validationNode.options[0] = new Option("广播", "");
+                            data.forEach(function (nodeName, index) {
+                              validationNode.options[index + 1] = new Option(
+                                nodeName,
+                                nodeName,
+                              );
+                            });
+                          })
+                          .catch((error) =>
+                            console.error("请求出错: " + error),
                           );
+                      }
+
+                      form.addEventListener("submit", function (event) {
+                        if (!form.checkValidity()) {
+                          event.preventDefault();
+                          event.stopPropagation();
+                        }
+                        form.classList.add("was-validated");
+                      });
+
+                      updateOptions();
+                      setInterval(updateOptions, 5000);
+
+                      const timestampInput = document.getElementById(
+                        "validationTimestamp",
+                      );
+
+                      function updateTimestamp() {
+                        const currentTimestamp = Math.floor(Date.now() / 1000);
+                        timestampInput.value = currentTimestamp;
+                      }
+
+                      updateTimestamp();
+                      setInterval(updateTimestamp, 1000);
+
+                      document
+                        .getElementById("submitForm")
+                        .addEventListener("click", function () {
+                          const txnNum =
+                            document.getElementById("validationTxnNum").value;
+                          const from =
+                            document.getElementById("validationFrom").value;
+                          const to =
+                            document.getElementById("validationTo").value;
+                          const amount =
+                            document.getElementById("validationAmount").value;
+                          const selectedNode = validationNode.value;
+
+                          const formData = new FormData();
+                          formData.append("txnNum", txnNum);
+                          formData.append("from", from);
+                          formData.append("to", to);
+                          formData.append("amount", amount);
+                          formData.append("node", selectedNode);
+
+                          fetch("http://localhost:8000/SubmittingOneTxn", {
+                            method: "POST",
+                            body: formData,
+                          })
+                            .then((response) => {
+                              if (response.ok) {
+                                console.log("第一个表单提交成功！");
+                              } else {
+                                console.error("第一个表单提交失败");
+                              }
+                            })
+                            .catch((error) =>
+                              console.error("请求出错: " + error),
+                            );
                         });
-                      })
-                      .catch((error) => console.error("请求出错: " + error));
-                  }
+                    </script>
+                  </div>
+                  <div
+                    class="tab-pane fade"
+                    id="multiTxn"
+                    role="tabpanel"
+                    aria-labelledby="multiTxn-tab"
+                  >
+                    <form class="needs-validation" id="formM" novalidate>
+                      <div class="card-body">
+                        <div class="row g-3">
+                          <div class="col-md-6">
+                            <label for="validationTxnNumM" class="form-label"
+                              >事务生成数量:</label
+                            >
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="validationTxnNumM"
+                              required
+                              pattern="^([1-9][0-9]*|0)(\.[0-9]+)?$"
+                            />
+                            <div class="valid-feedback">格式正确。</div>
+                            <div class="invalid-feedback">请输入合法数字。</div>
+                          </div>
+                          <div class="col-md-6">
+                            <label class="form-label">事务时间戳:</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="validationTimestampM"
+                              required
+                              disabled
+                            />
+                          </div>
+                          <div class="col-md-6">
+                            <label for="validationFromM" class="form-label"
+                              >-----来自:</label
+                            >
+                            <div class="input-group has-validation">
+                              <span
+                                class="input-group-text"
+                                id="inputGroupPrependM">用户</span
+                              >
+                              <input
+                                type="text"
+                                class="form-control"
+                                id="validationFromM"
+                                aria-describedby="inputGroupPrepend"
+                                required
+                                pattern="[A-Za-z0-9_]+(;[A-Za-z0-9_]+)*"
+                              />
+                              <div class="valid-feedback">格式正确。</div>
+                              <div class="invalid-feedback">
+                                用户名只能包含大小写字母、数字和下划线，多个用户名用分号隔开并紧跟在分号后。
+                              </div>
+                            </div>
+                          </div>
 
-                  const formM = document.getElementById("formM");
-                  formM.addEventListener("submit", function (event) {
-                    if (!formM.checkValidity()) {
-                      event.preventDefault();
-                      event.stopPropagation();
-                    }
-                    formM.classList.add("was-validated");
-                  });
-                  updateOptions();
-                  setInterval(updateOptions, 5000);
+                          <div class="col-md-6">
+                            <label for="validationToM" class="form-label"
+                              >发往用户:</label
+                            >
+                            <div class="input-group has-validation">
+                              <span
+                                class="input-group-text"
+                                id="inputGroupPrependM">用户</span
+                              >
+                              <input
+                                type="text"
+                                class="form-control"
+                                id="validationToM"
+                                aria-describedby="inputGroupPrepend"
+                                required
+                                pattern="[A-Za-z0-9_]+(;[A-Za-z0-9_]+)*"
+                              />
+                              <div class="valid-feedback">格式正确。</div>
+                              <div class="invalid-feedback">
+                                用户名只能包含大小写字母、数字和下划线，多个用户名用分号隔开并紧跟在分号后。
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <label for="validationAmountMinM" class="form-label"
+                              >交易额度下限:</label
+                            >
+                            <div class="input-group has-validation">
+                              <span
+                                class="input-group-text"
+                                id="inputGroupPrependM">$</span
+                              >
+                              <input
+                                type="text"
+                                class="form-control"
+                                id="validationAmountMinM"
+                                aria-describedby="inputGroupPrepend"
+                                required
+                                pattern="^([1-9][0-9]*|0)(\.[0-9]+)?$"
+                              />
+                              <div class="valid-feedback">格式正确。</div>
+                              <div class="invalid-feedback">
+                                请输入合法的数字。
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <label for="validationAmountMaxM" class="form-label"
+                              >交易额度上限:</label
+                            >
+                            <div class="input-group has-validation">
+                              <span
+                                class="input-group-text"
+                                id="inputGroupPrependM">$</span
+                              >
+                              <input
+                                type="text"
+                                class="form-control"
+                                id="validationAmountMaxM"
+                                aria-describedby="inputGroupPrepend"
+                                required
+                                pattern="^([1-9][0-9]*|0)(\.[0-9]+)?$"
+                              />
+                              <div class="valid-feedback">格式正确。</div>
+                              <div class="invalid-feedback">
+                                请输入合法的数字。
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-12">
+                            <label for="validationNodeM" class="form-label"
+                              >发送节点:</label
+                            >
+                            <select
+                              class="form-select"
+                              id="validationNodeM"
+                              required
+                            >
+                            </select>
+                            <div class="valid-feedback">选择合法。</div>
+                            <div class="invalid-feedback">
+                              必须选择一种节点。
+                            </div>
+                          </div>
+                        </div>
+                        <!--end::Row-->
+                      </div>
+                      <!--end::Body-->
+                      <!--begin::Footer-->
+                      <div class="card-footer">
+                        <button
+                          type="reset"
+                          class="btn btn-secondary col-md-1"
+                          style="background-color: gray;"
+                        >
+                          重置
+                        </button>
+                        <button
+                          type="submit"
+                          class="btn btn-warning col-md-1 float-end"
+                          id="submitFormM"
+                        >
+                          提交
+                        </button>
+                      </div>
+                    </form>
+                    <script is:inline>
+                      const validationNodeM =
+                        document.getElementById("validationNodeM");
+                      function updateOptions() {
+                        fetch("http://localhost:8000/AllNode")
+                          .then((response) => response.json())
+                          .then((data) => {
+                            validationNodeM.innerHTML = "";
+                            validationNodeM.options[0] = new Option("广播", "");
+                            data.forEach(function (nodeName, index) {
+                              validationNodeM.options[index + 1] = new Option(
+                                nodeName,
+                                nodeName,
+                              );
+                            });
+                          })
+                          .catch((error) =>
+                            console.error("请求出错: " + error),
+                          );
+                      }
 
-                  const timestampInputM = document.getElementById(
-                    "validationTimestampM",
-                  );
-                  function updateTimestamp() {
-                    const currentTimestampM = Math.floor(Date.now() / 1000); // 获取当前时间的 UNIX 时间戳（秒）
-                    timestampInputM.value = currentTimestampM; // 更新时间戳字段
-                  }
-                  updateTimestamp();
-                  setInterval(updateTimestamp, 1000);
-                  document
-                    .getElementById("submitFormM")
-                    .addEventListener("click", function () {
-                      const txnNum =
-                        document.getElementById("validationTxnNumM").value;
-                      const from =
-                        document.getElementById("validationFromM").value;
-                      const to = document.getElementById("validationToM").value;
-                      const amountMin = document.getElementById(
-                        "validationAmountMinM",
-                      ).value;
-                      const amountMax = document.getElementById(
-                        "validationAmountMaxM",
-                      ).value;
-                      const selectedNode = validationNodeM.value;
+                      const formM = document.getElementById("formM");
+                      formM.addEventListener("submit", function (event) {
+                        if (!formM.checkValidity()) {
+                          event.preventDefault();
+                          event.stopPropagation();
+                        }
+                        formM.classList.add("was-validated");
+                      });
+                      updateOptions();
+                      setInterval(updateOptions, 5000);
 
-                      const formData = new FormData();
-                      formData.append("txnNum", txnNum);
-                      formData.append("from", from);
-                      formData.append("to", to);
-                      formData.append("amount", amount);
-                      formData.append("node", selectedNode);
+                      const timestampInputM = document.getElementById(
+                        "validationTimestampM",
+                      );
+                      function updateTimestamp() {
+                        const currentTimestampM = Math.floor(Date.now() / 1000); // 获取当前时间的 UNIX 时间戳（秒）
+                        timestampInputM.value = currentTimestampM; // 更新时间戳字段
+                      }
+                      updateTimestamp();
+                      setInterval(updateTimestamp, 1000);
+                      document
+                        .getElementById("submitFormM")
+                        .addEventListener("click", function () {
+                          const txnNum =
+                            document.getElementById("validationTxnNumM").value;
+                          const from =
+                            document.getElementById("validationFromM").value;
+                          const to =
+                            document.getElementById("validationToM").value;
+                          const amountMin = document.getElementById(
+                            "validationAmountMinM",
+                          ).value;
+                          const amountMax = document.getElementById(
+                            "validationAmountMaxM",
+                          ).value;
+                          const selectedNode = validationNodeM.value;
 
-                      fetch("http://localhost:8000/SubmittingOneTxn", {
-                        method: "POST",
-                        body: formData,
-                      })
-                        .then((response) => {
-                          if (response.ok) {
-                            console.log("表单提交成功！");
-                          } else {
-                            console.error("表单提交失败");
-                          }
-                        })
-                        .catch((error) => console.error("请求出错: " + error));
-                    });
-                </script>
+                          const formData = new FormData();
+                          formData.append("txnNum", txnNum);
+                          formData.append("from", from);
+                          formData.append("to", to);
+                          formData.append("amount", amount);
+                          formData.append("node", selectedNode);
+
+                          fetch("http://localhost:8000/SubmittingOneTxn", {
+                            method: "POST",
+                            body: formData,
+                          })
+                            .then((response) => {
+                              if (response.ok) {
+                                console.log("表单提交成功！");
+                              } else {
+                                console.error("表单提交失败");
+                              }
+                            })
+                            .catch((error) =>
+                              console.error("请求出错: " + error),
+                            );
+                        });
+                    </script>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </main>
-      <Footer />
-      <Scripts path={path} />
     </div>
+    <Footer />
+    <Scripts path={path} />
   </body>
 </html>

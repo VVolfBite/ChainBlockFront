@@ -243,7 +243,7 @@ def returnBlockInfo():
 
 @app.route('/LatestTxn', methods=['GET'])
 def returnTxnInfo():
-    latestTxn = totalTxnList[-10:][::-1] 
+    latestTxn = totalTxnList[-30:][::-1] 
     return jsonify(latestTxn)
 
 @app.route('/AllBlock',methods=['GET'])
@@ -265,24 +265,12 @@ def getOneClient():
         print(clientAddress)
         return totalClientList[int(clientAddress)]
 
-@app.route('/SubmittingOneTxn',methods=['POST'])
+@app.route('/SubmitTxn',methods=['POST'])
 def receivingOneTxn():
     if request.method == 'POST':
-        txnNum = request.form.get('txnNum')
-        from_value = request.form.get('from')
-        to_value = request.form.get('to')
-        amount = request.form.get('amount')
-        node = request.form.get('node')
-
-        # 打印表单数据
-        print(f"事务编号: {txnNum}")
-        print(f"来自: {from_value}")
-        print(f"发往: {to_value}")
-        print(f"交易额度: {amount}")
-        print(f"发送节点: {node}")
-
-        # 在这里可以进行进一步的处理
-
+        form_data = request.form.to_dict()
+        for key, value in form_data.items():
+            print(f"{key}: {value}")
         return 'Success'
 
 if __name__ == '__main__':

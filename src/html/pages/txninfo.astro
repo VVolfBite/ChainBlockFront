@@ -128,9 +128,10 @@ const page = "index4";
                         <tr>
                           <th style="flex: 0 0 auto; width: 10%;">事务编号</th>
                           <th style="flex: 0 0 auto; width: 10%;">操作</th>
+                          <th style="flex: 0 0 auto; width: 10%;">数值</th>
                           <th style="flex: 0 0 auto; width: 11%;">时间戳</th>
-                          <th style="flex: 0 0 auto; width: 21%;">来自</th>
-                          <th style="flex: 0 0 auto; width: 21%;">发往</th>
+                          <th style="flex: 0 0 auto; width: 16%;">来自</th>
+                          <th style="flex: 0 0 auto; width: 16%;">发往</th>
                           <th style="flex: 0 0 auto; width: 6%;">状态</th>
                           <th style="flex: 0 0 auto; width: 20%;"
                             >事务阶段计时</th
@@ -399,7 +400,7 @@ const page = "index4";
               row.className = "align-middle";
 
               const line = document.createElement("td");
-              line.colSpan = 7;
+              line.colSpan = 8;
               line.style.padding = "0";
 
               const card = document.createElement("div");
@@ -420,17 +421,20 @@ const page = "index4";
               txnNum.textContent = "#";
 
               const txnOperation = document.createElement("p");
-              txnOperation.style = "flex: 0 0 auto; width: 8%;";
+              txnOperation.style = "flex: 0 0 auto; width: 10%;";
               txnOperation.textContent = "0";
+
+              const txnAmount = document.createElement("p");
+              txnAmount.style = "flex: 0 0 auto; width: 10%;";
 
               const txnTimeStamp = document.createElement("p");
               txnTimeStamp.style = "flex: 0 0 auto; width: 10%;";
 
               const txnFrom = document.createElement("p");
-              txnFrom.style = "flex: 0 0 auto; width: 20%;";
+              txnFrom.style = "flex: 0 0 auto; width: 15%;";
 
               const txnTo = document.createElement("p");
-              txnTo.style = "flex: 0 0 auto; width: 20%;";
+              txnTo.style = "flex: 0 0 auto; width: 15%;";
 
               const txnStatus = document.createElement("p");
               txnStatus.className = "col-md-2";
@@ -462,6 +466,7 @@ const page = "index4";
 
               cardHeaderContent.appendChild(txnNum);
               cardHeaderContent.appendChild(txnOperation);
+              cardHeaderContent.appendChild(txnAmount);
               cardHeaderContent.appendChild(txnTimeStamp);
               cardHeaderContent.appendChild(txnFrom);
               cardHeaderContent.appendChild(txnTo);
@@ -486,6 +491,7 @@ const page = "index4";
                     card.classList.remove("card-outline");
                     txnNum.style.display = "none";
                     txnOperation.style.display = "none";
+                    txnAmount.style.display = "none";
                     txnTimeStamp.style.display = "none";
                     txnFrom.style.display = "none";
                     txnTo.style.display = "none";
@@ -494,6 +500,7 @@ const page = "index4";
                   } else {
                     card.classList.add("card-outline");
                     txnNum.style.display = "block";
+                    txnAmount.style.display = "block";
                     txnOperation.style.display = "block";
                     txnTimeStamp.style.display = "block";
                     txnFrom.style.display = "block";
@@ -556,20 +563,20 @@ const page = "index4";
             const txnInfo = [
               { label: "事务编号:", value: txn.txnNum, mode: "Num" },
               { label: "事务状态:", value: txn.txnStatus, mode: "Status" },
-              { label: "事务时间戳", value: txn.txnTimeStamp, mode: "TimeStamp" },
+              { label: "事务时间戳:", value: txn.txnTimeStamp, mode: "TimeStamp" },
               { label: "事务哈希:", value: txn.txnHash, mode: "" },
               {
                 label: "事务各阶段计时:",
                 value: txn.txnTimer,
                 mode: "Timer",
               },
-              { label: "来自", value: txn.txnFrom, mode: "" },
+              { label: "来自:", value: txn.txnFrom, mode: "" },
               { label: "发往:", value: txn.txnTo, mode: "" },
               { label: "操作:", value: txn.txnOperation, mode: "" },
               { label: "值:", value: txn.txnValue, mode: "" },
               { label: "所属块:", value: txn.txnBelongBlock, mode: "Num" },
-              { label: "所属批次", value: txn.txnBelongBatch, mode: "Num" },
-              { label: "Nonce号", value: txn.txnNonce, mode: "" },
+              { label: "所属批次:", value: txn.txnBelongBatch, mode: "Num" },
+              { label: "Nonce号:", value: txn.txnNonce, mode: "" },
             ];
             txnInfo.forEach((info) => {
               const row = document.createElement("div");
@@ -692,24 +699,28 @@ const page = "index4";
                 const txnOperation = card.querySelector(
                   ".card-header p:nth-child(2)",
                 );
-                const txnTimeStamp = card.querySelector(
+                const txnAmount = card.querySelector(
                   ".card-header p:nth-child(3)",
                 );
-                const txnFrom = card.querySelector(
+                const txnTimeStamp = card.querySelector(
                   ".card-header p:nth-child(4)",
                 );
-                const txnTo = card.querySelector(".card-header p:nth-child(5)");
+                const txnFrom = card.querySelector(
+                  ".card-header p:nth-child(5)",
+                );
+                const txnTo = card.querySelector(".card-header p:nth-child(6)");
                 const txnStatus = card.querySelector(
-                  ".card-header p:nth-child(6)",
+                  ".card-header p:nth-child(7)",
                 );
                 const txnTimer = card.querySelector(
-                  ".card-header p:nth-child(7)",
+                  ".card-header p:nth-child(8)",
                 );
 
                 const cardBody = card.querySelector(".card-body");
 
                 txnNum.textContent = `#${txn.txnNum}`;
                 txnOperation.textContent = `${txn.txnOperation}`;
+                txnAmount.textContent = `${txn.txnValue}`;
                 txnTimeStamp.textContent = `${formatTimestamp(txn.txnTimeStamp,"0")}`;
                 txnFrom.textContent = `${txn.txnFrom}`;
                 txnTo.textContent = `${txn.txnTo}`;

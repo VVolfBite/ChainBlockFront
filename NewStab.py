@@ -28,29 +28,30 @@ totalNodeList=[]
 totalClientList=[]
 BATCH_SIZE = 30
 txnCount=1
+txnInBlockCount=1
 blockCount=1  
 nodeCount=1
 clientCount=1
-def generateTxn(blockNum,blockStatus,blockTimer):
+def generateTxn(from_client,to_client):
     global txnCount,totalTxnList
     txnNum=txnCount
     txnHash=hashlib.sha256(("txn"+str(txnCount)).encode()).hexdigest()[:32]
-    txnBelongBlock=blockNum
+    txnBelongBlock=None
     txnBelongBatch=txnNum % BATCH_SIZE
-    txnFrom=hashlib.sha256(("user"+str(random.randint(0,10000))).encode()).hexdigest()[:32]
-    txnTo=hashlib.sha256(("user"+str(random.randint(0,10000))).encode()).hexdigest()[:32]
+    txnFrom=from_client
+    txnTo=to_client
     if (txnNum % 5 == 0):
         txnOperation="Deposit"
     elif (txnNum % 5 == 1):
         txnOperation="Withdraw" 
     else :
         txnOperation="Transfer" 
-    txnStatus=blockStatus
+    txnStatus=None
     txnTimeStamp=time.time()
     txnNonce=random.randint(0,100)
     txnValue=random.randint(0,3000)
     txnData=hashlib.sha256(("data"+str(txnValue)).encode()).hexdigest()[:32]
-    txnTimer=blockTimer
+    txnTimer=None
     txnInfo=""
     txn_data = {
         "txnNum": txnNum,
@@ -73,7 +74,7 @@ def generateTxn(blockNum,blockStatus,blockTimer):
     return txn_data
   
 def generateBlock():
-    global blockCount,totalBlockList
+    global blockCount,totalBlockList,txnInBlockCount
     blockNum=blockCount
     blockHeight=blockNum + random.randint(0,20)
     
@@ -96,9 +97,13 @@ def generateBlock():
     blockTxnNum=random.randint(10,20)
     blockTxnList=[]
     for i in range(0,blockTxnNum) :
-        blockTxnList.append(generateTxn(blockNum,blockStatus,blockTimer))
+        totalTxnList[txnInBlockCount]['txnBelongBlock']=blockNum
+        totalTxnList[txnInBlockCount]["txnStatus"]=blockStatus
+        totalTxnList[txnInBlockCount]["txnTimer"]=blockTimer
+        blockTxnList.append(totalTxnList[txnInBlockCount])
+        txnInBlockCount+=1
     blockHash= hashlib.sha256(str(blockNum).encode()).hexdigest()[:32]
-    blockParentHash=hashlib.sha256(str(blockNum-1).encode()).hexdigest()[:32]
+    blockParentHash=totalBlockList[blockCount-1]
     blockAge= time.time()
     blockInfo=""
 
@@ -128,8 +133,12 @@ def generateClient():
     clientVerifiedNonce=random.randint(clientCommitedNonce-random.randint(0,clientCommitedNonce),clientCommitedNonce)
     clientPublishedTxnNum=clientCommitedNonce
     clientPublishedTxnList=[]
-    for i in range(0,clientPublishedTxnNum):
-        clientPublishedTxnList.append(totalTxnList[random.randint(0,len(totalTxnList)-1)])
+    if(len(totalClientList)!=0):
+        for i in range(0,clientPublishedTxnNum):
+            clientPublishedTxnList.append(generateTxn(clientAddress,totalClientList[random.randint(0,len(totalClientList)-1)]['clientAddress']))
+    else:
+        for i in range(0,clientPublishedTxnNum):
+            clientPublishedTxnList.append(generateTxn(clientAddress,totalClientList[random.randint(0,0)]['clientAddress']))
     clientAssetList=[]
     clientAssetList.append(["USD",random.randint(0,10000)])
     clientAssetList.append(["YUAN",random.randint(0,10000)])

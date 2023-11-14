@@ -8,7 +8,7 @@ import Scripts from "../components/_scripts.astro";
 const title = "AdminLTE | Dashboard v2";
 const path = "../../dist";
 const mainPage = "dashboard";
-const page = "index2";
+const page = "index5";
 ---
 
 <!doctype html>
@@ -38,13 +38,13 @@ const page = "index2";
             <!--begin::Row-->
             <div class="row">
               <div class="col-sm-6">
-                <h3 class="mb-0">总览面板</h3>
+                <h3 class="mb-0">节点运行面板</h3>
               </div>
               <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-end">
                   <li class="breadcrumb-item"><a href="#">面板</a></li>
                   <li class="breadcrumb-item active" aria-current="page">
-                    总览面板
+                    节点运行面板
                   </li>
                 </ol>
               </div>
@@ -56,74 +56,117 @@ const page = "index2";
         <div class="app-content">
           <!--begin::Container-->
           <div class="container-fluid">
-            <!-- Info boxes -->
-            <div class="row">
-              <div class="col-12 col-sm-6 col-md-3">
-                <div class="info-box">
-                  <span class="info-box-icon text-bg-primary shadow-sm">
-                    <i class="bi bi-box-fill"></i>
-                  </span>
-
-                  <div class="info-box-content">
-                    <span class="info-box-text">区块数</span>
-                    <span class="info-box-number" id="blockNumBox"></span>
-                  </div>
-                  <!-- /.info-box-content -->
-                </div>
-                <!-- /.info-box -->
-              </div>
-              <!-- /.col -->
-              <div class="col-12 col-sm-6 col-md-3">
-                <div class="info-box">
-                  <span class="info-box-icon text-bg-danger shadow-sm">
-                    <i class="bi bi bi-clipboard2-check"></i>
-                  </span>
-
-                  <div class="info-box-content">
-                    <span class="info-box-text">事务量</span>
-                    <span class="info-box-number" id="txnNumBox"></span>
-                  </div>
-                  <!-- /.info-box-content -->
-                </div>
-                <!-- /.info-box -->
-              </div>
-              <!-- /.col -->
-
-              <!-- fix for small devices only -->
-              <!-- <div class="clearfix hidden-md-up"></div> -->
-
-              <div class="col-12 col-sm-6 col-md-3">
-                <div class="info-box">
-                  <span class="info-box-icon text-bg-success shadow-sm">
-                    <i class="bi bi-gear-fill"></i>
-                  </span>
-
-                  <div class="info-box-content">
-                    <span class="info-box-text">节点数</span>
-                    <span class="info-box-number" id="nodeNumBox"></span>
-                  </div>
-                  <!-- /.info-box-content -->
-                </div>
-                <!-- /.info-box -->
-              </div>
-              <!-- /.col -->
-              <div class="col-12 col-sm-6 col-md-3">
-                <div class="info-box">
-                  <span class="info-box-icon text-bg-warning shadow-sm">
-                    <i class="bi bi-file-earmark-code"></i>
-                  </span>
-
-                  <div class="info-box-content">
-                    <span class="info-box-text">链码数</span>
-                    <span class="info-box-number" id="chainCodeNumBox"></span>
-                  </div>
-                  <!-- /.info-box-content -->
-                </div>
-                <!-- /.info-box -->
-              </div>
-              <!-- /.col -->
+            <div
+              class="info-box"
+              style="width: 600px; padding: 1rem; margin-top: 2rem; margin-bottom: 1rem;"
+            >
+              <strong style="width: 20%; padding: 8px; ">所选节点:</strong>
+              <select
+                style="font-weight: bold; width: 40%; padding: 8px; appearance: none; -webkit-appearance: none; -moz-appearance: none; background: none; border: none; margin: 0; cursor: pointer; font-size: inherit; color: inherit; outline: none;"
+                id="nodeSelectList"
+                onchange="updateNodeStatus()"
+              >
+              </select>
+              <strong style="width: 20%; padding: 8px; ">节点状态:</strong>
+              <strong style="width: 20%; padding: 8px; " id="nodeStatus"
+              ></strong>
             </div>
-            <!-- /.row -->
+
+            <div
+              class="info-box"
+              style="padding: 1rem; margin-top: 2rem; margin-bottom: 1rem;"
+            >
+              <span class="info-box-icon">
+                <i class="bi bi-gear-fill"></i>
+              </span>
+              <hr
+                style="border-left: 1px solid #000; height: full; margin: 0 10px;"
+              />
+              <div class="col-5">
+                <div class="info-box-content">
+                  <div class="info-box-number">
+                    公钥: <strong>
+                      <span
+                        id="nodePublicKey"
+                        style="padding-left: 10px; padding-right: 10px;"
+                      ></span></strong
+                    >
+                  </div>
+                  <div class="info-box-number">
+                    私钥: <strong
+                      ><span
+                        id="nodePrivateKey"
+                        style="padding-left: 10px; padding-right: 10px;"
+                      ></span></strong
+                    >
+                  </div>
+                  <div class="info-box-number">
+                    网内地址: <strong
+                      ><span
+                        id="nodeAddress"
+                        style="padding-left: 10px; padding-right: 10px;"
+                      ></span></strong
+                    >
+                  </div>
+                  <div class="info-box-number">
+                    网络带宽: <strong
+                      ><span
+                        id="nodeWidth"
+                        style="padding-left: 10px; padding-right: 10px;"
+                      ></span></strong
+                    >
+                  </div>
+                  <div class="info-box-number">
+                    行为模式: <strong
+                      ><span
+                        id="nodeMode"
+                        style="padding-left: 10px; padding-right: 10px;"
+                      ></span></strong
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <hr
+                style="border-left: 1px solid #000; height: full; margin: 0 10px;"
+              />
+              <div class="col-5">
+                <div class="info-box-content">
+                  <div class="info-box-number">
+                    当前Epoch: <strong>
+                      <span
+                        id="nodeCurrentEpoch"
+                        style="padding-left: 10px; padding-right: 10px;"
+                      ></span></strong
+                    >
+                  </div>
+                  <div class="info-box-number">
+                    当前共识阶段: <strong
+                      ><span
+                        id="nodeCurrentPhase"
+                        style="padding-left: 10px; padding-right: 10px;"
+                      ></span></strong
+                    >
+                  </div>
+                  <div class="info-box-number">
+                    当前容量: <strong
+                      ><span
+                        id="nodeCurrentCapacity"
+                        style="padding-left: 10px; padding-right: 10px;"
+                      ></span></strong
+                    >
+                  </div>
+                  <div class="info-box-number">
+                    当前日志高度: <strong
+                      ><span
+                        id="nodeCurrentBlockHeight"
+                        style="padding-left: 10px; padding-right: 10px;"
+                      ></span></strong
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <!--begin::Row-->
             <div class="row">
@@ -281,8 +324,8 @@ const page = "index2";
                       <div class="col-md-3 col-6">
                         <div class="text-center border-end">
                           <!-- InProgress<span class="text-success">
-                            <i class="bi bi-caret-up-fill"></i> 17%
-                          </span> -->
+                                        <i class="bi bi-caret-up-fill"></i> 17%
+                                      </span> -->
                           <h5 class="fw-bold mb-0">
                             <b id="txnThroughputAvgText"></b> 份/s
                           </h5>
@@ -294,8 +337,8 @@ const page = "index2";
                       <div class="col-md-3 col-6">
                         <div class="text-center border-end">
                           <!-- <span class="text-info">
-                            <i class="bi bi-caret-left-fill"></i> 0%
-                          </span> -->
+                                        <i class="bi bi-caret-left-fill"></i> 0%
+                                      </span> -->
                           <h5 class="fw-bold mb-0">
                             <b id="blockThroughputAvgText"></b> 块/s
                           </h5>
@@ -306,8 +349,8 @@ const page = "index2";
                       <div class="col-md-3 col-6">
                         <div class="text-center border-end">
                           <!-- <span class="text-success">
-                            <i class="bi bi-caret-up-fill"></i> 20%
-                          </span> -->
+                                        <i class="bi bi-caret-up-fill"></i> 20%
+                                      </span> -->
                           <h5 class="fw-bold mb-0">
                             <b id="txnLatencyAvgText"></b> ms
                           </h5>
@@ -318,8 +361,8 @@ const page = "index2";
                       <div class="col-md-3 col-6">
                         <div class="text-center">
                           <!-- <span class="text-danger">
-                            <i class="bi bi-caret-down-fill"></i> 18%
-                          </span> -->
+                                        <i class="bi bi-caret-down-fill"></i> 18%
+                                      </span> -->
                           <h5 class="fw-bold mb-0">
                             <b id="blockLatencyAvgText"></b>ms
                           </h5>
@@ -335,16 +378,14 @@ const page = "index2";
               </div>
               <!-- /.col -->
             </div>
-            <!--end::Row-->
 
-            <!--begin::Row-->
             <div class="row">
               <!-- Start col -->
-              <div class="col-md-8">
+              <div class="col-md-12">
                 <!--begin::Latest Order Widget-->
                 <div class="card">
                   <div class="card-header">
-                    <h3 class="card-title"><strong>最新块概览</strong></h3>
+                    <h3 class="card-title"><strong>本地日志</strong></h3>
                     <div class="card-tools">
                       <button
                         type="button"
@@ -400,492 +441,509 @@ const page = "index2";
                 <!-- /.card -->
               </div>
               <!-- /.col -->
-
-              <div class="col-md-4">
-                <div class="card mb-4">
-                  <div class="card-header">
-                    <h3 class="card-title">暂定</h3>
-
-                    <div class="card-tools">
-                      <button
-                        type="button"
-                        class="btn btn-tool"
-                        data-lte-toggle="card-collapse"
-                      >
-                        <i data-lte-icon="expand" class="bi bi-plus-lg"></i>
-                        <i data-lte-icon="collapse" class="bi bi-dash-lg"></i>
-                      </button>
-                      <button
-                        type="button"
-                        class="btn btn-tool"
-                        data-lte-toggle="card-remove"
-                      >
-                        <i class="bi bi-x-lg"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <!-- /.card-header -->
-                  <div class="card-body">
-                    <!--begin::Row-->
-                    <div class="row">
-                      <div class="col-12">
-                        <div id="pie-chart"></div>
-                      </div>
-                      <!-- /.col -->
-                    </div>
-                    <!--end::Row-->
-                  </div>
-                  <!-- /.card-body -->
-                  <div class="card-footer p-0">
-                    <ul class="nav nav-pills flex-column">
-                      <li class="nav-item">
-                        <a href="#" class="nav-link">
-                          United States of America
-                          <span class="float-end text-danger">
-                            <i class="bi bi-arrow-down fs-7"></i>
-                             12%
-                          </span>
-                        </a>
-                      </li>
-                      <li class="nav-item">
-                        <a href="#" class="nav-link">
-                          India
-                          <span class="float-end text-success">
-                            <i class="bi bi-arrow-up fs-7"></i> 4%
-                          </span>
-                        </a>
-                      </li>
-                      <li class="nav-item">
-                        <a href="#" class="nav-link">
-                          China
-                          <span class="float-end text-info">
-                            <i class="bi bi-arrow-left fs-7"></i> 0%
-                          </span>
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                  <!-- /.footer -->
-                </div>
-                <!-- /.card -->
-              </div>
-              <!-- /.col -->
             </div>
-            <!--end::Row-->
+            <script is:inline>
+              let totalNodeList = "";
+              function fetchNodeInfo() {
+                fetch("http://localhost:8000/AllNode")
+                  .then((response) => {
+                    if (response.ok) {
+                      return response.json();
+                    } else {
+                      throw new Error("Failed to fetch data");
+                    }
+                  })
+                  .then((data) => {
+                    totalNodeList = data;
+                    const nodeSelectList =
+                      document.getElementById("nodeSelectList");
+                    nodeSelectList.innerHTML = "";
+
+                    data.forEach((node) => {
+                      const optionElement = document.createElement("option");
+                      optionElement.value = node.nodeNum;
+                      optionElement.textContent = node.nodeName;
+                      nodeSelectList.appendChild(optionElement);
+                    });
+                  })
+                  .catch((error) => {
+                    console.error("Error:", error);
+                  });
+              }
+
+              function updateNodeStatus() {
+                const selectedNodeNum =
+                  document.getElementById("nodeSelectList").value;
+                const nodeStatusElement = document.getElementById("nodeStatus");
+                const nodePublicKeyElement =
+                  document.getElementById("nodePublicKey");
+                const nodePrivateKeyElement =
+                  document.getElementById("nodePrivateKey");
+                const nodeAddressElement =
+                  document.getElementById("nodeAddress");
+                const nodeWidthElement = document.getElementById("nodeWidth");
+                const nodeModeElement = document.getElementById("nodeMode");
+                const nodeCurrentEpochElement =
+                  document.getElementById("nodeCurrentEpoch");
+                const nodeCurrentPhaseElement =
+                  document.getElementById("nodeCurrentPhase");
+                const nodeCurrentCapacityElement = document.getElementById(
+                  "nodeCurrentCapacity",
+                );
+                const nodeCurrentHeightElement =
+                  document.getElementById("nodeCurrentBlockHeight");
+                const selectedNode = getNodeInfoById(selectedNodeNum);
+                if (selectedNode) {
+                  nodeStatusElement.textContent = selectedNode.nodeStatus;
+                  nodePublicKeyElement.textContent = selectedNode.nodePublicKey;
+                  nodePrivateKeyElement.textContent = selectedNode.nodePrivateKey;
+                  nodeAddressElement.textContent = selectedNode.nodeAddress;
+                  nodeWidthElement.textContent = selectedNode.nodeWidth;
+                  nodeModeElement.textContent = selectedNode.nodeMode;
+                  nodeCurrentEpochElement.textContent =
+                    selectedNode.nodeCurrentEpoch;
+                  nodeCurrentPhaseElement.textContent =
+                    selectedNode.nodeCurrentPhase;
+                  nodeCurrentCapacityElement.textContent =
+                    selectedNode.nodeCurrentCapacity;
+                  nodeCurrentHeightElement.textContent =
+                    selectedNode.nodeCurrentBlockHeight;
+                } else {
+                  nodeStatusElement.textContent = "未知状态";
+                }
+              }
+              function getNodeInfoById(nodeNum) {
+                const selectedNode = totalNodeList.find(
+                  (node) => node.nodeNum == nodeNum,
+                );
+                return selectedNode;
+              }
+
+              fetchNodeInfo();
+              setInterval(fetchNodeInfo, 5000);
+            </script>
+            <!--end::Container-->
           </div>
-          <!--end::Container-->
+          <!--end::App Content-->
         </div>
-        <!--end::App Content-->
+        <!--end::App Main-->
+        <Footer />
       </main>
-      <!--end::App Main-->
-      <Footer />
-    </div>
-    <!--end::App Wrapper-->
-    <!--begin::Script-->
-    <Scripts path={path} />
+      <!--end::App Wrapper-->
+      <!--begin::Script-->
+      <Scripts path={path} />
 
-    <!-- OPTIONAL SCRIPTS -->
+      <!-- OPTIONAL SCRIPTS -->
 
-    <!-- apexcharts -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js"
-      integrity="sha256-+vh8GkaU7C9/wbSLIcwq82tQ2wTf44aOHA8HlBMwRI8="
-      crossorigin="anonymous"></script>
-    <script is:inline>
-      //-----------------------
-      // - THROUGHPUT/LATENCY CHART -
-      //-----------------------
+      <!-- apexcharts -->
+      <script
+        src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js"
+        integrity="sha256-+vh8GkaU7C9/wbSLIcwq82tQ2wTf44aOHA8HlBMwRI8="
+        crossorigin="anonymous"></script>
+      <script is:inline>
+        //-----------------------
+        // - THROUGHPUT/LATENCY CHART -
+        //-----------------------
 
-      /* apexcharts
-       * -------
-       * Here we will create a few charts using apexcharts
-       */
-      const chartData = {
-        txnThroughputChart: {
-          name: "事务吞吐率",
-          data: [30, 40, 35, 50, 45, 60, 55, 70, 10, 1, 2, 3, 4],
-        },
-        blockThroughputChart: {
-          name: "块吞吐率",
-          data: [10, 20, 15, 30, 25, 40, 35, 50, 10, 2, 4, 6, 8],
-        },
-        txnLatencyChart: {
-          name: "事务时延",
-          data: [5, 10, 7, 15, 12, 20, 17, 25, 10, 3, 6, 9, 12],
-        },
-        blockLatencyChart: {
-          name: "块时延",
-          data: [8, 16, 12, 24, 20, 32, 28, 40, 10, 10, 10, 0, 10],
-        },
-      };
-      const chartOptions = {
-        series: [
-          //默认使用事务吞吐率
-          {
-            name: chartData.txnThroughputChart.name,
-            data: chartData.txnThroughputChart.data,
+        /* apexcharts
+         * -------
+         * Here we will create a few charts using apexcharts
+         */
+        const chartData = {
+          txnThroughputChart: {
+            name: "事务吞吐率",
+            data: [30, 40, 35, 50, 45, 60, 55, 70, 10, 1, 2, 3, 4],
           },
-        ],
-        chart: {
-          height: 180,
-          type: "area",
-          toolbar: {
-            show: false,
+          blockThroughputChart: {
+            name: "块吞吐率",
+            data: [10, 20, 15, 30, 25, 40, 35, 50, 10, 2, 4, 6, 8],
           },
-        },
-        legend: {
-          show: false,
-        },
-        dataLabels: {
-          enabled: false,
-        },
-        stroke: {
-          curve: "smooth",
-        },
-        xaxis: {
-          categories: [
-            "60s",
-            "55s",
-            "50s",
-            "45s",
-            "40s",
-            "35s",
-            "30s",
-            "25s",
-            "20s",
-            "15s",
-            "10s",
-            "5s",
-            "0s",
-          ],
-        },
-      };
-      const chartName = document.getElementById("chartName");
-      chartName.innerHTML = "事务吞吐率";
-      const latencyThroughputChart = new ApexCharts(
-        document.querySelector("#latency-throughput-chart"),
-        chartOptions,
-      );
-      latencyThroughputChart.render();
-      //设置切换监听函数并切换曲线图
-      document.querySelectorAll(".dropdown-item").forEach((item) => {
-        item.addEventListener("click", () => {
-          const selectedChart = item.getAttribute("data-chart");
-          const chartConfig = chartData[selectedChart];
-          latencyThroughputChart.updateSeries([
+          txnLatencyChart: {
+            name: "事务时延",
+            data: [5, 10, 7, 15, 12, 20, 17, 25, 10, 3, 6, 9, 12],
+          },
+          blockLatencyChart: {
+            name: "块时延",
+            data: [8, 16, 12, 24, 20, 32, 28, 40, 10, 10, 10, 0, 10],
+          },
+        };
+        const chartOptions = {
+          series: [
+            //默认使用事务吞吐率
             {
-              name: chartConfig.name,
-              data: chartConfig.data,
+              name: chartData.txnThroughputChart.name,
+              data: chartData.txnThroughputChart.data,
             },
-          ]);
-          const chartName = document.getElementById("chartName");
-          chartName.innerHTML = chartConfig.name;
-        });
-      });
-
-      //---------------------------
-      // - END THROUGHPUT/LATENCY CHART -
-      //---------------------------
-
-      //-------------------------
-      //   Create Timer Chart
-      //-------------------------
-
-      function renderChart(selector, data) {
-        const options = {
-          series: [{ data }],
-          xaxis: {
-            categories: ["发布", "排队", "提交", "确认"],
-          },
+          ],
           chart: {
-            type: "line",
-            width: 150,
-            height: 30,
-            sparkline: {
-              enabled: true,
-            },
-          },
-          colors: ["var(--bs-primary)"],
-          stroke: {
-            width: 2,
-          },
-          tooltip: {
-            fixed: {
-              enabled: false,
-            },
-            x: {
-              show: true,
-            },
-            y: {
-              title: {
-                formatter: function (seriesName) {
-                  return "计时:";
-                },
-              },
-              formatter: function (value) {
-                return value + "ms";
-              },
-            },
-            marker: {
+            height: 180,
+            type: "area",
+            toolbar: {
               show: false,
             },
           },
+          legend: {
+            show: false,
+          },
+          dataLabels: {
+            enabled: false,
+          },
+          stroke: {
+            curve: "smooth",
+          },
+          xaxis: {
+            categories: [
+              "60s",
+              "55s",
+              "50s",
+              "45s",
+              "40s",
+              "35s",
+              "30s",
+              "25s",
+              "20s",
+              "15s",
+              "10s",
+              "5s",
+              "0s",
+            ],
+          },
+        };
+        const chartName = document.getElementById("chartName");
+        chartName.innerHTML = "事务吞吐率";
+        const latencyThroughputChart = new ApexCharts(
+          document.querySelector("#latency-throughput-chart"),
+          chartOptions,
+        );
+        latencyThroughputChart.render();
+        //设置切换监听函数并切换曲线图
+        document.querySelectorAll(".dropdown-item").forEach((item) => {
+          item.addEventListener("click", () => {
+            const selectedChart = item.getAttribute("data-chart");
+            const chartConfig = chartData[selectedChart];
+            latencyThroughputChart.updateSeries([
+              {
+                name: chartConfig.name,
+                data: chartConfig.data,
+              },
+            ]);
+            const chartName = document.getElementById("chartName");
+            chartName.innerHTML = chartConfig.name;
+          });
+        });
+
+        //---------------------------
+        // - END THROUGHPUT/LATENCY CHART -
+        //---------------------------
+
+        //-------------------------
+        //   Create Timer Chart
+        //-------------------------
+
+        function renderChart(selector, data) {
+          const options = {
+            series: [{ data }],
+            xaxis: {
+              categories: ["发布", "排队", "提交", "确认"],
+            },
+            chart: {
+              type: "line",
+              width: 150,
+              height: 30,
+              sparkline: {
+                enabled: true,
+              },
+            },
+            colors: ["var(--bs-primary)"],
+            stroke: {
+              width: 2,
+            },
+            tooltip: {
+              fixed: {
+                enabled: false,
+              },
+              x: {
+                show: true,
+              },
+              y: {
+                title: {
+                  formatter: function (seriesName) {
+                    return "计时:";
+                  },
+                },
+                formatter: function (value) {
+                  return value + "ms";
+                },
+              },
+              marker: {
+                show: false,
+              },
+            },
+          };
+
+          const chart = new ApexCharts(
+            document.querySelector(selector),
+            options,
+          );
+          chart.render();
+        }
+        function getStatusBadgeClassName(status) {
+          switch (status) {
+            case "Pending":
+              return "badge text-bg-secondary";
+            case "Committed":
+              return "badge text-bg-primary";
+            case "Finalized":
+              return "badge text-bg-warning";
+            case "Failed":
+              return "badge text-bg-danger";
+            case "Successed":
+              return "badge text-bg-success";
+            default:
+              // 默认情况下使用蓝色
+              return "badge text-bg-success";
+          }
+        }
+        //-------------------------
+        //   END CREATE Timer Chart
+        //-------------------------
+
+        //-----------------------
+        // - Normal Info Box-
+        //-----------------------
+
+        function requestNormalInfo() {
+          fetch("http://localhost:8000/NormalInfo")
+            .then((response) => {
+              if (response.ok) {
+                return response.json();
+              } else {
+                throw new Error("Failed to fetch data");
+              }
+            })
+            .then((data) => {
+              const { blockNum, txnNum, nodeNum, chainCodeNum } = data;
+
+              console.log(data);
+
+              //更新盒子信息
+              const blockNumBox = document.getElementById("blockNumBox");
+              blockNumBox.innerHTML = blockNum;
+              const txnNumBox = document.getElementById("txnNumBox");
+              txnNumBox.innerHTML = txnNum;
+              const nodeNumBox = document.getElementById("nodeNumBox");
+              nodeNumBox.innerHTML = nodeNum;
+              const chainCodeNumBox =
+                document.getElementById("chainCodeNumBox");
+              chainCodeNumBox.innerHTML = chainCodeNum;
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+        }
+        setInterval(requestNormalInfo, 5000);
+
+        //-----------------------
+        // - End Normal Info Box-
+        //-----------------------
+
+        //-----------------------
+        // - Running Info Box-
+        //-----------------------
+        function requestRunningInfo() {
+          fetch("http://localhost:8000/RunningInfo")
+            .then((response) => {
+              if (response.ok) {
+                return response.json(); // 解析 JSON 响应
+              } else {
+                throw new Error("Failed to fetch data");
+              }
+            })
+            .then((data) => {
+              const {
+                blockLatency,
+                blockLatencyAvg,
+                blockLatencyMax,
+                blockThroughput,
+                blockThroughputAvg,
+                blockThroughputMax,
+                txnLatency,
+                txnLatencyAvg,
+                txnLatencyMax,
+                txnThroughput,
+                txnThroughputAvg,
+                txnThroughputMax,
+              } = data;
+
+              console.log(data);
+
+              //更新box盒子信息
+              const blockLatencyText =
+                document.getElementById("blockLatencyText");
+              blockLatencyText.innerHTML = blockLatency;
+              const blockLatencyBar =
+                document.getElementById("blockLatencyBar");
+              blockLatencyBar.style.width =
+                (100 * blockLatency) / blockLatencyMax + "%";
+              const blockLatencyAvgText = document.getElementById(
+                "blockLatencyAvgText",
+              );
+              blockLatencyAvgText.innerHTML = blockLatencyAvg;
+
+              const blockThroughputText = document.getElementById(
+                "blockThroughputText",
+              );
+              blockThroughputText.innerHTML = blockThroughput;
+              const blockThroughputBar =
+                document.getElementById("blockThroughputBar");
+              blockThroughputBar.style.width =
+                (100 * blockThroughput) / blockThroughputMax + "%";
+              const blockThroughputAvgText = document.getElementById(
+                "blockThroughputAvgText",
+              );
+              blockThroughputAvgText.innerHTML = blockThroughputAvg;
+
+              const txnLatencyText = document.getElementById("txnLatencyText");
+              txnLatencyText.innerHTML = txnLatency;
+              const txnLatencyBar = document.getElementById("txnLatencyBar");
+              txnLatencyBar.style.width =
+                (100 * txnLatency) / txnLatencyMax + "%";
+              const txnLatencyAvgText =
+                document.getElementById("txnLatencyAvgText");
+              txnLatencyAvgText.innerHTML = txnLatencyAvg;
+
+              const txnThroughputText =
+                document.getElementById("txnThroughputText");
+              txnThroughputText.innerHTML = txnThroughput;
+              const txnThroughputBar =
+                document.getElementById("txnThroughputBar");
+              txnThroughputBar.style.width =
+                (100 * txnThroughput) / txnThroughputMax + "%";
+              const txnThroughputAvgText = document.getElementById(
+                "txnThroughputAvgText",
+              );
+              txnThroughputAvgText.innerHTML = txnThroughputAvg;
+
+              //更新曲线信息
+              chartData.txnThroughputChart.data.shift();
+              chartData.txnThroughputChart.data.push(data.txnThroughput);
+
+              chartData.blockThroughputChart.data.shift();
+              chartData.blockThroughputChart.data.push(data.blockThroughput);
+
+              chartData.txnLatencyChart.data.shift();
+              chartData.txnLatencyChart.data.push(data.txnLatency);
+
+              chartData.blockLatencyChart.data.shift();
+              chartData.blockLatencyChart.data.push(data.blockLatency);
+
+              latencyThroughputChart.updateOptions({});
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+        }
+        setInterval(requestRunningInfo, 5000);
+
+        //-----------------------
+        // - Running Info Box-
+        //-----------------------
+
+        function requestBlockInfo() {
+          fetch("http://localhost:8000/LatestBlock")
+            .then((response) => {
+              if (response.ok) {
+                return response.json();
+              } else {
+                throw new Error("Failed to fetch data");
+              }
+            })
+            .then((data) => {
+              // 获取父元素，用于添加生成的标签
+              const parentElement = document.getElementById("latestBlockTable");
+              const blockList = data;
+              parentElement.innerHTML = "";
+              console.log(blockList);
+
+              // 遍历块数据并生成标签
+              blockList.forEach((block) => {
+                // 创建一个新表格行
+                console.log(block);
+                const newRow = document.createElement("tr");
+                // 创建表格单元格并填充数据
+                const cell1 = document.createElement("td");
+                const blockNum = document.createElement("b");
+                blockNum.textContent = "#" + block.blockNum;
+                cell1.appendChild(blockNum);
+
+                const cell2 = document.createElement("td");
+                cell2.textContent = block.blockTxnNum;
+
+                const cell3 = document.createElement("td");
+                const statusBadge = document.createElement("span");
+                statusBadge.textContent = block.blockStatus;
+                statusBadge.className = getStatusBadgeClassName(
+                  block.blockStatus,
+                );
+                cell3.appendChild(statusBadge);
+
+                const cell4 = document.createElement("td");
+                const sparklineDiv = document.createElement("div");
+                sparklineDiv.id = "table-sparkline-" + block.blockNum;
+
+                cell4.appendChild(sparklineDiv);
+
+                // 将单元格添加到表格行
+                newRow.appendChild(cell1);
+                newRow.appendChild(cell2);
+                newRow.appendChild(cell3);
+                newRow.appendChild(cell4);
+                // 将新行添加到父元素中
+                parentElement.appendChild(newRow);
+                renderChart("#" + sparklineDiv.id, block.blockTimer);
+              });
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+        }
+        setInterval(requestBlockInfo, 5000);
+
+        //-------------
+        // - PIE CHART -
+        //-------------
+
+        const pie_chart_options = {
+          series: [700, 500, 400, 600, 300, 100],
+          chart: {
+            type: "donut",
+          },
+          labels: ["Chrome", "Edge", "FireFox", "Safari", "Opera", "IE"],
+          dataLabels: {
+            enabled: false,
+          },
+          colors: [
+            "#0d6efd",
+            "#20c997",
+            "#ffc107",
+            "#d63384",
+            "#6f42c1",
+            "#adb5bd",
+          ],
         };
 
-        const chart = new ApexCharts(document.querySelector(selector), options);
-        chart.render();
-      }
-      function getStatusBadgeClassName(status) {
-              switch (status) {
-                case "Pending":
-                  return "badge text-bg-secondary";
-                case "Committed":
-                  return "badge text-bg-primary";
-                case "Finalized":
-                  return "badge text-bg-warning";
-                case "Failed":
-                  return "badge text-bg-danger";
-                case "Successed":
-                  return "badge text-bg-success";
-                default:
-                  // 默认情况下使用蓝色
-                  return "badge text-bg-success";
-              }
-            }
-      //-------------------------
-      //   END CREATE Timer Chart
-      //-------------------------
+        const pie_chart = new ApexCharts(
+          document.querySelector("#pie-chart"),
+          pie_chart_options,
+        );
+        pie_chart.render();
 
-      //-----------------------
-      // - Normal Info Box-
-      //-----------------------
-
-      function requestNormalInfo() {
-        fetch("http://localhost:8000/NormalInfo")
-          .then((response) => {
-            if (response.ok) {
-              return response.json();
-            } else {
-              throw new Error("Failed to fetch data");
-            }
-          })
-          .then((data) => {
-            const { blockNum, txnNum, nodeNum, chainCodeNum } = data;
-
-            console.log(data);
-
-            //更新盒子信息
-            const blockNumBox = document.getElementById("blockNumBox");
-            blockNumBox.innerHTML = blockNum;
-            const txnNumBox = document.getElementById("txnNumBox");
-            txnNumBox.innerHTML = txnNum;
-            const nodeNumBox = document.getElementById("nodeNumBox");
-            nodeNumBox.innerHTML = nodeNum;
-            const chainCodeNumBox = document.getElementById("chainCodeNumBox");
-            chainCodeNumBox.innerHTML = chainCodeNum;
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-          });
-      }
-      setInterval(requestNormalInfo, 5000);
-
-      //-----------------------
-      // - End Normal Info Box-
-      //-----------------------
-
-      //-----------------------
-      // - Running Info Box-
-      //-----------------------
-      function requestRunningInfo() {
-        fetch("http://localhost:8000/RunningInfo")
-          .then((response) => {
-            if (response.ok) {
-              return response.json(); // 解析 JSON 响应
-            } else {
-              throw new Error("Failed to fetch data");
-            }
-          })
-          .then((data) => {
-            const {
-              blockLatency,
-              blockLatencyAvg,
-              blockLatencyMax,
-              blockThroughput,
-              blockThroughputAvg,
-              blockThroughputMax,
-              txnLatency,
-              txnLatencyAvg,
-              txnLatencyMax,
-              txnThroughput,
-              txnThroughputAvg,
-              txnThroughputMax,
-            } = data;
-
-            console.log(data);
-
-            //更新box盒子信息
-            const blockLatencyText =
-              document.getElementById("blockLatencyText");
-            blockLatencyText.innerHTML = blockLatency;
-            const blockLatencyBar = document.getElementById("blockLatencyBar");
-            blockLatencyBar.style.width =
-              (100 * blockLatency) / blockLatencyMax + "%";
-            const blockLatencyAvgText = document.getElementById(
-              "blockLatencyAvgText",
-            );
-            blockLatencyAvgText.innerHTML = blockLatencyAvg;
-
-            const blockThroughputText = document.getElementById(
-              "blockThroughputText",
-            );
-            blockThroughputText.innerHTML = blockThroughput;
-            const blockThroughputBar =
-              document.getElementById("blockThroughputBar");
-            blockThroughputBar.style.width =
-              (100 * blockThroughput) / blockThroughputMax + "%";
-            const blockThroughputAvgText = document.getElementById(
-              "blockThroughputAvgText",
-            );
-            blockThroughputAvgText.innerHTML = blockThroughputAvg;
-
-            const txnLatencyText = document.getElementById("txnLatencyText");
-            txnLatencyText.innerHTML = txnLatency;
-            const txnLatencyBar = document.getElementById("txnLatencyBar");
-            txnLatencyBar.style.width =
-              (100 * txnLatency) / txnLatencyMax + "%";
-            const txnLatencyAvgText =
-              document.getElementById("txnLatencyAvgText");
-            txnLatencyAvgText.innerHTML = txnLatencyAvg;
-
-            const txnThroughputText =
-              document.getElementById("txnThroughputText");
-            txnThroughputText.innerHTML = txnThroughput;
-            const txnThroughputBar =
-              document.getElementById("txnThroughputBar");
-            txnThroughputBar.style.width =
-              (100 * txnThroughput) / txnThroughputMax + "%";
-            const txnThroughputAvgText = document.getElementById(
-              "txnThroughputAvgText",
-            );
-            txnThroughputAvgText.innerHTML = txnThroughputAvg;
-
-            //更新曲线信息
-            chartData.txnThroughputChart.data.shift();
-            chartData.txnThroughputChart.data.push(data.txnThroughput);
-
-            chartData.blockThroughputChart.data.shift();
-            chartData.blockThroughputChart.data.push(data.blockThroughput);
-
-            chartData.txnLatencyChart.data.shift();
-            chartData.txnLatencyChart.data.push(data.txnLatency);
-
-            chartData.blockLatencyChart.data.shift();
-            chartData.blockLatencyChart.data.push(data.blockLatency);
-
-            latencyThroughputChart.updateOptions({});
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-          });
-      }
-      setInterval(requestRunningInfo, 5000);
-
-      //-----------------------
-      // - Running Info Box-
-      //-----------------------
-
-      function requestBlockInfo() {
-        fetch("http://localhost:8000/LatestBlock")
-          .then((response) => {
-            if (response.ok) {
-              return response.json();
-            } else {
-              throw new Error("Failed to fetch data");
-            }
-          })
-          .then((data) => {
-            // 获取父元素，用于添加生成的标签
-            const parentElement = document.getElementById("latestBlockTable");
-            const blockList = data;
-            parentElement.innerHTML = "";
-            console.log(blockList);
-
-            // 遍历块数据并生成标签
-            blockList.forEach((block) => {
-              // 创建一个新表格行
-              console.log(block);
-              const newRow = document.createElement("tr");
-              // 创建表格单元格并填充数据
-              const cell1 = document.createElement("td");
-              const blockNum = document.createElement("b");
-              blockNum.textContent = "#" + block.blockNum;
-              cell1.appendChild(blockNum);
-
-              const cell2 = document.createElement("td");
-              cell2.textContent = block.blockTxnNum;
-
-              const cell3 = document.createElement("td");
-              const statusBadge = document.createElement("span");
-              statusBadge.textContent = block.blockStatus;
-              statusBadge.className=getStatusBadgeClassName(block.blockStatus);
-              cell3.appendChild(statusBadge);
-
-              const cell4 = document.createElement("td");
-              const sparklineDiv = document.createElement("div");
-              sparklineDiv.id = "table-sparkline-" + block.blockNum;
-
-              cell4.appendChild(sparklineDiv);
-
-              // 将单元格添加到表格行
-              newRow.appendChild(cell1);
-              newRow.appendChild(cell2);
-              newRow.appendChild(cell3);
-              newRow.appendChild(cell4);
-              // 将新行添加到父元素中
-              parentElement.appendChild(newRow);
-              renderChart("#" + sparklineDiv.id, block.blockTimer);
-            });
-          })
-          .catch((error) => {
-            console.error("Error:", error);
-          });
-      }
-      setInterval(requestBlockInfo, 5000);
-
-      //-------------
-      // - PIE CHART -
-      //-------------
-
-      const pie_chart_options = {
-        series: [700, 500, 400, 600, 300, 100],
-        chart: {
-          type: "donut",
-        },
-        labels: ["Chrome", "Edge", "FireFox", "Safari", "Opera", "IE"],
-        dataLabels: {
-          enabled: false,
-        },
-        colors: [
-          "#0d6efd",
-          "#20c997",
-          "#ffc107",
-          "#d63384",
-          "#6f42c1",
-          "#adb5bd",
-        ],
-      };
-
-      const pie_chart = new ApexCharts(
-        document.querySelector("#pie-chart"),
-        pie_chart_options,
-      );
-      pie_chart.render();
-
-      //-----------------
-      // - END PIE CHART -
-      //-----------------
-    </script>
-    <!--end::Script-->
-  </body><!--end::Body-->
+        //-----------------
+        // - END PIE CHART -
+        //-----------------
+      </script>
+      <!--end::Script-->
+      <!--end::Body-->
+    </div>
+  </body>
 </html>

@@ -55,9 +55,10 @@ const page = "index";
               </div>
             </div>
             <div class="row">
+              <!-- 客户信息 -->
               <div class="col-12">
                 <div
-                  class="info-box text-bg-warning"
+                  class="info-box"
                   style="padding: 1rem; margin-top: 2rem; margin-bottom: 1rem;"
                 >
                   <span class="info-box-icon">
@@ -71,8 +72,8 @@ const page = "index";
                           type="text"
                           required
                           pattern="[A-Za-z0-9]{1,50}"
-                          style="width: 420px; background: transparent; border: none; outline: none; padding-left: 10px; padding-right: 10px;"
-                          placeholder="若希望注册新用户,请输入客户名"
+                          style=" font-weight: bold; width: 420px; background: transparent; border: none; outline: none; padding-left: 10px; padding-right: 10px;"
+                          placeholder="若希望注册新用户,请输入新用户名"
                         />
                       </strong>
                       <strong class="info-box-text">
@@ -81,8 +82,8 @@ const page = "index";
                           type="text"
                           required
                           pattern="[A-Za-z0-9]{1,50}"
-                          style="width: 420px; background: transparent; border: none; outline: none; padding-left: 10px; padding-right: 10px;"
-                          placeholder="输入客户地址,若地址不存在，则连同用户名注册新用户"
+                          style=" font-weight: bold; width: 420px; background: transparent; border: none; outline: none; padding-left: 10px; padding-right: 10px;"
+                          placeholder="输入客户地址,若地址不存在,则连同用户名注册新用户"
                         />
                       </strong>
                       <hr />
@@ -124,105 +125,7 @@ const page = "index";
                     </strong>
                   </div>
                 </div>
-                <script>
-                  function fillClientCompomentsWithData(clientData) {
-                    //console.log(clientData);
-                    const clientNameElement = document.getElementById(
-                      "clientName",
-                    ) as HTMLInputElement;
-                    if (clientNameElement) {
-                      clientNameElement.value = clientData.clientName;
-                    }
-                    const commitedNonceElement =
-                      document.getElementById("CommitedNonce");
-                    if (commitedNonceElement) {
-                      commitedNonceElement.textContent =
-                        clientData.clientCommitedNonce;
-                    }
-                    const verifiedNonceElement =
-                      document.getElementById("VerifiedNonce");
-                    if (verifiedNonceElement) {
-                      verifiedNonceElement.textContent =
-                        clientData.clientVerifiedNonce;
-                    }
-                    const assetsListContainer =
-                      document.getElementById("assetsList");
-
-                    if (assetsListContainer) {
-                      assetsListContainer.innerHTML = "";
-                      const hrline = document.createElement("tr");
-                      const hrCell1 = document.createElement("td");
-                      hrCell1.innerHTML = "<hr/>";
-                      const hrCell2 = document.createElement("td");
-                      hrCell2.innerHTML = "<hr/>";
-                      hrline.appendChild(hrCell1);
-                      hrline.appendChild(hrCell2);
-                      assetsListContainer.appendChild(hrline);
-
-                      for (const asset of clientData.clientAssetList) {
-                        const assetName = asset[0];
-                        const assetAmount = asset[1];
-
-                        const row = document.createElement("tr");
-
-                        const assetNameCell = document.createElement("td");
-                        assetNameCell.textContent = assetName;
-
-                        const assetAmountCell = document.createElement("td");
-                        assetAmountCell.textContent = assetAmount;
-
-                        row.appendChild(assetNameCell);
-                        row.appendChild(assetAmountCell);
-
-                        assetsListContainer.appendChild(row);
-                      }
-                    }
-                  }
-                  function fetchClient(clientAddress, clientName) {
-                    const formData = new FormData();
-                    formData.append("clientName", clientName);
-                    formData.append("clientAddress", clientAddress);
-                    const requestOptions = {
-                      method: "POST",
-                      body: formData,
-                    };
-                    fetch("http://localhost:8000/GetClient", requestOptions)
-                      .then((response) => {
-                        if (response.ok) {
-                          return response.json();
-                        } else {
-                          throw new Error("Failed to fetch client data");
-                        }
-                      })
-                      .then((data) => {
-                        fillClientCompomentsWithData(data);
-                        console.log("Client data:", data);
-                      })
-                      .catch((error) => {
-                        console.error("Error:", error);
-                      });
-                  }
-                  const clientAddressInput = document.getElementById(
-                    "clientAddress",
-                  ) as HTMLInputElement;
-                  const clientNameInput = document.getElementById(
-                    "clientName",
-                  ) as HTMLInputElement;
-                  clientAddressInput?.addEventListener(
-                    "keyup",
-                    function (event) {
-                      if (event.key === "Enter") {
-                        fetchClient(
-                          clientAddressInput.value,
-                          clientNameInput.value,
-                        );
-                      }
-                    },
-                  );
-                </script>
-                <!-- /.info-box -->
               </div>
-              <!-- /.info-box -->
             </div>
           </div>
         </div>
@@ -230,8 +133,8 @@ const page = "index";
         <div class="app-content">
           <div class="container-fluid">
             <div class="row">
+              <!-- 本地提交事务 -->
               <div class="col-md-7">
-                <!--begin::Latest Order Widget-->
                 <div class="card">
                   <div class="card-header">
                     <h3 class="card-title"><strong>该客户提交事务</strong></h3>
@@ -246,7 +149,6 @@ const page = "index";
                       </button>
                     </div>
                   </div>
-                  <!-- /.card-header -->
                   <div class="card-body p-0">
                     <div class="table-responsive">
                       <table class="table m-0">
@@ -285,163 +187,8 @@ const page = "index";
                 </div>
                 <!-- /.card -->
               </div>
-              <script
-                src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js"
-                integrity="sha256-+vh8GkaU7C9/wbSLIcwq82tQ2wTf44aOHA8HlBMwRI8="
-                crossorigin="anonymous"></script>
-              <script is:inline>
-                function renderChart(selector, data) {
-                  const options = {
-                    series: [{ data }],
-                    xaxis: {
-                      categories: ["发布", "排队", "提交", "确认"],
-                    },
-                    chart: {
-                      type: "line",
-                      width: 150,
-                      height: 30,
-                      sparkline: {
-                        enabled: true,
-                      },
-                    },
-                    colors: ["var(--bs-primary)"],
-                    stroke: {
-                      width: 2,
-                    },
-                    tooltip: {
-                      fixed: {
-                        enabled: false,
-                      },
-                      x: {
-                        show: true,
-                      },
-                      y: {
-                        title: {
-                          formatter: function (seriesName) {
-                            return "计时:";
-                          },
-                        },
-                        formatter: function (value) {
-                          return value + "ms";
-                        },
-                      },
-                      marker: {
-                        show: false,
-                      },
-                    },
-                  };
 
-                  const chart = new ApexCharts(
-                    document.querySelector(selector),
-                    options,
-                  );
-                  chart.render();
-                }
-                function getStatusBadgeClassName(status) {
-                  switch (status) {
-                    case "Pending":
-                      return "badge text-bg-secondary";
-                    case "Committed":
-                      return "badge text-bg-primary";
-                    case "Finalized":
-                      return "badge text-bg-warning";
-                    case "Failed":
-                      return "badge text-bg-danger";
-                    case "Successed":
-                      return "badge text-bg-success";
-                    default:
-                      // 默认情况下使用蓝色
-                      return "badge text-bg-success";
-                  }
-                }
-                function requestTxnInfoByClient() {
-                  fetch("http://localhost:8000/LatestTxn")
-                    .then((response) => {
-                      if (response.ok) {
-                        return response.json();
-                      } else {
-                        throw new Error("Failed to fetch data");
-                      }
-                    })
-                    .then((data) => {
-                      // 获取父元素，用于添加生成的标签
-                      const parentElement =
-                        document.getElementById("clientTxnTable");
-                      const txnList = data;
-                      parentElement.innerHTML = "";
-                      //console.log(txnList);
-
-                      // 遍历块数据并生成标签
-                      txnList.forEach((txn) => {
-                        // 创建一个新表格行
-                        //console.log(txn);
-                        const newRow = document.createElement("tr");
-                        // 创建表格单元格并填充数据
-                        const cell1 = document.createElement("td");
-                        const txnNum = document.createElement("b");
-                        txnNum.textContent = "#" + txn.txnNum;
-                        cell1.appendChild(txnNum);
-
-                        const cell2 = document.createElement("td");
-                        cell2.textContent = txn.txnOperation;
-
-                        const cell3 = document.createElement("td");
-                        cell3.textContent = txn.txnValue;
-
-                        const cell4 = document.createElement("td");
-                        cell4.textContent = txn.txnFrom;
-
-                        const cell5 = document.createElement("td");
-                        cell5.textContent = txn.txnTo;
-
-                        const cell6 = document.createElement("td");
-                        const statusBadge = document.createElement("span");
-                        statusBadge.textContent = txn.txnStatus;
-                        statusBadge.className = getStatusBadgeClassName(
-                          txn.txnStatus,
-                        );
-                        cell6.appendChild(statusBadge);
-
-                        const button = document.createElement("button");
-                        button.type = "button";
-                        button.className = "btn btn-tool col-md-1";
-                        button.setAttribute("data-lte-toggle", "card-maximize");
-                        //button.style.color = "black";
-                        //button.title = "Txn Number";
-
-                        const maxIcon = document.createElement("i");
-                        maxIcon.className = "bi bi-fullscreen";
-                        maxIcon.setAttribute("data-lte-icon", "maximize");
-
-                        const minIcon = document.createElement("i");
-                        minIcon.className = "bi bi-fullscree-exit";
-                        minIcon.setAttribute("data-lte-icon", "minimize");
-
-                        button.appendChild(maxIcon);
-                        button.appendChild(minIcon);
-
-                        // 将单元格添加到表格行
-                        newRow.appendChild(cell1);
-                        newRow.appendChild(cell2);
-                        newRow.appendChild(cell3);
-                        newRow.appendChild(cell4);
-                        newRow.appendChild(cell5);
-                        newRow.appendChild(cell6);
-                        // 将新行添加到父元素中
-                        parentElement.appendChild(newRow);
-                      });
-                    })
-                    .catch((error) => {
-                      console.error("Error:", error);
-                    });
-                }
-                setInterval(requestTxnInfoByClient, 5000);
-              </script>
-
-              <div
-                class="card card-info card-outline mb-4 col-md-5"
-                style="border-color: green;"
-              >
+              <div class="card mb-4 col-md-5">
                 <div class="card-header">
                   <ul class="nav nav-tabs">
                     <li class="nav-item">
@@ -465,6 +212,16 @@ const page = "index";
                       >
                     </li>
                   </ul>
+                  <div class="card-tools">
+                    <button
+                      type="button"
+                      class="btn btn-tool"
+                      data-lte-toggle="card-collapse"
+                    >
+                      <i data-lte-icon="expand" class="bi bi-plus-lg"></i>
+                      <i data-lte-icon="collapse" class="bi bi-dash-lg"></i>
+                    </button>
+                  </div>
                 </div>
                 <div class="tab-content">
                   <div
@@ -680,102 +437,6 @@ const page = "index";
                       </div>
                       <!--end::Footer-->
                     </form>
-                    <script is:inline>
-                      const validationNode =
-                        document.getElementById("validationNode");
-                      const form = document.getElementById("form");
-
-                      function fetchNodeList() {
-                        fetch("http://localhost:8000/AllNode")
-                          .then((response) => response.json())
-                          .then((data) => {
-                            validationNode.innerHTML = "";
-                            validationNode.options[0] = new Option(
-                              "广播",
-                              "Broadcast",
-                            );
-                            data.forEach(function (node, index) {
-                              validationNode.options[index + 1] = new Option(
-                                node.nodeName,
-                                node.nodeName,
-                              );
-                            });
-                          })
-                          .catch((error) =>
-                            console.error("请求出错: " + error),
-                          );
-                      }
-                      form.addEventListener("submit", function (event) {
-                        if (!form.checkValidity()) {
-                          event.preventDefault();
-                          event.stopPropagation();
-                        }
-                        form.classList.add("was-validated");
-                      });
-
-                      fetchNodeList();
-                      setInterval(fetchNodeList, 5000);
-
-                      const timestampInput = document.getElementById(
-                        "validationTimestamp",
-                      );
-
-                      function updateTimestamp() {
-                        const currentTimestamp = Math.floor(Date.now() / 1000);
-                        timestampInput.value = currentTimestamp;
-                      }
-
-                      updateTimestamp();
-                      setInterval(updateTimestamp, 1000);
-
-                      document
-                        .getElementById("submitForm")
-                        .addEventListener("click", function () {
-                          const txnNum =
-                            document.getElementById("validationTxnNum").value;
-                          console.log(txnNum);
-                          const txnFrom =
-                            document.getElementById("validationFrom").value;
-                          const txnTo =
-                            document.getElementById("validationTo").value;
-                          const txnOperation = document.getElementById(
-                            "validationOperation",
-                          ).value;
-                          const txnAmount =
-                            document.getElementById("validationAmount").value;
-                          const txnData =
-                            document.getElementById("validationData").value;
-                          const txnInfo =
-                            document.getElementById("validationInfo").value;
-                          const selectedNode = validationNode.value;
-
-                          const formData = new FormData();
-                          formData.append("txnNum", txnNum);
-                          formData.append("txnFrom", txnFrom);
-                          formData.append("txnTo", txnTo);
-                          formData.append("txnOperation", txnOperation);
-                          formData.append("txnValue", txnAmount);
-                          formData.append("txnData", txnData);
-                          formData.append("txnInfo", txnInfo);
-                          formData.append("txnNode", selectedNode);
-                          //console.log(formData);
-
-                          fetch("http://localhost:8000/SubmitTxn", {
-                            method: "POST",
-                            body: formData,
-                          })
-                            .then((response) => {
-                              if (response.ok) {
-                                console.log("第一个表单提交成功！");
-                              } else {
-                                console.error("第一个表单提交失败");
-                              }
-                            })
-                            .catch((error) =>
-                              console.error("请求出错: " + error),
-                            );
-                        });
-                    </script>
                   </div>
                   <div
                     class="tab-pane fade"
@@ -815,7 +476,7 @@ const page = "index";
                             <input
                               type="text"
                               class="form-control"
-                              id="validationNonce"
+                              id="validationNonceFrom"
                               required
                               disabled
                             />
@@ -825,7 +486,7 @@ const page = "index";
                             <input
                               type="text"
                               class="form-control"
-                              id="validationNonce"
+                              id="validationNonceTo"
                               required
                               disabled
                             />
@@ -1016,101 +677,6 @@ const page = "index";
                         </button>
                       </div>
                     </form>
-                    <script is:inline>
-                      const validationNodeM =
-                        document.getElementById("validationNodeM");
-                      function fetchNodeList() {
-                        fetch("http://localhost:8000/AllNode")
-                          .then((response) => response.json())
-                          .then((data) => {
-                            validationNodeM.innerHTML = "";
-                            validationNodeM.options[0] = new Option(
-                              "广播",
-                              "Broadcast",
-                            );
-                            data.forEach(function (node, index) {
-                              validationNodeM.options[index + 1] = new Option(
-                                node.nodeName,
-                                node.nodeName,
-                              );
-                            });
-                          })
-                          .catch((error) =>
-                            console.error("请求出错: " + error),
-                          );
-                      }
-
-                      const formM = document.getElementById("formM");
-                      formM.addEventListener("submit", function (event) {
-                        if (!formM.checkValidity()) {
-                          event.preventDefault();
-                          event.stopPropagation();
-                        }
-                        formM.classList.add("was-validated");
-                      });
-                      fetchNodeList();
-                      setInterval(fetchNodeList, 5000);
-
-                      const timestampInputM = document.getElementById(
-                        "validationTimestampM",
-                      );
-                      function updateTimestamp() {
-                        const currentTimestampM = Math.floor(Date.now() / 1000); // 获取当前时间的 UNIX 时间戳（秒）
-                        timestampInputM.value = currentTimestampM; // 更新时间戳字段
-                      }
-                      updateTimestamp();
-                      setInterval(updateTimestamp, 1000);
-                      document
-                        .getElementById("submitFormM")
-                        .addEventListener("click", function () {
-                          const spamTxnNum =
-                            document.getElementById("validationTxnNumM").value;
-                          const spamTxnFrom =
-                            document.getElementById("validationFromM").value;
-                          const spamTxnTo =
-                            document.getElementById("validationToM").value;
-                          const spamTxnOperation = document.getElementById(
-                            "validationOperationM",
-                          ).value;
-                          const spamTxnAmountMin = document.getElementById(
-                            "validationAmountMinM",
-                          ).value;
-                          const spamTxnAmountMax = document.getElementById(
-                            "validationAmountMaxM",
-                          ).value;
-                          const spamTxnData =
-                            document.getElementById("validationDataM").value;
-                          const spamTxnInfo =
-                            document.getElementById("validationInfoM").value;
-                          const selectedNode = validationNodeM.value;
-
-                          const formData = new FormData();
-                          formData.append("spamTxnNum", spamTxnNum);
-                          formData.append("spamTxnFrom", spamTxnFrom);
-                          formData.append("spamTxnTo", spamTxnTo);
-                          formData.append("spamTxnOperation", spamTxnOperation);
-                          formData.append("spamTxnAmountMin", spamTxnAmountMin);
-                          formData.append("spamTxnAmountMax", spamTxnAmountMax);
-                          formData.append("spamTxnData", spamTxnData);
-                          formData.append("spamTxnInfo", spamTxnInfo);
-                          formData.append("spamTxnNode", selectedNode);
-
-                          fetch("http://localhost:8000/SubmitTxn", {
-                            method: "POST",
-                            body: formData,
-                          })
-                            .then((response) => {
-                              if (response.ok) {
-                                console.log("表单提交成功！");
-                              } else {
-                                console.error("表单提交失败");
-                              }
-                            })
-                            .catch((error) =>
-                              console.error("请求出错: " + error),
-                            );
-                        });
-                    </script>
                   </div>
                 </div>
               </div>
@@ -1118,6 +684,427 @@ const page = "index";
           </div>
         </div>
       </main>
+      <script is:inline>
+        //客户面板
+        function fillClientCompomentsWithData(clientData) {
+          //console.log(clientData);
+          const clientNameElement = document.getElementById("clientName");
+          if (clientNameElement) {
+            clientNameElement.value = clientData.clientName;
+          }
+          const commitedNonceElement = document.getElementById("CommitedNonce");
+          if (commitedNonceElement) {
+            commitedNonceElement.textContent = clientData.clientCommitedNonce;
+          }
+          const verifiedNonceElement = document.getElementById("VerifiedNonce");
+          if (verifiedNonceElement) {
+            verifiedNonceElement.textContent = clientData.clientVerifiedNonce;
+          }
+          const nonceInput = document.getElementById("validationNonce");
+          if (nonceInput) {
+            nonceInput.value = clientData.clientCommitedNonce + 1;
+          }
+          const nonceFromInput = document.getElementById("validationNonceFrom");
+          if (nonceFromInput) {
+            nonceFromInput.value = clientData.clientCommitedNonce + 1;
+          }
+          const nonceToInput = document.getElementById("validationNonceTo");
+          if (nonceToInput) {
+            nonceToInput.value = clientData.clientCommitedNonce + 1;
+          }
+          const assetsListContainer = document.getElementById("assetsList");
+
+          if (assetsListContainer) {
+            assetsListContainer.innerHTML = "";
+            const hrline = document.createElement("tr");
+            const hrCell1 = document.createElement("td");
+            hrCell1.innerHTML = "<hr/>";
+            const hrCell2 = document.createElement("td");
+            hrCell2.innerHTML = "<hr/>";
+            hrline.appendChild(hrCell1);
+            hrline.appendChild(hrCell2);
+            assetsListContainer.appendChild(hrline);
+
+            for (const asset of clientData.clientAssetList) {
+              const assetName = asset[0];
+              const assetAmount = asset[1];
+
+              const row = document.createElement("tr");
+
+              const assetNameCell = document.createElement("td");
+              assetNameCell.textContent = assetName;
+
+              const assetAmountCell = document.createElement("td");
+              assetAmountCell.textContent = assetAmount;
+
+              row.appendChild(assetNameCell);
+              row.appendChild(assetAmountCell);
+
+              assetsListContainer.appendChild(row);
+            }
+          }
+        }
+        function fetchClient(clientAddress, clientName) {
+          const formData = new FormData();
+          formData.append("clientName", clientName);
+          formData.append("clientAddress", clientAddress);
+          const requestOptions = {
+            method: "POST",
+            body: formData,
+          };
+          fetch("http://localhost:8000/GetClient", requestOptions)
+            .then((response) => {
+              if (response.ok) {
+                return response.json();
+              } else {
+                throw new Error("Failed to fetch client data");
+              }
+            })
+            .then((data) => {
+              fillClientCompomentsWithData(data);
+              console.log("Client data:", data);
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+        }
+        const clientAddressInput = document.getElementById("clientAddress");
+        const clientNameInput = document.getElementById("clientName");
+        clientAddressInput?.addEventListener("keyup", function (event) {
+          if (event.key === "Enter") {
+            fetchClient(clientAddressInput.value, clientNameInput.value);
+          }
+        });
+      </script>
+      <script
+        src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js"
+        integrity="sha256-+vh8GkaU7C9/wbSLIcwq82tQ2wTf44aOHA8HlBMwRI8="
+        crossorigin="anonymous"></script>
+      <script is:inline>
+        function renderChart(selector, data) {
+          const options = {
+            series: [{ data }],
+            xaxis: {
+              categories: ["发布", "排队", "提交", "确认"],
+            },
+            chart: {
+              type: "line",
+              width: 150,
+              height: 30,
+              sparkline: {
+                enabled: true,
+              },
+            },
+            colors: ["var(--bs-primary)"],
+            stroke: {
+              width: 2,
+            },
+            tooltip: {
+              fixed: {
+                enabled: false,
+              },
+              x: {
+                show: true,
+              },
+              y: {
+                title: {
+                  formatter: function (seriesName) {
+                    return "计时:";
+                  },
+                },
+                formatter: function (value) {
+                  return value + "ms";
+                },
+              },
+              marker: {
+                show: false,
+              },
+            },
+          };
+
+          const chart = new ApexCharts(
+            document.querySelector(selector),
+            options,
+          );
+          chart.render();
+        }
+        function getStatusBadgeClassName(status) {
+          switch (status) {
+            case "Pending":
+              return "badge text-bg-secondary";
+            case "Committed":
+              return "badge text-bg-primary";
+            case "Finalized":
+              return "badge text-bg-warning";
+            case "Failed":
+              return "badge text-bg-danger";
+            case "Successed":
+              return "badge text-bg-success";
+            default:
+              // 默认情况下使用蓝色
+              return "badge text-bg-success";
+          }
+        }
+        function requestTxnInfoByClient() {
+          fetch("http://localhost:8000/LatestTxn")
+            .then((response) => {
+              if (response.ok) {
+                return response.json();
+              } else {
+                throw new Error("Failed to fetch data");
+              }
+            })
+            .then((data) => {
+              // 获取父元素，用于添加生成的标签
+              const parentElement = document.getElementById("clientTxnTable");
+              const txnList = data;
+              parentElement.innerHTML = "";
+              //console.log(txnList);
+
+              // 遍历块数据并生成标签
+              txnList.forEach((txn) => {
+                // 创建一个新表格行
+                //console.log(txn);
+                const newRow = document.createElement("tr");
+                // 创建表格单元格并填充数据
+                const cell1 = document.createElement("td");
+                const txnNum = document.createElement("b");
+                txnNum.textContent = "#" + txn.txnNum;
+                cell1.appendChild(txnNum);
+
+                const cell2 = document.createElement("td");
+                cell2.textContent = txn.txnOperation;
+
+                const cell3 = document.createElement("td");
+                cell3.textContent = txn.txnValue;
+
+                const cell4 = document.createElement("td");
+                cell4.textContent = txn.txnFrom;
+
+                const cell5 = document.createElement("td");
+                cell5.textContent = txn.txnTo;
+
+                const cell6 = document.createElement("td");
+                const statusBadge = document.createElement("span");
+                statusBadge.textContent = txn.txnStatus;
+                statusBadge.className = getStatusBadgeClassName(txn.txnStatus);
+                cell6.appendChild(statusBadge);
+
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = "btn btn-tool col-md-1";
+                button.setAttribute("data-lte-toggle", "card-maximize");
+                //button.style.color = "black";
+                //button.title = "Txn Number";
+
+                const maxIcon = document.createElement("i");
+                maxIcon.className = "bi bi-fullscreen";
+                maxIcon.setAttribute("data-lte-icon", "maximize");
+
+                const minIcon = document.createElement("i");
+                minIcon.className = "bi bi-fullscree-exit";
+                minIcon.setAttribute("data-lte-icon", "minimize");
+
+                button.appendChild(maxIcon);
+                button.appendChild(minIcon);
+
+                // 将单元格添加到表格行
+                newRow.appendChild(cell1);
+                newRow.appendChild(cell2);
+                newRow.appendChild(cell3);
+                newRow.appendChild(cell4);
+                newRow.appendChild(cell5);
+                newRow.appendChild(cell6);
+                // 将新行添加到父元素中
+                parentElement.appendChild(newRow);
+              });
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+        }
+        setInterval(requestTxnInfoByClient, 5000);
+      </script>
+      <script is:inline>
+        const validationNode = document.getElementById("validationNode");
+        const form = document.getElementById("form");
+
+        function fetchNodeList() {
+          fetch("http://localhost:8000/AllNode")
+            .then((response) => response.json())
+            .then((data) => {
+              validationNode.innerHTML = "";
+              validationNode.options[0] = new Option("广播", "Broadcast");
+              data.forEach(function (node, index) {
+                validationNode.options[index + 1] = new Option(
+                  node.nodeName,
+                  node.nodeName,
+                );
+              });
+            })
+            .catch((error) => console.error("请求出错: " + error));
+        }
+        form.addEventListener("submit", function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add("was-validated");
+        });
+
+        fetchNodeList();
+        setInterval(fetchNodeList, 5000);
+
+        const timestampInput = document.getElementById("validationTimestamp");
+
+        function updateTimestamp() {
+          const currentTimestamp = Math.floor(Date.now() / 1000);
+          timestampInput.value = currentTimestamp;
+        }
+
+        updateTimestamp();
+        setInterval(updateTimestamp, 1000);
+
+        document
+          .getElementById("submitForm")
+          .addEventListener("click", function () {
+            const txnNum = document.getElementById("validationTxnNum").value;
+            console.log(txnNum);
+            const txnFrom = document.getElementById("validationFrom").value;
+            const txnTo = document.getElementById("validationTo").value;
+            const txnOperation = document.getElementById(
+              "validationOperation",
+            ).value;
+            const txnAmount = document.getElementById("validationAmount").value;
+            const txnData = document.getElementById("validationData").value;
+            const txnInfo = document.getElementById("validationInfo").value;
+            const selectedNode = validationNode.value;
+
+            const formData = new FormData();
+            formData.append("txnNum", txnNum);
+            formData.append("txnFrom", txnFrom);
+            formData.append("txnTo", txnTo);
+            formData.append("txnOperation", txnOperation);
+            formData.append("txnValue", txnAmount);
+            formData.append("txnData", txnData);
+            formData.append("txnInfo", txnInfo);
+            formData.append("txnNode", selectedNode);
+            //console.log(formData);
+
+            fetch("http://localhost:8000/SubmitTxn", {
+              method: "POST",
+              body: formData,
+            })
+              .then((response) => {
+                if (response.ok) {
+                  console.log("第一个表单提交成功！");
+                } else {
+                  console.error("第一个表单提交失败");
+                }
+              })
+              .catch((error) => console.error("请求出错: " + error));
+          });
+      </script>
+      <script is:inline>
+        const validationNodeM = document.getElementById("validationNodeM");
+        function fetchNodeList() {
+          fetch("http://localhost:8000/AllNode")
+            .then((response) => response.json())
+            .then((data) => {
+              validationNodeM.innerHTML = "";
+              validationNodeM.options[0] = new Option("广播", "Broadcast");
+              data.forEach(function (node, index) {
+                validationNodeM.options[index + 1] = new Option(
+                  node.nodeName,
+                  node.nodeName,
+                );
+              });
+            })
+            .catch((error) => console.error("请求出错: " + error));
+        }
+
+        document
+          .getElementById("validationTxnNumM")
+          .addEventListener("input", updateNonceValues);
+
+        function updateNonceValues() {
+          var txnNumInput = document.getElementById("validationTxnNumM");
+          var txnNumValue = parseInt(txnNumInput.value);
+
+          if (!isNaN(txnNumValue) && txnNumValue > 0) {
+            var nonceFromInput = document.getElementById("validationNonceFrom");
+            var nonceToInput = document.getElementById("validationNonceTo");
+            var nonceFromValue = parseInt(nonceFromInput.value);
+            nonceToInput.value = nonceFromValue+txnNumValue-1;
+          }
+        }
+
+        const formM = document.getElementById("formM");
+        formM.addEventListener("submit", function (event) {
+          if (!formM.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          formM.classList.add("was-validated");
+        });
+        fetchNodeList();
+        setInterval(fetchNodeList, 5000);
+
+        const timestampInputM = document.getElementById("validationTimestampM");
+        function updateTimestamp() {
+          const currentTimestampM = Math.floor(Date.now() / 1000); // 获取当前时间的 UNIX 时间戳（秒）
+          timestampInputM.value = currentTimestampM; // 更新时间戳字段
+        }
+        updateTimestamp();
+        setInterval(updateTimestamp, 1000);
+        document
+          .getElementById("submitFormM")
+          .addEventListener("click", function () {
+            const spamTxnNum =
+              document.getElementById("validationTxnNumM").value;
+            const spamTxnFrom =
+              document.getElementById("validationFromM").value;
+            const spamTxnTo = document.getElementById("validationToM").value;
+            const spamTxnOperation = document.getElementById(
+              "validationOperationM",
+            ).value;
+            const spamTxnAmountMin = document.getElementById(
+              "validationAmountMinM",
+            ).value;
+            const spamTxnAmountMax = document.getElementById(
+              "validationAmountMaxM",
+            ).value;
+            const spamTxnData =
+              document.getElementById("validationDataM").value;
+            const spamTxnInfo =
+              document.getElementById("validationInfoM").value;
+            const selectedNode = validationNodeM.value;
+
+            const formData = new FormData();
+            formData.append("spamTxnNum", spamTxnNum);
+            formData.append("spamTxnFrom", spamTxnFrom);
+            formData.append("spamTxnTo", spamTxnTo);
+            formData.append("spamTxnOperation", spamTxnOperation);
+            formData.append("spamTxnAmountMin", spamTxnAmountMin);
+            formData.append("spamTxnAmountMax", spamTxnAmountMax);
+            formData.append("spamTxnData", spamTxnData);
+            formData.append("spamTxnInfo", spamTxnInfo);
+            formData.append("spamTxnNode", selectedNode);
+
+            fetch("http://localhost:8000/SubmitTxn", {
+              method: "POST",
+              body: formData,
+            })
+              .then((response) => {
+                if (response.ok) {
+                  console.log("表单提交成功！");
+                } else {
+                  console.error("表单提交失败");
+                }
+              })
+              .catch((error) => console.error("请求出错: " + error));
+          });
+      </script>
     </div>
     <Footer />
     <Scripts path={path} />

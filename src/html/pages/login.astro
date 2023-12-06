@@ -96,7 +96,7 @@ const path = "../../../dist";
                   });
         
                   if (response.ok) {
-                    const data = await response.json();
+                    const data = response.json();
                     const token = data.token;
         
                     localStorage.setItem("email", JSON.stringify({ email }));
@@ -105,18 +105,14 @@ const path = "../../../dist";
                       JSON.stringify({ password }),
                     );
                     localStorage.setItem("token", token);
-        
-                    // 登录成功，显示成功提示
                     alert("登录成功！");
                     window.location.href = "/client.html";
                   } else {
-                    // 登录失败，显示失败提示
-                    const errorData = await response.json();
+                    const errorData = response.json();
                     alert("登录失败：" + errorData.error);
                     console.error("登录失败");
                   }
                 } catch (error) {
-                  // 发生错误，显示错误提示
                   alert("发生错误：" + error.message);
                   console.error("发生错误:", error);
                 }

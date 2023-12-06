@@ -1,0 +1,137 @@
+---
+import Head from "../components/_head.astro";
+import Scripts from "../components/_scripts.astro";
+
+const title = "AdminLTE 4 | register Page";
+const path = "../../../dist";
+const htmlPath = "..";
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <Head title={title} path={path} />
+  </head>
+  <body class="register-page bg-body-secondary">
+    <div class="register-box">
+      <div class="card card-outline card-primary">
+        <div class="card-header">
+            <h1 class="mb-0">
+              <b>Admin</b>LTE
+            </h1>
+          </a>
+        </div>
+        <div class="card-body login-card-body">
+          <p class="login-box-msg">注册新的用户</p>
+
+          <form id="registerForm">
+            <div class="input-group mb-1">
+              <div class="form-floating">
+                <input id="registerEmail" type="email" class="form-control" value="" placeholder="" />
+                <label for="registerEmail">注册邮箱</label>
+              </div>
+              <div class="input-group-text">
+                <span class="bi bi-envelope"></span>
+              </div>
+            </div>
+            <div class="input-group mb-1">
+              <div class="form-floating">
+                <input
+                  id="registerPassword"
+                  type="password"
+                  class="form-control"
+                  placeholder=""
+                />
+                <label for="registerPassword">密码</label>
+              </div>
+              <div class="input-group-text">
+                <span class="bi bi-lock-fill"></span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-8 d-inline-flex align-items-center">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    value=""
+                    id="flexCheckDefault"
+                  />
+                  <label class="form-check-label" for="flexCheckDefault">
+                    记住我
+                  </label>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="d-grid gap-2">
+                  <button type="submit" class="btn btn-primary">注册</button>
+                </div>
+              </div>
+            </div>
+          </form>
+          <script is:inline>
+            document
+              .getElementById("registerForm")
+              ?.addEventListener("submit", async function (event) {
+                event.preventDefault(); // 防止表单默认提交行为
+                const emailElement = document.getElementById(
+                  "registerEmail",
+                );
+                const passwordElement = document.getElementById(
+                  "registerPassword",
+                );
+                if (emailElement && passwordElement) {
+                  const email = emailElement.value;
+                  const password = passwordElement.value;
+  
+                  const formData = new FormData();
+                  formData.append("email", email);
+                  formData.append("password", password);
+  
+                  try {
+                    const response = await fetch("http://localhost:8000/register", {
+                      method: "POST",
+                      body: formData,
+                    });
+  
+                    if (response.ok) {
+                    const data = response.json();
+                    console.log(data)
+                    const token = data.token;
+                      
+                      localStorage.setItem("email", JSON.stringify({ email }));
+                      localStorage.setItem(
+                        "password",
+                        JSON.stringify({ password }),
+                      );
+                      localStorage.setItem("token", token);
+                      alert("注册成功！");
+                    window.location.href = "/client.html";
+                    } else {
+                      const errorData = response.json();
+                    alert("注册失败：" + errorData.error);
+                      console.error("注册失败");
+                    }
+                  } catch (error) {
+                    alert("发生错误：" + error.message);
+                  console.error("发生错误:", error);
+                  }
+                } else {
+                  console.error("注册表单元素未找到");
+                }
+              });
+          </script>
+
+          <div class="social-auth-links text-center mb-3 d-grid gap-2">
+            <p>- 或者 -</p>
+            <a href=".." class="btn btn-danger">
+              <i></i> 使用已有账户登入
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <Scripts path={path} />
+  </body>
+</html>

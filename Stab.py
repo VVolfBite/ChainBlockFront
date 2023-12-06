@@ -14,14 +14,7 @@ CORS(app)
 # Finalized
 # Successed
 # Failed
-TXN_MAX_LANTENCY = 200
-TXN_MIN_LANTENCY = 20
-TXN_MIN_THROUGHTOUT = 100
-TXN_MAX_THROUGHTOUT = 300
-BLOCK_MAX_LANTENCY = 1000
-BLOCK_MIN_LANTENCY = 200
-BLOCK_MIN_THROUGHTOUT = 10
-BLOCK_MAX_THROUGHTOUT = 30
+
 totalTxnList=[]
 totalBlockList=[]
 totalNodeList=[]
@@ -232,8 +225,8 @@ thread2 = threading.Thread(target=generate_node_running_info_periodically)
 thread2.start()
 
 
-@app.route('/NormalInfo', methods=['GET'])
-def returnNormalInfo():
+@app.route('/normalInfo', methods=['GET'])
+def returnnormalInfo():
     blockNum = totalBlockList.__len__()
     txnNum = totalTxnList.__len__()
     nodeNum = nodeCount
@@ -246,42 +239,10 @@ def returnNormalInfo():
     }
     return jsonify(data)
 
-@app.route('/RunningInfo', methods=['GET'])
-def returnRunningInfo():
-    blockLatencyAvg = random.randint(BLOCK_MIN_LANTENCY,BLOCK_MAX_LANTENCY)
-    blockLatency = random.randint(blockLatencyAvg-50,blockLatencyAvg+50)
-    blockLatencyMax = BLOCK_MAX_LANTENCY
-    blockThroughputAvg = random.randint(BLOCK_MIN_THROUGHTOUT,BLOCK_MAX_THROUGHTOUT)
-    blockThroughput = random.randint( blockThroughputAvg-3, blockThroughputAvg+3)
-    blockThroughputMax = BLOCK_MAX_THROUGHTOUT
 
-    
-    txnLatencyAvg = random.randint(TXN_MIN_LANTENCY,TXN_MAX_LANTENCY)
-    txnLatency = random.randint(txnLatencyAvg-5,txnLatencyAvg+5)
-    txnLatencyMax = TXN_MAX_LANTENCY
 
-    
-    txnThroughputAvg = random.randint(TXN_MIN_THROUGHTOUT,TXN_MAX_THROUGHTOUT)
-    txnThroughput = random.randint( txnThroughputAvg-30, txnThroughputAvg+30)
-    txnThroughputMax = TXN_MAX_THROUGHTOUT
 
-    data = {
-        "blockLatency" : blockLatency,
-        "blockLatencyAvg" : blockLatencyAvg,
-        "blockLatencyMax" : blockLatencyMax,
-        "blockThroughput" : blockThroughput,
-        "blockThroughputAvg" : blockThroughputAvg,
-        "blockThroughputMax" : blockThroughputMax,
-        "txnLatency" : txnLatency,
-        "txnLatencyAvg" : txnLatencyAvg,
-        "txnLatencyMax" : txnLatencyMax,
-        "txnThroughput" : txnThroughput,
-        "txnThroughputAvg" : txnThroughputAvg,
-        "txnThroughputMax" : txnThroughputMax,
-    }
-    return jsonify(data)
-
-@app.route('/LatestBlock', methods=['GET'])
+@app.route('/latestBlock', methods=['GET'])
 def returnBlockInfo():
     latestBlock = totalBlockList[-10:][::-1] 
     return jsonify(latestBlock)
@@ -309,7 +270,7 @@ def getOneClient():
         clientAddress = request.form.get("clientAddress")
         print(clientAddress)
         return totalClientList[int(clientAddress)]
-
+    
 @app.route('/SubmitTxn',methods=['POST'])
 def receivingOneTxn():
     if request.method == 'POST':
@@ -317,7 +278,8 @@ def receivingOneTxn():
         for key, value in form_data.items():
             print(f"{key}: {value}")
         return 'Success'
-
+    
+    
 if __name__ == '__main__':
     app.run(host='localhost', port=8000)
 

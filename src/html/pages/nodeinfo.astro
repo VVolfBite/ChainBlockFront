@@ -712,8 +712,8 @@ const page = "index5";
         // - Normal Info Box-
         //-----------------------
 
-        function requestNormalInfo() {
-          fetch("http://localhost:8000/NormalInfo")
+        function requestnormalInfo() {
+          fetch("http://localhost:8000/normalInfo")
             .then((response) => {
               if (response.ok) {
                 return response.json();
@@ -741,7 +741,7 @@ const page = "index5";
               console.error("Error:", error);
             });
         }
-        setInterval(requestNormalInfo, 5000);
+        setInterval(requestnormalInfo, 5000);
 
         //-----------------------
         // - End Normal Info Box-
@@ -850,7 +850,7 @@ const page = "index5";
         //-----------------------
 
         function requestBlockInfo() {
-          fetch("http://localhost:8000/LatestBlock")
+          fetch("http://localhost:8000/latestBlock")
             .then((response) => {
               if (response.ok) {
                 return response.json();

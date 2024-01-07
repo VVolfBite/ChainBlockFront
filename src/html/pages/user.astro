@@ -55,7 +55,6 @@ const page = "index";
               </div>
             </div>
             <div class="row">
-              <!-- 客户信息 -->
               <div class="col-12">
                 <div
                   class="info-box"
@@ -67,30 +66,16 @@ const page = "index";
                   <div class="col-4">
                     <div class="info-box-content">
                       <strong class="info-box-text">
-                        用户名:<input
-                          id="clientName"
-                          type="text"
-                          required
-                          pattern="[A-Za-z0-9]{1,50}"
-                          style=" font-weight: bold; width: 420px; background: transparent; border: none; outline: none; padding-left: 10px; padding-right: 10px;"
-                          placeholder="若希望注册新用户,请输入新用户名"
-                        />
+                        用户邮箱:&emsp;<span id="userEmailSpan"></span>
                       </strong>
                       <strong class="info-box-text">
-                        用户地址:<input
-                          id="clientAddress"
-                          type="text"
-                          required
-                          pattern="[A-Za-z0-9]{1,50}"
-                          style=" font-weight: bold; width: 420px; background: transparent; border: none; outline: none; padding-left: 10px; padding-right: 10px;"
-                          placeholder="输入客户地址,若地址不存在,则连同用户名注册新用户"
-                        />
+                        用户地址:&emsp;<span id="userAddressSpan"></span>
                       </strong>
                       <hr />
                       <div class="info-box-number">
                         提交Nonce数: <strong>
                           <span
-                            id="CommitedNonce"
+                            id="userCommittedNonceSpan"
                             style="padding-left: 10px; padding-right: 10px;"
                           ></span></strong
                         >
@@ -98,7 +83,7 @@ const page = "index";
                       <div class="info-box-number">
                         验证Nonce数: <strong
                           ><span
-                            id="VerifiedNonce"
+                            id="userVerifiedNonceSpan"
                             style="padding-left: 10px; padding-right: 10px;"
                           ></span></strong
                         >
@@ -120,13 +105,111 @@ const page = "index";
                             <th class="col-md-1">余额</th>
                           </tr>
                         </thead>
-                        <tbody id="assetsList"></tbody>
+                        <tbody id="userAssetListTbody"></tbody>
                       </table>
                     </strong>
                   </div>
                 </div>
               </div>
             </div>
+            <script is:inline>
+              //客户面板
+              function fillUserInfoCompomentsWithData(userData) {
+                const userEmailSpan = document.getElementById("userEmailSpan");
+                if (userEmailSpan) userEmailSpan.innerHTML = userData.userEmail;
+
+                const userAddressSpan =
+                  document.getElementById("userAddressSpan");
+                if (userAddressSpan)
+                  userAddressSpan.value = userData.userAddress;
+
+                const userCommittedNonceSpan = document.getElementById(
+                  "userCommittedNonceSpan",
+                );
+                if (userCommittedNonceSpan)
+                  userCommittedNonceSpan.textContent =
+                    userData.userCommittedNonce;
+                const userVerifiedNonceSpan = document.getElementById(
+                  "userVerifiedNonceSpan",
+                );
+                if (userVerifiedNonceSpan)
+                  userVerifiedNonceSpan.textContent =
+                    userData.userVerifiedNonce;
+
+                const userAssetListTbody =
+                  document.getElementById("userAssetListTbody");
+
+                if (userAssetListTbody) {
+                  userAssetListTbody.innerHTML = "";
+                  const hrline = document.createElement("tr");
+                  const hrCell1 = document.createElement("td");
+                  hrCell1.innerHTML = "<hr/>";
+                  const hrCell2 = document.createElement("td");
+                  hrCell2.innerHTML = "<hr/>";
+                  hrline.appendChild(hrCell1);
+                  hrline.appendChild(hrCell2);
+                  userAssetListTbody.appendChild(hrline);
+                  userData.userAssetList["Balance"] = userData.userBalance;
+                  for (const key in userData.userAssetList) {
+                    const assetName = key;
+                    const assetAmount = userData.userAssetList[key];
+
+                    const row = document.createElement("tr");
+
+                    const assetNameCell = document.createElement("td");
+                    assetNameCell.textContent = assetName;
+
+                    const assetAmountCell = document.createElement("td");
+                    assetAmountCell.textContent = assetAmount;
+
+                    row.appendChild(assetNameCell);
+                    row.appendChild(assetAmountCell);
+
+                    userAssetListTbody.appendChild(row);
+                  }
+                }
+
+                const nonceInput = document.getElementById("formNonce");
+                if (nonceInput) {
+                  nonceInput.value = userData.userCommitedNonce + 1;
+                }
+                const nonceFromInput = document.getElementById("formNonceFrom");
+                if (nonceFromInput) {
+                  nonceFromInput.value = userData.userCommitedNonce + 1;
+                }
+                const nonceToInput = document.getElementById("formNonceTo");
+                if (nonceToInput) {
+                  nonceToInput.value = userData.userCommitedNonce + 1;
+                }
+              }
+              function fetchUser() {
+                const userEmail = localStorage.getItem("userEmail");
+                const userToken = localStorage.getItem("userToken");
+                const formData = new FormData();
+                formData.append("userEmail", userEmail);
+                formData.append("userToken", userToken);
+                const requestOptions = {
+                  method: "POST",
+                  body: formData,
+                };
+                fetch("http://localhost:8000/user", requestOptions)
+                  .then((response) => {
+                    if (response.ok) {
+                      return response.json();
+                    } else {
+                      throw new Error("Failed to fetch user data");
+                    }
+                  })
+                  .then((data) => {
+                    fillUserInfoCompomentsWithData(data);
+                  })
+                  .catch((error) => {
+                    console.error("Error:", error);
+                  });
+              }
+              fetchUser();
+              setInterval(fetchUser, 5000);
+            </script>
           </div>
         </div>
 
@@ -163,12 +246,10 @@ const page = "index";
                             <th style="flex: 0 0 auto; width: 4%;"></th>
                           </tr>
                         </thead>
-                        <tbody id="clientTxnTable"> </tbody>
+                        <tbody id="userTxnTbody"> </tbody>
                       </table>
                     </div>
-                    <!-- /.table-responsive -->
                   </div>
-                  <!-- /.card-body -->
                   <div class="card-footer clearfix">
                     <a
                       href="javascript:void(0)"
@@ -183,10 +264,150 @@ const page = "index";
                       查看所有事务
                     </a>
                   </div>
-                  <!-- /.card-footer -->
                 </div>
-                <!-- /.card -->
               </div>
+              <script
+                src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js"
+                integrity="sha256-+vh8GkaU7C9/wbSLIcwq82tQ2wTf44aOHA8HlBMwRI8="
+                crossorigin="anonymous"></script>
+              <script is:inline>
+                const CHART_NUMBER = 30; // 你需要的图表数量
+                const timerChartOptions = {
+                  series: [],
+                  xaxis: { categories: ["发布", "排队", "提交", "确认"] },
+                  chart: {
+                    type: "line",
+                    width: 150,
+                    height: 30,
+                    sparkline: { enabled: true },
+                  },
+                  colors: ["var(--bs-primary)"],
+                  stroke: { width: 2 },
+                  tooltip: {
+                    fixed: { enabled: false },
+                    x: { show: true },
+                    y: {
+                      title: {
+                        formatter: function (seriesName) {
+                          return "计时:";
+                        },
+                      },
+                      formatter: function (value) {
+                        return value + "ms";
+                      },
+                    },
+                    marker: { show: false },
+                  },
+                };
+
+                const chartList = [];
+                const chartDivList = [];
+
+                for (let i = 1; i <= CHART_NUMBER; i++) {
+                  const chartDiv = document.createElement("div");
+                  chartDiv.id = `timerChart${i}`;
+                  document.body.appendChild(chartDiv); // Assuming you want to append the charts to the body element
+                  const chart = new ApexCharts(
+                    document.querySelector(`#${chartDiv.id}`),
+                    timerChartOptions,
+                  );
+                  chartDiv.style.display = "none";
+                  chart.render();
+                  chartList.push(chart);
+                  chartDivList.push(chartDiv);
+                }
+
+                function getStatusBadgeClassName(status) {
+                  switch (status) {
+                    case "Pending":
+                      return "badge text-bg-secondary";
+                    case "Committed":
+                      return "badge text-bg-primary";
+                    case "Finalized":
+                      return "badge text-bg-warning";
+                    case "Failed":
+                      return "badge text-bg-danger";
+                    case "Success":
+                      return "badge text-bg-success";
+                    default:
+                      // 默认情况下使用蓝色
+                      return "badge text-bg-success";
+                  }
+                }
+
+                function requestTxnInfoByUser() {
+                  const userEmail = localStorage.getItem("userEmail");
+                  const userToken = localStorage.getItem("userToken");
+                  const formData = new FormData();
+                  formData.append("userEmail", userEmail);
+                  formData.append("userToken", userToken);
+                  const requestOptions = {
+                    method: "POST",
+                    body: formData,
+                  };
+                  fetch("http://localhost:8000/txnByUser", requestOptions)
+                    .then((response) => {
+                      if (response.ok) {
+                        return response.json();
+                      } else {
+                        throw new Error("Failed to fetch user data");
+                      }
+                    })
+                    .then((data) => {
+                      chartDivList.forEach((chartDiv) => {
+                        chartDiv.style.display = "none";
+                      });
+
+                      const userTxnTbody =
+                        document.getElementById("userTxnTbody");
+                      const txnList = data;
+                      userTxnTbody.innerHTML = "";
+                      txnList.forEach((txn, index) => {
+                        txn.txnTimer = [
+                          txn.txnTimer[0] - txn.txnTimeStamp,
+                          txn.txnTimer[1] - txn.txnTimeStamp,
+                          txn.txnTimer[2] - txn.txnTimeStamp,
+                          txn.txnTimer[3] - txn.txnTimeStamp,
+                        ];
+
+                        const txnRow = document.createElement("tr");
+                        const txnID = document.createElement("td");
+                        const txnId = document.createElement("b");
+                        txnId.textContent = "#" + txn.txnId;
+                        txnID.appendChild(txnId);
+                        const txnOperation = document.createElement("td");
+                        txnOperation.textContent = txn.txnOperation;
+                        const txnValue = document.createElement("td");
+                        txnValue.textContent = txn.txnValue;
+                        const txnFrom = document.createElement("td");
+                        txnFrom.textContent = txn.txnFrom;
+                        const txnTo = document.createElement("td");
+                        txnTo.textContent = txn.txnTo;
+                        const statusBar = document.createElement("td");
+                        const statusBadge = document.createElement("span");
+                        statusBadge.textContent = txn.txnStatus;
+                        statusBadge.className = getStatusBadgeClassName(
+                          txn.txnStatus,
+                        );
+                        statusBar.appendChild(statusBadge);
+
+                        txnRow.appendChild(txnID);
+                        txnRow.appendChild(txnOperation);
+                        txnRow.appendChild(txnValue);
+                        txnRow.appendChild(txnFrom);
+                        txnRow.appendChild(txnTo);
+                        txnRow.appendChild(statusBar);
+
+                        userTxnTbody.appendChild(txnRow);
+                      });
+                    })
+                    .catch((error) => {
+                      console.error("Error:", error);
+                    });
+                }
+                requestTxnInfoByUser();
+                setInterval(requestTxnInfoByUser, 5000);
+              </script>
 
               <div class="card mb-4 col-md-5">
                 <div class="card-header">
@@ -233,29 +454,12 @@ const page = "index";
                     <form class="needs-validation" id="form" novalidate>
                       <div class="card-body">
                         <div class="row g-3">
-                          <div class="col-md-12">
-                            <label for="validationTxnNum" class="form-label"
-                              >事务编号:</label
-                            >
-                            <input
-                              type="text"
-                              class="form-control"
-                              id="validationTxnNum"
-                              required
-                              pattern="[A-Za-z0-9]{1,50}"
-                            />
-                            <div class="valid-feedback">格式正确。</div>
-                            <div class="invalid-feedback">
-                              事务编号只能由大小写字母和数字构成，且长度不能超过50个字节。
-                            </div>
-                          </div>
-
                           <div class="col-md-6">
                             <label class="form-label">事务时间戳:</label>
                             <input
                               type="text"
                               class="form-control"
-                              id="validationTimestamp"
+                              id="formTimestamp"
                               required
                               disabled
                             />
@@ -265,14 +469,14 @@ const page = "index";
                             <input
                               type="text"
                               class="form-control"
-                              id="validationNonce"
+                              id="formNonce"
                               required
                               disabled
                             />
                           </div>
                           <hr />
                           <div class="col-md-6">
-                            <label for="validationFrom" class="form-label"
+                            <label for="formTxnFrom" class="form-label"
                               >事务来自:</label
                             >
                             <div class="input-group has-validation">
@@ -283,10 +487,9 @@ const page = "index";
                               <input
                                 type="text"
                                 class="form-control"
-                                id="validationFrom"
+                                id="formTxnFrom"
                                 aria-describedby="inputGroupPrepend"
                                 required
-                                pattern="[A-Za-z0-9_]+"
                               />
                               <div class="valid-feedback">格式正确。</div>
                               <div class="invalid-feedback">
@@ -296,7 +499,7 @@ const page = "index";
                           </div>
 
                           <div class="col-md-6">
-                            <label for="validationTo" class="form-label"
+                            <label for="formTxnTo" class="form-label"
                               >事务发往:</label
                             >
                             <div class="input-group has-validation">
@@ -307,10 +510,9 @@ const page = "index";
                               <input
                                 type="text"
                                 class="form-control"
-                                id="validationTo"
+                                id="formTxnTo"
                                 aria-describedby="inputGroupPrepend"
                                 required
-                                pattern="[A-Za-z0-9_]+"
                               />
                               <div class="valid-feedback">格式正确。</div>
                               <div class="invalid-feedback">
@@ -320,7 +522,7 @@ const page = "index";
                           </div>
 
                           <div class="col-md-6">
-                            <label for="validationOperation" class="form-label"
+                            <label for="txnOperation" class="form-label"
                               >事务操作:</label
                             >
                             <div class="input-group has-validation">
@@ -331,7 +533,7 @@ const page = "index";
                               <input
                                 type="text"
                                 class="form-control"
-                                id="validationOperation"
+                                id="formTxnOperation"
                                 aria-describedby="inputGroupPrepend"
                                 required
                                 pattern="[A-Za-z0-9_]+"
@@ -344,7 +546,7 @@ const page = "index";
                           </div>
 
                           <div class="col-md-6">
-                            <label for="validationAmount" class="form-label"
+                            <label for="txnAmount" class="form-label"
                               >事务数值:</label
                             >
                             <div class="input-group has-validation">
@@ -355,7 +557,7 @@ const page = "index";
                               <input
                                 type="text"
                                 class="form-control"
-                                id="validationAmount"
+                                id="txnAmount"
                                 aria-describedby="inputGroupPrepend"
                                 required
                                 pattern="^([1-9][0-9]*|0)(\.[0-9]+)?$"
@@ -368,13 +570,13 @@ const page = "index";
                           </div>
 
                           <div class="col-md-12">
-                            <label for="validationData" class="form-label"
+                            <label for="txnData" class="form-label"
                               >事务数据:</label
                             >
                             <div class="input-group has-validation">
                               <textarea
                                 class="form-control"
-                                id="validationData"
+                                id="txnData"
                                 aria-describedby="inputGroupPrepend"
                                 rows="5"></textarea>
                               <div class="valid-feedback">格式正确。</div>
@@ -383,13 +585,13 @@ const page = "index";
                           </div>
 
                           <div class="col-md-12">
-                            <label for="validationInfo" class="form-label"
+                            <label for="txnInfo" class="form-label"
                               >事务附加信息:</label
                             >
                             <div class="input-group has-validation">
                               <textarea
                                 class="form-control"
-                                id="validationInfo"
+                                id="txnInfo"
                                 aria-describedby="inputGroupPrepend"
                                 rows="5"></textarea>
                               <div class="valid-feedback">格式正确。</div>
@@ -400,14 +602,10 @@ const page = "index";
                           <hr />
 
                           <div class="col-md-12">
-                            <label for="validationNode" class="form-label"
+                            <label for="formNode" class="form-label"
                               >发送节点:</label
                             >
-                            <select
-                              class="form-select"
-                              id="validationNode"
-                              required
-                            >
+                            <select class="form-select" id="formNode" required>
                             </select>
                             <div class="valid-feedback">选择合法。</div>
                             <div class="invalid-feedback">
@@ -415,10 +613,7 @@ const page = "index";
                             </div>
                           </div>
                         </div>
-                        <!--end::Row-->
                       </div>
-                      <!--end::Body-->
-                      <!--begin::Footer-->
                       <div class="card-footer">
                         <button
                           type="reset"
@@ -435,9 +630,105 @@ const page = "index";
                           提交
                         </button>
                       </div>
-                      <!--end::Footer-->
                     </form>
                   </div>
+                  <script is:inline>
+                    const formNode = document.getElementById("formNode");
+                    function fetchNodeList() {
+                      fetch("http://localhost:8000/allNode")
+                        .then((response) => response.json())
+                        .then((data) => {
+                          formNode.innerHTML = "";
+                          formNode.options[0] = new Option("广播", "Broadcast");
+                          data.forEach(function (node, index) {
+                            formNode.options[index + 1] = new Option(
+                              node.nodeId + "." + node.nodeName,
+                              node.nodeId,
+                            );
+                          });
+                        })
+                        .catch((error) => console.error("请求出错: " + error));
+                    }
+                    // 为了防止用户在选择时出现渲染，所以每次网页加载只请求一次...
+                    fetchNodeList();
+
+                    const userCommittedNonceSpan = document.getElementById(
+                      "userCommittedNonceSpan",
+                    );
+                    const formNonce = document.getElementById("formNonce");
+                    function updateNonce() {
+                      formNonce.value = userCommittedNonceSpan.innerHTML;
+                    }
+                    updateNonce();
+                    setInterval(updateNonce, 50);
+
+                    const timestampInput =
+                      document.getElementById("formTimestamp");
+
+                    function updateTimestamp() {
+                      const currentTimestamp = Math.floor(Date.now() / 1000);
+                      timestampInput.value = currentTimestamp;
+                    }
+                    updateTimestamp();
+                    setInterval(updateTimestamp, 1000);
+
+                    const form = document.getElementById("form");
+                    form.addEventListener("submit", function (event) {
+                      if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                      }
+                      form.classList.add("was-validated");
+                    });
+                    document
+                      .getElementById("submitForm")
+                      .addEventListener("click", function () {
+                        const txnFrom =
+                          document.getElementById("formTxnFrom").value;
+
+                        const txnTo =
+                          document.getElementById("formTxnTo").value;
+                        const txnOperation =
+                          document.getElementById("formTxnOperation").value;
+
+                        const txnAmount =
+                          document.getElementById("txnAmount").value;
+
+                        const txnData =
+                          document.getElementById("txnData").value;
+
+                        const txnInfo =
+                          document.getElementById("txnInfo").value;
+                        const selectedNode = formNode.value;
+
+                        const formData = new FormData();
+
+                        formData.append("txnFrom", txnFrom);
+                        formData.append("txnTo", txnTo);
+                        formData.append("txnOperation", txnOperation);
+                        formData.append("txnValue", txnAmount);
+                        formData.append("txnData", txnData);
+                        formData.append("txnInfo", txnInfo);
+                        formData.append("txnNode", selectedNode);
+                        console.log(formData);
+
+                        fetch("http://localhost:8000/submitTxn", {
+                          method: "POST",
+                          body: formData,
+                        })
+                          .then((response) => {
+                            if (response.ok) {
+                              console.log("第一个表单提交成功！");
+                            } else {
+                              console.error("第一个表单提交失败");
+                            }
+                          })
+                          .catch((error) =>
+                            console.error("请求出错: " + error),
+                          );
+                      });
+                  </script>
+
                   <div
                     class="tab-pane fade"
                     id="multiTxn"
@@ -448,13 +739,13 @@ const page = "index";
                       <div class="card-body">
                         <div class="row g-3">
                           <div class="col-md-6">
-                            <label for="validationTxnNumM" class="form-label"
+                            <label for="formTxnNumM" class="form-label"
                               >事务生成数量:</label
                             >
                             <input
                               type="text"
                               class="form-control"
-                              id="validationTxnNumM"
+                              id="formTxnNumM"
                               required
                               pattern="^([1-9][0-9]*|0)(\.[0-9]+)?$"
                             />
@@ -466,34 +757,14 @@ const page = "index";
                             <input
                               type="text"
                               class="form-control"
-                              id="validationTimestampM"
-                              required
-                              disabled
-                            />
-                          </div>
-                          <div class="col-md-6">
-                            <label class="form-label">事务Nonce号 从:</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              id="validationNonceFrom"
-                              required
-                              disabled
-                            />
-                          </div>
-                          <div class="col-md-6">
-                            <label class="form-label">事务Nonce号 至:</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              id="validationNonceTo"
+                              id="formTimestampM"
                               required
                               disabled
                             />
                           </div>
                           <hr />
                           <div class="col-md-12">
-                            <label for="validationFromM" class="form-label"
+                            <label for="formTxnFromM" class="form-label"
                               >事务来自:</label
                             >
                             <div class="input-group has-validation">
@@ -504,10 +775,9 @@ const page = "index";
                               <input
                                 type="text"
                                 class="form-control"
-                                id="validationFromM"
+                                id="formTxnFromM"
                                 aria-describedby="inputGroupPrepend"
                                 required
-                                pattern="[A-Za-z0-9_]+(;[A-Za-z0-9_]+)*"
                               />
                               <div class="valid-feedback">格式正确。</div>
                               <div class="invalid-feedback">
@@ -517,7 +787,7 @@ const page = "index";
                           </div>
 
                           <div class="col-md-12">
-                            <label for="validationToM" class="form-label"
+                            <label for="formTxnToM" class="form-label"
                               >事务发往:</label
                             >
                             <div class="input-group has-validation">
@@ -528,10 +798,9 @@ const page = "index";
                               <input
                                 type="text"
                                 class="form-control"
-                                id="validationToM"
+                                id="formTxnToM"
                                 aria-describedby="inputGroupPrepend"
                                 required
-                                pattern="[A-Za-z0-9_]+(;[A-Za-z0-9_]+)*"
                               />
                               <div class="valid-feedback">格式正确。</div>
                               <div class="invalid-feedback">
@@ -541,7 +810,7 @@ const page = "index";
                           </div>
 
                           <div class="col-md-12">
-                            <label for="validationOperationM" class="form-label"
+                            <label for="txnOperationM" class="form-label"
                               >事务操作:</label
                             >
                             <div class="input-group has-validation">
@@ -552,7 +821,7 @@ const page = "index";
                               <input
                                 type="text"
                                 class="form-control"
-                                id="validationOperationM"
+                                id="formTxnOperationM"
                                 aria-describedby="inputGroupPrepend"
                                 required
                                 pattern="[A-Za-z0-9_]+(;[A-Za-z0-9_]+)*"
@@ -565,7 +834,7 @@ const page = "index";
                           </div>
 
                           <div class="col-md-6">
-                            <label for="validationAmountMinM" class="form-label"
+                            <label for="formTxnAmountMinM" class="form-label"
                               >事务数值下限:</label
                             >
                             <div class="input-group has-validation">
@@ -576,7 +845,7 @@ const page = "index";
                               <input
                                 type="text"
                                 class="form-control"
-                                id="validationAmountMinM"
+                                id="formTxnAmountMinM"
                                 aria-describedby="inputGroupPrepend"
                                 required
                                 pattern="^([1-9][0-9]*|0)(\.[0-9]+)?$"
@@ -588,7 +857,7 @@ const page = "index";
                             </div>
                           </div>
                           <div class="col-md-6">
-                            <label for="validationAmountMaxM" class="form-label"
+                            <label for="formTxnAmountMaxM" class="form-label"
                               >事务数值上限:</label
                             >
                             <div class="input-group has-validation">
@@ -599,7 +868,7 @@ const page = "index";
                               <input
                                 type="text"
                                 class="form-control"
-                                id="validationAmountMaxM"
+                                id="formTxnAmountMaxM"
                                 aria-describedby="inputGroupPrepend"
                                 required
                                 pattern="^([1-9][0-9]*|0)(\.[0-9]+)?$"
@@ -611,13 +880,13 @@ const page = "index";
                             </div>
                           </div>
                           <div class="col-md-12">
-                            <label for="validationDataM" class="form-label"
+                            <label for="formTxnDataM" class="form-label"
                               >事务数据:</label
                             >
                             <div class="input-group has-validation">
                               <textarea
                                 class="form-control"
-                                id="validationData"
+                                id="formTxnDataM"
                                 aria-describedby="inputGroupPrepend"
                                 rows="5"></textarea>
                               <div class="valid-feedback">格式正确。</div>
@@ -626,13 +895,13 @@ const page = "index";
                           </div>
 
                           <div class="col-md-12">
-                            <label for="validationInfoM" class="form-label"
+                            <label for="formTxnInfoM" class="form-label"
                               >事务附加信息:</label
                             >
                             <div class="input-group has-validation">
                               <textarea
                                 class="form-control"
-                                id="validationInfo"
+                                id="formTxnInfoM"
                                 aria-describedby="inputGroupPrepend"
                                 rows="5"></textarea>
                               <div class="valid-feedback">格式正确。</div>
@@ -641,14 +910,10 @@ const page = "index";
                           </div>
                           <hr />
                           <div class="col-md-12">
-                            <label for="validationNodeM" class="form-label"
+                            <label for="formNodeM" class="form-label"
                               >发送节点:</label
                             >
-                            <select
-                              class="form-select"
-                              id="validationNodeM"
-                              required
-                            >
+                            <select class="form-select" id="formNodeM" required>
                             </select>
                             <div class="valid-feedback">选择合法。</div>
                             <div class="invalid-feedback">
@@ -656,10 +921,7 @@ const page = "index";
                             </div>
                           </div>
                         </div>
-                        <!--end::Row-->
                       </div>
-                      <!--end::Body-->
-                      <!--begin::Footer-->
                       <div class="card-footer">
                         <button
                           type="reset"
@@ -685,359 +947,34 @@ const page = "index";
         </div>
       </main>
       <script is:inline>
-        //客户面板
-        function fillClientCompomentsWithData(clientData) {
-          //console.log(clientData);
-          const clientNameElement = document.getElementById("clientName");
-          if (clientNameElement) {
-            clientNameElement.value = clientData.clientName;
-          }
-          const commitedNonceElement = document.getElementById("CommitedNonce");
-          if (commitedNonceElement) {
-            commitedNonceElement.textContent = clientData.clientCommitedNonce;
-          }
-          const verifiedNonceElement = document.getElementById("VerifiedNonce");
-          if (verifiedNonceElement) {
-            verifiedNonceElement.textContent = clientData.clientVerifiedNonce;
-          }
-          const nonceInput = document.getElementById("validationNonce");
-          if (nonceInput) {
-            nonceInput.value = clientData.clientCommitedNonce + 1;
-          }
-          const nonceFromInput = document.getElementById("validationNonceFrom");
-          if (nonceFromInput) {
-            nonceFromInput.value = clientData.clientCommitedNonce + 1;
-          }
-          const nonceToInput = document.getElementById("validationNonceTo");
-          if (nonceToInput) {
-            nonceToInput.value = clientData.clientCommitedNonce + 1;
-          }
-          const assetsListContainer = document.getElementById("assetsList");
-
-          if (assetsListContainer) {
-            assetsListContainer.innerHTML = "";
-            const hrline = document.createElement("tr");
-            const hrCell1 = document.createElement("td");
-            hrCell1.innerHTML = "<hr/>";
-            const hrCell2 = document.createElement("td");
-            hrCell2.innerHTML = "<hr/>";
-            hrline.appendChild(hrCell1);
-            hrline.appendChild(hrCell2);
-            assetsListContainer.appendChild(hrline);
-
-            for (const asset of clientData.clientAssetList) {
-              const assetName = asset[0];
-              const assetAmount = asset[1];
-
-              const row = document.createElement("tr");
-
-              const assetNameCell = document.createElement("td");
-              assetNameCell.textContent = assetName;
-
-              const assetAmountCell = document.createElement("td");
-              assetAmountCell.textContent = assetAmount;
-
-              row.appendChild(assetNameCell);
-              row.appendChild(assetAmountCell);
-
-              assetsListContainer.appendChild(row);
-            }
-          }
-        }
-        function fetchClient(clientAddress, clientName) {
-          const formData = new FormData();
-          formData.append("clientName", clientName);
-          formData.append("clientAddress", clientAddress);
-          const requestOptions = {
-            method: "POST",
-            body: formData,
-          };
-          fetch("http://localhost:8000/GetClient", requestOptions)
-            .then((response) => {
-              if (response.ok) {
-                return response.json();
-              } else {
-                throw new Error("Failed to fetch client data");
-              }
-            })
-            .then((data) => {
-              fillClientCompomentsWithData(data);
-              console.log("Client data:", data);
-            })
-            .catch((error) => {
-              console.error("Error:", error);
-            });
-        }
-        const clientAddressInput = document.getElementById("clientAddress");
-        const clientNameInput = document.getElementById("clientName");
-        clientAddressInput?.addEventListener("keyup", function (event) {
-          if (event.key === "Enter") {
-            fetchClient(clientAddressInput.value, clientNameInput.value);
-          }
-        });
-      </script>
-      <script
-        src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js"
-        integrity="sha256-+vh8GkaU7C9/wbSLIcwq82tQ2wTf44aOHA8HlBMwRI8="
-        crossorigin="anonymous"></script>
-      <script is:inline>
-        function renderChart(selector, data) {
-          const options = {
-            series: [{ data }],
-            xaxis: {
-              categories: ["发布", "排队", "提交", "确认"],
-            },
-            chart: {
-              type: "line",
-              width: 150,
-              height: 30,
-              sparkline: {
-                enabled: true,
-              },
-            },
-            colors: ["var(--bs-primary)"],
-            stroke: {
-              width: 2,
-            },
-            tooltip: {
-              fixed: {
-                enabled: false,
-              },
-              x: {
-                show: true,
-              },
-              y: {
-                title: {
-                  formatter: function (seriesName) {
-                    return "计时:";
-                  },
-                },
-                formatter: function (value) {
-                  return value + "ms";
-                },
-              },
-              marker: {
-                show: false,
-              },
-            },
-          };
-
-          const chart = new ApexCharts(
-            document.querySelector(selector),
-            options,
-          );
-          chart.render();
-        }
-        function getStatusBadgeClassName(status) {
-          switch (status) {
-            case "Pending":
-              return "badge text-bg-secondary";
-            case "Committed":
-              return "badge text-bg-primary";
-            case "Finalized":
-              return "badge text-bg-warning";
-            case "Failed":
-              return "badge text-bg-danger";
-            case "Successed":
-              return "badge text-bg-success";
-            default:
-              // 默认情况下使用蓝色
-              return "badge text-bg-success";
-          }
-        }
-        function requestTxnInfoByClient() {
-          fetch("http://localhost:8000/LatestTxn")
-            .then((response) => {
-              if (response.ok) {
-                return response.json();
-              } else {
-                throw new Error("Failed to fetch data");
-              }
-            })
-            .then((data) => {
-              // 获取父元素，用于添加生成的标签
-              const parentElement = document.getElementById("clientTxnTable");
-              const txnList = data;
-              parentElement.innerHTML = "";
-              //console.log(txnList);
-
-              // 遍历块数据并生成标签
-              txnList.forEach((txn) => {
-                // 创建一个新表格行
-                //console.log(txn);
-                const newRow = document.createElement("tr");
-                // 创建表格单元格并填充数据
-                const cell1 = document.createElement("td");
-                const txnNum = document.createElement("b");
-                txnNum.textContent = "#" + txn.txnNum;
-                cell1.appendChild(txnNum);
-
-                const cell2 = document.createElement("td");
-                cell2.textContent = txn.txnOperation;
-
-                const cell3 = document.createElement("td");
-                cell3.textContent = txn.txnValue;
-
-                const cell4 = document.createElement("td");
-                cell4.textContent = txn.txnFrom;
-
-                const cell5 = document.createElement("td");
-                cell5.textContent = txn.txnTo;
-
-                const cell6 = document.createElement("td");
-                const statusBadge = document.createElement("span");
-                statusBadge.textContent = txn.txnStatus;
-                statusBadge.className = getStatusBadgeClassName(txn.txnStatus);
-                cell6.appendChild(statusBadge);
-
-                const button = document.createElement("button");
-                button.type = "button";
-                button.className = "btn btn-tool col-md-1";
-                button.setAttribute("data-lte-toggle", "card-maximize");
-                //button.style.color = "black";
-                //button.title = "Txn Number";
-
-                const maxIcon = document.createElement("i");
-                maxIcon.className = "bi bi-fullscreen";
-                maxIcon.setAttribute("data-lte-icon", "maximize");
-
-                const minIcon = document.createElement("i");
-                minIcon.className = "bi bi-fullscree-exit";
-                minIcon.setAttribute("data-lte-icon", "minimize");
-
-                button.appendChild(maxIcon);
-                button.appendChild(minIcon);
-
-                // 将单元格添加到表格行
-                newRow.appendChild(cell1);
-                newRow.appendChild(cell2);
-                newRow.appendChild(cell3);
-                newRow.appendChild(cell4);
-                newRow.appendChild(cell5);
-                newRow.appendChild(cell6);
-                // 将新行添加到父元素中
-                parentElement.appendChild(newRow);
-              });
-            })
-            .catch((error) => {
-              console.error("Error:", error);
-            });
-        }
-        setInterval(requestTxnInfoByClient, 5000);
-      </script>
-      <script is:inline>
-        const validationNode = document.getElementById("validationNode");
-        const form = document.getElementById("form");
-
+        const formNodeM = document.getElementById("formNodeM");
         function fetchNodeList() {
-          fetch("http://localhost:8000/AllNode")
+          fetch("http://localhost:8000/allNode")
             .then((response) => response.json())
             .then((data) => {
-              validationNode.innerHTML = "";
-              validationNode.options[0] = new Option("广播", "Broadcast");
+              formNodeM.innerHTML = "";
+              formNodeM.options[0] = new Option("广播", "Broadcast");
               data.forEach(function (node, index) {
-                validationNode.options[index + 1] = new Option(
-                  node.nodeName,
-                  node.nodeName,
+                formNodeM.options[index + 1] = new Option(
+                  node.nodeId + "." + node.nodeName,
+                  node.nodeId,
                 );
               });
             })
             .catch((error) => console.error("请求出错: " + error));
         }
-        form.addEventListener("submit", function (event) {
-          if (!form.checkValidity()) {
-            event.preventDefault();
-            event.stopPropagation();
-          }
-          form.classList.add("was-validated");
-        });
-
+        // 为了防止用户在选择时出现渲染，所以每次网页加载只请求一次...
         fetchNodeList();
-        setInterval(fetchNodeList, 5000);
 
-        const timestampInput = document.getElementById("validationTimestamp");
 
+
+        const timestampInputM = document.getElementById("formTimestampM");
         function updateTimestamp() {
-          const currentTimestamp = Math.floor(Date.now() / 1000);
-          timestampInput.value = currentTimestamp;
+          const currentTimestampM = Math.floor(Date.now() / 1000); // 获取当前时间的 UNIX 时间戳（秒）
+          timestampInputM.value = currentTimestampM; // 更新时间戳字段
         }
-
         updateTimestamp();
         setInterval(updateTimestamp, 1000);
-
-        document
-          .getElementById("submitForm")
-          .addEventListener("click", function () {
-            const txnNum = document.getElementById("validationTxnNum").value;
-            console.log(txnNum);
-            const txnFrom = document.getElementById("validationFrom").value;
-            const txnTo = document.getElementById("validationTo").value;
-            const txnOperation = document.getElementById(
-              "validationOperation",
-            ).value;
-            const txnAmount = document.getElementById("validationAmount").value;
-            const txnData = document.getElementById("validationData").value;
-            const txnInfo = document.getElementById("validationInfo").value;
-            const selectedNode = validationNode.value;
-
-            const formData = new FormData();
-            formData.append("txnNum", txnNum);
-            formData.append("txnFrom", txnFrom);
-            formData.append("txnTo", txnTo);
-            formData.append("txnOperation", txnOperation);
-            formData.append("txnValue", txnAmount);
-            formData.append("txnData", txnData);
-            formData.append("txnInfo", txnInfo);
-            formData.append("txnNode", selectedNode);
-            //console.log(formData);
-
-            fetch("http://localhost:8000/SubmitTxn", {
-              method: "POST",
-              body: formData,
-            })
-              .then((response) => {
-                if (response.ok) {
-                  console.log("第一个表单提交成功！");
-                } else {
-                  console.error("第一个表单提交失败");
-                }
-              })
-              .catch((error) => console.error("请求出错: " + error));
-          });
-      </script>
-      <script is:inline>
-        const validationNodeM = document.getElementById("validationNodeM");
-        function fetchNodeList() {
-          fetch("http://localhost:8000/AllNode")
-            .then((response) => response.json())
-            .then((data) => {
-              validationNodeM.innerHTML = "";
-              validationNodeM.options[0] = new Option("广播", "Broadcast");
-              data.forEach(function (node, index) {
-                validationNodeM.options[index + 1] = new Option(
-                  node.nodeName,
-                  node.nodeName,
-                );
-              });
-            })
-            .catch((error) => console.error("请求出错: " + error));
-        }
-
-        document
-          .getElementById("validationTxnNumM")
-          .addEventListener("input", updateNonceValues);
-
-        function updateNonceValues() {
-          var txnNumInput = document.getElementById("validationTxnNumM");
-          var txnNumValue = parseInt(txnNumInput.value);
-
-          if (!isNaN(txnNumValue) && txnNumValue > 0) {
-            var nonceFromInput = document.getElementById("validationNonceFrom");
-            var nonceToInput = document.getElementById("validationNonceTo");
-            var nonceFromValue = parseInt(nonceFromInput.value);
-            nonceToInput.value = nonceFromValue+txnNumValue-1;
-          }
-        }
 
         const formM = document.getElementById("formM");
         formM.addEventListener("submit", function (event) {
@@ -1047,51 +984,35 @@ const page = "index";
           }
           formM.classList.add("was-validated");
         });
-        fetchNodeList();
-        setInterval(fetchNodeList, 5000);
-
-        const timestampInputM = document.getElementById("validationTimestampM");
-        function updateTimestamp() {
-          const currentTimestampM = Math.floor(Date.now() / 1000); // 获取当前时间的 UNIX 时间戳（秒）
-          timestampInputM.value = currentTimestampM; // 更新时间戳字段
-        }
-        updateTimestamp();
-        setInterval(updateTimestamp, 1000);
         document
           .getElementById("submitFormM")
           .addEventListener("click", function () {
-            const spamTxnNum =
-              document.getElementById("validationTxnNumM").value;
-            const spamTxnFrom =
-              document.getElementById("validationFromM").value;
-            const spamTxnTo = document.getElementById("validationToM").value;
-            const spamTxnOperation = document.getElementById(
-              "validationOperationM",
-            ).value;
-            const spamTxnAmountMin = document.getElementById(
-              "validationAmountMinM",
-            ).value;
-            const spamTxnAmountMax = document.getElementById(
-              "validationAmountMaxM",
-            ).value;
-            const spamTxnData =
-              document.getElementById("validationDataM").value;
-            const spamTxnInfo =
-              document.getElementById("validationInfoM").value;
-            const selectedNode = validationNodeM.value;
-
+            const spamTxnNum = document.getElementById("formTxnNumM").value;
+            const spamTxnFrom = document.getElementById("formTxnFromM").value;
+            const spamTxnTo = document.getElementById("formTxnToM").value;
+            const spamTxnOperation =
+              document.getElementById("formTxnOperationM").value;
+            const spamTxnAmountMin =
+              document.getElementById("formTxnAmountMinM").value;
+            const spamTxnAmountMax =
+              document.getElementById("formTxnAmountMaxM").value;
+            const spamTxnData = document.getElementById("formTxnDataM").value;
+            const spamTxnInfo = document.getElementById("formTxnInfoM").value;
+            const selectedNode = formNodeM.value;
+            console.log(spamTxnAmountMax)
             const formData = new FormData();
             formData.append("spamTxnNum", spamTxnNum);
             formData.append("spamTxnFrom", spamTxnFrom);
             formData.append("spamTxnTo", spamTxnTo);
             formData.append("spamTxnOperation", spamTxnOperation);
-            formData.append("spamTxnAmountMin", spamTxnAmountMin);
-            formData.append("spamTxnAmountMax", spamTxnAmountMax);
+            formData.append("spamTxnValueMin", spamTxnAmountMin);
+            formData.append("spamTxnValueMax", spamTxnAmountMax);
             formData.append("spamTxnData", spamTxnData);
             formData.append("spamTxnInfo", spamTxnInfo);
             formData.append("spamTxnNode", selectedNode);
+            
 
-            fetch("http://localhost:8000/SubmitTxn", {
+            fetch("http://localhost:8000/submitSpamTxn", {
               method: "POST",
               body: formData,
             })

@@ -95,18 +95,13 @@ const htmlPath = "..";
                     });
   
                     if (response.ok) {
-                    const data = response.json();
-                    console.log(data)
+                      const data = await response.json();
                     const token = data.token;
                       
-                      localStorage.setItem("email", JSON.stringify({ email }));
-                      localStorage.setItem(
-                        "password",
-                        JSON.stringify({ password }),
-                      );
-                      localStorage.setItem("token", token);
+                      localStorage.setItem("userEmail", email);
+                      localStorage.setItem("userToken", token);
                       alert("注册成功！");
-                    window.location.href = "/client.html";
+                    window.location.href = "/user.html";
                     } else {
                       const errorData = response.json();
                     alert("注册失败：" + errorData.error);

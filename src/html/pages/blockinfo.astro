@@ -13,10 +13,8 @@ const page = "index3";
 
 <!doctype html>
 <html lang="en">
-  <!--begin::Head-->
   <head>
     <Head title={title} path={path} />
-
     <!-- apexcharts -->
     <link
       rel="stylesheet"
@@ -27,17 +25,12 @@ const page = "index3";
   </head>
 
   <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
-    <!--begin::App Wrapper-->
     <div class="app-wrapper">
       <Topbar path={path} />
       <Sidenav path={path} mainPage={mainPage} page={page} />
-      <!--begin::App Main-->
       <main class="app-main">
-        <!--begin::App Content Header-->
         <div class="app-content-header">
-          <!--begin::Container-->
           <div class="container-fluid">
-            <!--begin::Row-->
             <div class="row">
               <div class="col-sm-6">
                 <h3 class="mb-0">块信息面板</h3>
@@ -51,14 +44,10 @@ const page = "index3";
                 </ol>
               </div>
             </div>
-            <!--end::Row-->
           </div>
-          <!--end::Container-->
         </div>
         <div class="app-content">
-          <!--begin::Container-->
           <div class="container-fluid">
-            <!--begin::Row-->
             <div class="row">
               <div class="card mb-4">
                 <div class="card-header">
@@ -71,7 +60,7 @@ const page = "index3";
                         class="form-control bg-light bg-focus-white"
                         autocomplete="off"
                         spellcheck="false"
-                        id="search-panel"
+                        id="searchBlockInput"
                         placeholder="按编号搜索"
                         maxlength="65"
                       />
@@ -88,16 +77,25 @@ const page = "index3";
                     </div>
                   </div>
                   <div class="row">
-                    <span class="card-tools bg-light bg-focus-white col-md-1" style="padding: 20px; display: inline-block;">
-                        共计结果:
+                    <span
+                      class="card-tools bg-light bg-focus-white col-md-1"
+                      style="padding: 20px; display: inline-block;"
+                    >
+                      共计结果:
                     </span>
-                    <span class="card-tools bg-light bg-focus-white col-md-11" style="padding: 20px 0px; display: inline-block;">
-                      <span id="result-count" style="color: blue; font-weight: bold; padding: 10px;">0</span> 份块记录
-                  </span>
-                </div>
+                    <span
+                      class="card-tools bg-light bg-focus-white col-md-11"
+                      style="padding: 20px 0px; display: inline-block;"
+                    >
+                      <span
+                        id="resultCount"
+                        style="color: blue; font-weight: bold; padding: 10px;"
+                        >0</span
+                      > 份块记录
+                    </span>
+                  </div>
                   <hr class="hr-space my-4" />
 
-                  <!-- /.card-header -->
                   <div class="card-body p-0">
                     <table class="table flex">
                       <thead>
@@ -112,34 +110,19 @@ const page = "index3";
                       <tbody id="blockInfoTableBody"> </tbody>
                     </table>
                   </div>
-                  <!-- /.card-body -->
-                  <!-- /.card -->
-                  <!-- /.col-md-6 -->
                 </div>
-                <!--end::Row-->
               </div>
-              <!--end::Container-->
             </div>
-            <!--end::App Content-->
           </div>
           <div id="blockInfoPopup">
             <table>
-              <tbody id="popupContent">
-                <!-- 这里将显示弹出表格内容，不包含表头 -->
-              </tbody>
+              <tbody id="popupContent"> </tbody>
             </table>
           </div>
-          <!--end::App Main-->
           <Footer />
         </div>
-
-        <!--end::App Wrapper-->
-        <!--begin::Script-->
         <Scripts path={path} />
 
-        <!-- OPTIONAL SCRIPTS -->
-
-        <!-- apexcharts -->
         <script
           src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js"
           integrity="sha256-+vh8GkaU7C9/wbSLIcwq82tQ2wTf44aOHA8HlBMwRI8="
@@ -149,58 +132,76 @@ const page = "index3";
         </script>
 
         <script is:inline>
-          let currentPage = 1;
-          let totalblockList = [];
-          function renderChart(selector, data) {
-            const options = {
-              series: [{ data }],
-              xaxis: {
-                categories: ["发布", "排队", "提交", "确认"],
-              },
-              chart: {
-                type: "line",
-                width: 150,
-                height: 30,
-                sparkline: {
-                  enabled: true,
-                },
-              },
-              colors: ["var(--bs-primary)"],
-              stroke: {
-                width: 2,
-              },
-              tooltip: {
-                fixed: {
-                  enabled: false,
-                },
-                x: {
-                  show: true,
-                },
-                y: {
-                  title: {
-                    formatter: function (seriesName) {
-                      return "计时:";
-                    },
-                  },
-                  formatter: function (value) {
-                    return value + "ms";
+          let NETWORK = true;
+          const CHART_NUMBER = 30; // 你需要的图表数量
+          const timerChartOptions = {
+            series: [],
+            xaxis: { categories: ["发布", "排队", "提交", "确认"] },
+            chart: {
+              type: "line",
+              width: 150,
+              height: 30,
+              sparkline: { enabled: true },
+            },
+            colors: ["var(--bs-primary)"],
+            stroke: { width: 2 },
+            tooltip: {
+              fixed: { enabled: false },
+              x: { show: true },
+              y: {
+                title: {
+                  formatter: function (seriesName) {
+                    return "计时:";
                   },
                 },
-                marker: {
-                  show: false,
+                formatter: function (value) {
+                  return value + "ms";
                 },
               },
-            };
+              marker: { show: false },
+            },
+          };
+
+          const chartList = [];
+          const chartDivList = [];
+
+          for (let i = 1; i <= CHART_NUMBER; i++) {
+            const chartDiv = document.createElement("div");
+            chartDiv.id = `timerChart${i}`;
+            document.body.appendChild(chartDiv); // Assuming you want to append the charts to the body element
             const chart = new ApexCharts(
-              document.querySelector(selector),
-              options,
+              document.querySelector(`#${chartDiv.id}`),
+              timerChartOptions,
             );
+            chartDiv.style.display = "none";
             chart.render();
+            chartList.push(chart);
+            chartDivList.push(chartDiv);
+          }
+
+          let currentPage = 1;
+          let totalBlockList = [];
+          // 展示列表相关
+          function getStatusClassName(status) {
+            switch (status) {
+              case "Pending":
+                return "secondary";
+              case "Committed":
+                return "primary";
+              case "Finalized":
+                return "warning";
+              case "Failed":
+                return "danger";
+              case "Successed":
+                return "success";
+              default:
+                // 默认情况下使用蓝色
+                return "success";
+            }
           }
           function formatTimestamp(timestamp, mode) {
             const currentDate = new Date();
-            const targetDate = new Date(timestamp * 1000); // Convert to milliseconds
-
+            const targetDate = new Date(timestamp * 1000);
             const yearDiff =
               currentDate.getFullYear() - targetDate.getFullYear();
             const monthDiff = currentDate.getMonth() - targetDate.getMonth();
@@ -210,7 +211,6 @@ const page = "index3";
               currentDate.getMinutes() - targetDate.getMinutes();
             const secondDiff =
               currentDate.getSeconds() - targetDate.getSeconds();
-
             if (mode === "0") {
               return `${targetDate.getFullYear()}-${(targetDate.getMonth() + 1)
                 .toString()
@@ -229,70 +229,40 @@ const page = "index3";
                 .padStart(2, "0")}`;
             } else if (mode === "1") {
               let result = "";
-
-              if (yearDiff > 0) {
-                result += `${yearDiff}年`;
-              }
-              if (monthDiff > 0) {
-                result += `${monthDiff}月`;
-              }
-              if (dayDiff > 0) {
-                result += `${dayDiff}天`;
-              }
-              if (hourDiff > 0) {
-                result += `${hourDiff}小时`;
-              }
-              if (minuteDiff > 0) {
-                result += `${minuteDiff}分钟`;
-              }
-              if (secondDiff > 0) {
-                result += `${secondDiff}秒`;
-              }
-
+              if (yearDiff > 0) result += `${yearDiff}年`;
+              if (monthDiff > 0) result += `${monthDiff}月`;
+              if (dayDiff > 0) result += `${dayDiff}天`;
+              if (hourDiff > 0) result += `${hourDiff}小时`;
+              if (minuteDiff > 0) result += `${minuteDiff}分钟`;
+              if (secondDiff > 0) result += `${secondDiff}秒`;
               return result;
             }
-
             return "Invalid mode";
           }
-          function getStatusClassName(status) {
-            switch (status) {
-              case "Pending":
-                return "secondary";
-              case "Committed":
-                return "primary";
-              case "Finalized":
-                return "warning";
-              case "Failed":
-                return "danger";
-              case "Successed":
-                return "success";
-              default:
-                // 默认情况下使用蓝色
-                return "success";
-            }
-          }
-          const searchInput = document.getElementById("search-panel");
+
+          const searchInput = document.getElementById("searchBlockInput");
           function searchBlocks(searchTerm, blockList) {
             const searchResults = blockList.filter((block) => {
               // 这里可以根据你的匹配逻辑来判断是否匹配
-              // 例如，如果 blockNum 包含 searchTerm，则认为匹配
-              return block.blockNum.toString().includes(searchTerm);
+              // 例如，如果 blockId 包含 searchTerm，则认为匹配
+              return block.blockId.toString().includes(searchTerm);
             });
             return searchResults;
           }
           searchInput.addEventListener("input", function () {
-            const searchTerm = searchInput.value;
-            const searchBlockList = searchBlocks(searchTerm, totalblockList);
-            currentPage=1;
-            updatePagination(searchBlockList);
-            fillComponentsWithData(searchBlockList);
-            //renderSearchResults(searchBlockList);
-          });
 
-          const pagination = document.getElementById("pagination");
-          const resultCount=document.getElementById("result-count");
+            const searchTerm = searchInput.value;            
+            if (searchTerm) NETWORK = false;
+            else NETWORK = true;
+            const searchBlockList = searchBlocks(searchTerm, totalBlockList);
+            currentPage = 1;
+            updatePagination(searchBlockList);
+            fillBlockInfoComponentsWithData(searchBlockList);
+          });
           function updatePagination(blockList) {
-            resultCount.innerHTML=blockList.length;
+            const pagination = document.getElementById("pagination");
+            const resultCount = document.getElementById("resultCount");
+            resultCount.innerHTML = blockList.length;
             pagination.innerHTML = "";
             pagination.innerHTML += `
                   <li class="page-item">
@@ -300,10 +270,10 @@ const page = "index3";
                   </li>
               `;
             const itemsPerPage = 10; // 每页显示的项目数量
-            const totalItems = blockList.length; // blockList 的长度
+            const totalItems = blockList.length;
             const totalPages = Math.ceil(totalItems / itemsPerPage); // 总页数
-            const startPage = Math.max(1, currentPage - 1);
-            const endPage = Math.min(currentPage + 1, totalPages);
+            const startPage = Math.max(1, currentPage - 1); //起始展示页
+            const endPage = Math.min(currentPage + 1, totalPages); //终止展示页
             for (let i = startPage; i <= endPage; i++) {
               pagination.innerHTML += `
                   <li class="page-item">
@@ -322,46 +292,43 @@ const page = "index3";
               link.addEventListener("click", () => {
                 if (link.dataset.page) {
                   currentPage = parseInt(link.dataset.page);
-                  console.log(currentPage);
-                  if (searchInput.value.trim() === "") {
-                    fetchBlock();    
-                  }
+                  if (searchInput.value.trim() === "") fetchBlock();
                   updatePagination(blockList);
-                  fillComponentsWithData(blockList);
+                  fillBlockInfoComponentsWithData(blockList);
                 } else if (link.textContent === "«") {
                   currentPage = Math.max(1, currentPage - 3);
-                  if (searchInput.value.trim() === "") {
-                    fetchBlock();
-                  }
+                  if (searchInput.value.trim() === "") fetchBlock();
                   updatePagination(blockList);
-                  fillComponentsWithData(blockList);
+                  fillBlockInfoComponentsWithData(blockList);
                 } else if (link.textContent === "»") {
                   currentPage = Math.min(totalPages, currentPage + 3);
-                  if (searchInput.value.trim() === "") {
-                    fetchBlock();
-                  }
+                  if (searchInput.value.trim() === "") fetchBlock();
                   updatePagination(blockList);
-                  fillComponentsWithData(blockList);
+                  fillBlockInfoComponentsWithData(blockList);
                 }
               });
             });
           }
           //渲染表格部分，先渲染空组件，再装填内容
           function fetchBlock() {
-            fetch("http://localhost:8000/AllBlock")
-              .then((response) => response.json())
-              .then((data) => {
-                // 将从服务器获取的数据存储在 blockList 中
-                totalblockList = data;
-                // 更新表格内容
-                updatePagination(totalblockList);
-                fillComponentsWithData(totalblockList);
-              })
-              .catch((error) => {
-                console.error("Error fetching data:", error);
-              });
+            if (NETWORK)
+              fetch("http://localhost:8000/allBlock")
+                .then((response) => response.json())
+                .then((data) => {
+                  // 将从服务器获取的数据存储在 blockList 中
+                  totalBlockList = data;
+                  chartDivList.forEach((chartDiv) => {
+                    chartDiv.style.display = "none";
+                  });
+                  // 更新表格内容
+                  updatePagination(totalBlockList);
+                  fillBlockInfoComponentsWithData(totalBlockList);
+                })
+                .catch((error) => {
+                  alert("获取区块信息失败" + error.message);
+                });
           }
-          function renderEmptyComponents() {
+          function renderEmptyBlockInfoComponents() {
             const tbody = document.getElementById("blockInfoTableBody");
             tbody.innerHTML = "";
             // 定义需要渲染的空组件数量
@@ -377,7 +344,6 @@ const page = "index3";
               const card = document.createElement("div");
               //可以根据状态设置颜色
               card.className = "card card-outline " + "card-success";
-              //card.style.border = "1px";
 
               const cardHeader = document.createElement("div");
               cardHeader.className = "card-header";
@@ -386,10 +352,10 @@ const page = "index3";
               cardHeaderContent.style.display = "flex";
               cardHeaderContent.style.justifyContent = "space-between";
 
-              const blockNum = document.createElement("b");
-              blockNum.className = "card-title ";
-              blockNum.style = "flex: 0 0 auto; width: 8%; font-weight: bold;";
-              blockNum.textContent = "#";
+              const blockId = document.createElement("b");
+              blockId.className = "card-title ";
+              blockId.style = "flex: 0 0 auto; width: 8%; font-weight: bold;";
+              blockId.textContent = "#";
 
               const blockAge = document.createElement("p");
               blockAge.style = "flex: 0 0 auto; width: 10%;";
@@ -408,8 +374,6 @@ const page = "index3";
               button.type = "button";
               button.className = "btn btn-tool";
               button.setAttribute("data-lte-toggle", "card-maximize");
-              //button.style.color = "black";
-              //button.title = "Block Number";
 
               const maxIcon = document.createElement("i");
               maxIcon.className = "bi bi-fullscreen";
@@ -426,7 +390,7 @@ const page = "index3";
               cardTools.className = "card-tools";
               cardTools.appendChild(button);
 
-              cardHeaderContent.appendChild(blockNum);
+              cardHeaderContent.appendChild(blockId);
               cardHeaderContent.appendChild(blockAge);
               cardHeaderContent.appendChild(blockStatus);
               cardHeaderContent.appendChild(blockTxnNum);
@@ -445,18 +409,19 @@ const page = "index3";
               tbody.appendChild(row);
 
               button.addEventListener("click", function () {
+                NETWORK = !NETWORK;
                 if (card) {
                   if (card.classList.contains("card-outline")) {
                     card.classList.remove("card-outline");
-                    blockNum.style.display = "none";
+                    blockId.style.display = "none";
                     blockAge.style.display = "none";
                     blockStatus.style.display = "none";
                     blockTxnNum.style.display = "none";
                     blockTimer.style.display = "none";
                   } else {
                     card.classList.add("card-outline");
-                    blockNum.style.display = "block";
-                    blockAge.style.display = "none";
+                    blockId.style.display = "block";
+                    blockAge.style.display = "block";
                     blockStatus.style.display = "block";
                     blockTxnNum.style.display = "block";
                     blockTimer.style.display = "block";
@@ -497,7 +462,6 @@ const page = "index3";
             ulElement.appendChild(liElement);
 
             cardHeaderElement.appendChild(ulElement);
-            //header部分
 
             //tab部分
             const tabContentElement = document.createElement("div");
@@ -514,7 +478,7 @@ const page = "index3";
 
             //展示内容
             const blockInfo = [
-              { label: "块编号:", value: block.blockNum, mode: "Num" },
+              { label: "块编号:", value: block.blockId, mode: "Num" },
               { label: "块高度:", value: block.blockHeight, mode: "" },
               { label: "块状态:", value: block.blockStatus, mode: "Status" },
               {
@@ -563,10 +527,8 @@ const page = "index3";
                   "确认:" +
                   info.value[3] +
                   "ms";
-              }
-              else if(info.mode=="TimeStamp")
-              {
-                valueCol.textContent = formatTimestamp(info.value,"0");
+              } else if (info.mode == "TimeStamp") {
+                valueCol.textContent = formatTimestamp(info.value, "0");
               }
 
               const hr = document.createElement("hr");
@@ -602,7 +564,7 @@ const page = "index3";
                 textarea.style.fontWeight = "bold";
                 detail.value.forEach((txn) => {
                   textarea.textContent =
-                    textarea.textContent + "#" + txn.txnNum + "\t\t";
+                    textarea.textContent + "#" + txn.txnId + "\t\t";
                 });
               }
               valueCol.appendChild(textarea);
@@ -621,7 +583,7 @@ const page = "index3";
             blockCardBodyElement.appendChild(tabContentElement);
             return blockCardBodyElement;
           }
-          function fillComponentsWithData(blockList) {
+          function fillBlockInfoComponentsWithData(blockList) {
             const itemsPerPage = 10;
             const tbody = document.getElementById("blockInfoTableBody");
 
@@ -636,6 +598,12 @@ const page = "index3";
 
               if (dataIndex < blockList.length) {
                 const block = blockList[dataIndex];
+                block.blockTimer = [
+                  block.blockTimer[0] - block.blockAge,
+                  block.blockTimer[1] - block.blockAge,
+                  block.blockTimer[2] - block.blockAge,
+                  block.blockTimer[3] - block.blockAge,
+                ];
                 card.className =
                   "card card-outline " +
                   "card-" +
@@ -644,7 +612,7 @@ const page = "index3";
                 cardChildren.forEach((childElement) => {
                   childElement.className = card.className;
                 });
-                const blockNum = card.querySelector(".card-title");
+                const blockId = card.querySelector(".card-title");
                 const blockAge = card.querySelector(
                   ".card-header p:nth-child(2)",
                 );
@@ -658,19 +626,24 @@ const page = "index3";
                   ".card-header p:nth-child(5)",
                 );
                 const cardBody = card.querySelector(".card-body");
-                
-                blockNum.textContent = `#${block.blockNum}`;
-                blockAge.textContent = `${formatTimestamp(block.blockAge,"0")}`;
+
+                blockId.textContent = `#${block.blockId}`;
+                blockAge.textContent = `${formatTimestamp(
+                  block.blockAge,
+                  "0",
+                )}`;
                 blockTxnNum.textContent = `${block.blockTxnNum}`;
                 blockStatus.innerHTML = "";
                 blockStatus.textContent = `${block.blockStatus}`;
                 blockStatus.className =
                   "badge text-bg-" + getStatusClassName(block.blockStatus);
                 blockTimer.innerHTML = "";
-                const sparklineDiv = document.createElement("div");
-                sparklineDiv.id = "table-sparkline-" + block.blockNum;
+                chartList[i].updateSeries([{ data: block.blockTimer }]);
+                const sparklineDiv = chartDivList[i];
+                sparklineDiv.style.display = "block";
+
                 blockTimer.appendChild(sparklineDiv);
-                renderChart("#" + sparklineDiv.id, block.blockTimer);
+
                 const cardBodyElement = createBlockCardBodyElement(block);
 
                 cardBody.innerHTML = "";
@@ -682,12 +655,12 @@ const page = "index3";
               }
             }
           }
-          renderEmptyComponents();
+          renderEmptyBlockInfoComponents();
           fetchBlock();
+          setInterval(fetchBlock, 5000);
           // 初始页面加载时调用一次 fetchBlock，更新表格内容
         </script>
-        <!--end::Script-->
-      </main><!--end::Body-->
+      </main>
     </div>
   </body>
 </html>

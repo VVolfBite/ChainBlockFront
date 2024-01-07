@@ -13,10 +13,8 @@ const page = "index4";
 
 <!doctype html>
 <html lang="en">
-  <!--begin::Head-->
   <head>
     <Head title={title} path={path} />
-
     <!-- apexcharts -->
     <link
       rel="stylesheet"
@@ -25,7 +23,6 @@ const page = "index4";
       crossorigin="anonymous"
     />
     <style>
-      /* 添加隐藏样式，用于弹出的表格 */
       #txnInfoPopup {
         display: none;
         position: fixed; /* 使用fixed定位 */
@@ -41,17 +38,12 @@ const page = "index4";
   </head>
 
   <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
-    <!--begin::App Wrapper-->
     <div class="app-wrapper">
       <Topbar path={path} />
       <Sidenav path={path} mainPage={mainPage} page={page} />
-      <!--begin::App Main-->
       <main class="app-main">
-        <!--begin::App Content Header-->
         <div class="app-content-header">
-          <!--begin::Container-->
           <div class="container-fluid">
-            <!--begin::Row-->
             <div class="row">
               <div class="col-sm-6">
                 <h3 class="mb-0">事务信息面板</h3>
@@ -65,14 +57,10 @@ const page = "index4";
                 </ol>
               </div>
             </div>
-            <!--end::Row-->
           </div>
-          <!--end::Container-->
         </div>
         <div class="app-content">
-          <!--begin::Container-->
           <div class="container-fluid">
-            <!--begin::Row-->
             <div class="row">
               <div class="card mb-4">
                 <div class="card-header">
@@ -85,7 +73,7 @@ const page = "index4";
                         class="form-control bg-light bg-focus-white"
                         autocomplete="off"
                         spellcheck="false"
-                        id="search-panel"
+                        id="searchTxnInput"
                         placeholder="按编号搜索"
                         maxlength="65"
                       />
@@ -113,7 +101,7 @@ const page = "index4";
                       style="padding: 20px 0px; display: inline-block;"
                     >
                       <span
-                        id="result-count"
+                        id="resultCount"
                         style="color: blue; font-weight: bold; padding: 10px;"
                         >0</span
                       > 条事务记录
@@ -121,7 +109,6 @@ const page = "index4";
                   </div>
                   <hr class="hr-space my-4" />
 
-                  <!-- /.card-header -->
                   <div class="card-body p-0">
                     <table class="table flex">
                       <thead>
@@ -141,91 +128,77 @@ const page = "index4";
                       <tbody id="txnInfoTableBody"> </tbody>
                     </table>
                   </div>
-                  <!-- /.card-body -->
-                  <!-- /.card -->
-                  <!-- /.col-md-6 -->
                 </div>
-                <!--end::Row-->
               </div>
-              <!--end::Container-->
             </div>
-            <!--end::App Content-->
           </div>
           <div id="txnInfoPopup">
             <table>
-              <tbody id="popupContent">
-                <!-- 这里将显示弹出表格内容，不包含表头 -->
-              </tbody>
+              <tbody id="popupContent"> </tbody>
             </table>
           </div>
-          <!--end::App Main-->
           <Footer />
         </div>
-
-        <!--end::App Wrapper-->
-        <!--begin::Script-->
         <Scripts path={path} />
 
-        <!-- OPTIONAL SCRIPTS -->
-
-        <!-- apexcharts -->
         <script
           src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js"
           integrity="sha256-+vh8GkaU7C9/wbSLIcwq82tQ2wTf44aOHA8HlBMwRI8="
           crossorigin="anonymous"
         >
-          import { info } from "astro/dist/core/logger/core";
         </script>
-
         <script is:inline>
-          let currentPage = 1;
-          let totaltxnList = [];
-          function renderChart(selector, data) {
-            const options = {
-              series: [{ data }],
-              xaxis: {
-                categories: ["发布", "排队", "提交", "确认"],
-              },
-              chart: {
-                type: "line",
-                width: 150,
-                height: 30,
-                sparkline: {
-                  enabled: true,
-                },
-              },
-              colors: ["var(--bs-primary)"],
-              stroke: {
-                width: 2,
-              },
-              tooltip: {
-                fixed: {
-                  enabled: false,
-                },
-                x: {
-                  show: true,
-                },
-                y: {
-                  title: {
-                    formatter: function (seriesName) {
-                      return "计时:";
-                    },
-                  },
-                  formatter: function (value) {
-                    return value + "ms";
+          let NETWORK = true;
+
+          const CHART_NUMBER = 30; // 你需要的图表数量
+          const timerChartOptions = {
+            series: [],
+            xaxis: { categories: ["发布", "排队", "提交", "确认"] },
+            chart: {
+              type: "line",
+              width: 150,
+              height: 30,
+              sparkline: { enabled: true },
+            },
+            colors: ["var(--bs-primary)"],
+            stroke: { width: 2 },
+            tooltip: {
+              fixed: { enabled: false },
+              x: { show: true },
+              y: {
+                title: {
+                  formatter: function (seriesName) {
+                    return "计时:";
                   },
                 },
-                marker: {
-                  show: false,
+                formatter: function (value) {
+                  return value + "ms";
                 },
               },
-            };
+              marker: { show: false },
+            },
+          };
+
+          const chartList = [];
+          const chartDivList = [];
+
+          for (let i = 1; i <= CHART_NUMBER; i++) {
+            const chartDiv = document.createElement("div");
+            chartDiv.id = `timerChart${i}`;
+            document.body.appendChild(chartDiv); // Assuming you want to append the charts to the body element
             const chart = new ApexCharts(
-              document.querySelector(selector),
-              options,
+              document.querySelector(`#${chartDiv.id}`),
+              timerChartOptions,
             );
+            chartDiv.style.display = "none";
             chart.render();
+            chartList.push(chart);
+            chartDivList.push(chartDiv);
           }
+
+          let currentPage = 1;
+          let totalTxnList = [];
+          // 展示列表相关
           function getStatusClassName(status) {
             switch (status) {
               case "Pending":
@@ -243,10 +216,10 @@ const page = "index4";
                 return "success";
             }
           }
+
           function formatTimestamp(timestamp, mode) {
             const currentDate = new Date();
             const targetDate = new Date(timestamp * 1000); // Convert to milliseconds
-
             const yearDiff =
               currentDate.getFullYear() - targetDate.getFullYear();
             const monthDiff = currentDate.getMonth() - targetDate.getMonth();
@@ -256,7 +229,6 @@ const page = "index4";
               currentDate.getMinutes() - targetDate.getMinutes();
             const secondDiff =
               currentDate.getSeconds() - targetDate.getSeconds();
-
             if (mode === "0") {
               return `${targetDate.getFullYear()}-${(targetDate.getMonth() + 1)
                 .toString()
@@ -275,52 +247,37 @@ const page = "index4";
                 .padStart(2, "0")}`;
             } else if (mode === "1") {
               let result = "";
-
-              if (yearDiff > 0) {
-                result += `${yearDiff}年`;
-              }
-              if (monthDiff > 0) {
-                result += `${monthDiff}月`;
-              }
-              if (dayDiff > 0) {
-                result += `${dayDiff}天`;
-              }
-              if (hourDiff > 0) {
-                result += `${hourDiff}小时`;
-              }
-              if (minuteDiff > 0) {
-                result += `${minuteDiff}分钟`;
-              }
-              if (secondDiff > 0) {
-                result += `${secondDiff}秒`;
-              }
-
+              if (yearDiff > 0) result += `${yearDiff}年`;
+              if (monthDiff > 0) result += `${monthDiff}月`;
+              if (dayDiff > 0) result += `${dayDiff}天`;
+              if (hourDiff > 0) result += `${hourDiff}小时`;
+              if (minuteDiff > 0) result += `${minuteDiff}分钟`;
+              if (secondDiff > 0) result += `${secondDiff}秒`;
               return result;
             }
-
             return "Invalid mode";
           }
-          const searchInput = document.getElementById("search-panel");
+          const searchInput = document.getElementById("searchTxnInput");
           function searchTxns(searchTerm, txnList) {
             const searchResults = txnList.filter((txn) => {
               // 这里可以根据你的匹配逻辑来判断是否匹配
-              // 例如，如果 txnNum 包含 searchTerm，则认为匹配
-              return txn.txnNum.toString().includes(searchTerm);
+              // 例如，如果 txnId 包含 searchTerm，则认为匹配
+              return txn.txnId.toString().includes(searchTerm);
             });
             return searchResults;
           }
           searchInput.addEventListener("input", function () {
             const searchTerm = searchInput.value;
-            const searchTxnList = searchTxns(searchTerm, totaltxnList);
+            if (searchTerm) NETWORK = false;
+            else NETWORK = true;
+            const searchTxnList = searchTxns(searchTerm, totalTxnList);
             currentPage = 1;
             updatePagination(searchTxnList);
-            fillComponentsWithData(searchTxnList);
-            //renderSearchResults(searchTxnList);
+            fillTxnInfoComponentsWithData(searchTxnList);
           });
-
-          const pagination = document.getElementById("pagination");
-          const resultCount = document.getElementById("result-count");
           function updatePagination(txnList) {
+            const pagination = document.getElementById("pagination");
+            const resultCount = document.getElementById("resultCount");
             resultCount.innerHTML = txnList.length;
             pagination.innerHTML = "";
             pagination.innerHTML += `
@@ -331,8 +288,8 @@ const page = "index4";
             const itemsPerPage = 10; // 每页显示的项目数量
             const totalItems = txnList.length; // txnList 的长度
             const totalPages = Math.ceil(totalItems / itemsPerPage); // 总页数
-            const startPage = Math.max(1, currentPage - 1);
-            const endPage = Math.min(currentPage + 1, totalPages);
+            const startPage = Math.max(1, currentPage - 1); //起始展示页
+            const endPage = Math.min(currentPage + 1, totalPages); //终止展示页
             for (let i = startPage; i <= endPage; i++) {
               pagination.innerHTML += `
                   <li class="page-item">
@@ -352,45 +309,40 @@ const page = "index4";
                 if (link.dataset.page) {
                   currentPage = parseInt(link.dataset.page);
                   console.log(currentPage);
-                  if (searchInput.value.trim() === "") {
-                    fetchTxn();
-                  }
+                  if (searchInput.value.trim() === "") fetchTxn();
                   updatePagination(txnList);
-                  fillComponentsWithData(txnList);
+                  fillTxnInfoComponentsWithData(txnList);
                 } else if (link.textContent === "«") {
                   currentPage = Math.max(1, currentPage - 3);
-                  if (searchInput.value.trim() === "") {
-                    fetchTxn();
-                  }
+                  if (searchInput.value.trim() === "") fetchTxn();
                   updatePagination(txnList);
-                  fillComponentsWithData(txnList);
+                  fillTxnInfoComponentsWithData(txnList);
                 } else if (link.textContent === "»") {
                   currentPage = Math.min(totalPages, currentPage + 3);
-                  if (searchInput.value.trim() === "") {
-                    fetchTxn();
-                  }
+                  if (searchInput.value.trim() === "") fetchTxn();
                   updatePagination(txnList);
-                  fillComponentsWithData(txnList);
+                  fillTxnInfoComponentsWithData(txnList);
                 }
               });
             });
           }
           //渲染表格部分，先渲染空组件，再装填内容
           function fetchTxn() {
-            fetch("http://localhost:8000/AllTxn")
-              .then((response) => response.json())
-              .then((data) => {
-                // 将从服务器获取的数据存储在 txnList 中
-                totaltxnList = data;
-                // 更新表格内容
-                updatePagination(totaltxnList);
-                fillComponentsWithData(totaltxnList);
-              })
-              .catch((error) => {
-                console.error("Error fetching data:", error);
-              });
+            if (NETWORK)
+              fetch("http://localhost:8000/allTxn")
+                .then((response) => response.json())
+                .then((data) => {
+                  // 将从服务器获取的数据存储在 txnList 中
+                  totalTxnList = data;
+                  // 更新表格内容
+                  updatePagination(totalTxnList);
+                  fillTxnInfoComponentsWithData(totalTxnList);
+                })
+                .catch((error) => {
+                  alert("获取事务信息失败" + error.message);
+                });
           }
-          function renderEmptyComponents() {
+          function renderEmptyTxnInfoComponents() {
             const tbody = document.getElementById("txnInfoTableBody");
             tbody.innerHTML = "";
             // 定义需要渲染的空组件数量
@@ -406,7 +358,6 @@ const page = "index4";
               const card = document.createElement("div");
               //可以根据状态设置颜色
               card.className = "card card-outline " + "card-success";
-              //card.style.border = "1px";
 
               const cardHeader = document.createElement("div");
               cardHeader.className = "card-header";
@@ -415,10 +366,10 @@ const page = "index4";
               cardHeaderContent.style.display = "flex";
               cardHeaderContent.style.justifyContent = "space-between";
 
-              const txnNum = document.createElement("b");
-              txnNum.className = "card-title";
-              txnNum.style = "flex: 0 0 auto; width: 8%; font-weight: bold;";
-              txnNum.textContent = "#";
+              const txnId = document.createElement("b");
+              txnId.className = "card-title";
+              txnId.style = "flex: 0 0 auto; width: 8%; font-weight: bold;";
+              txnId.textContent = "#";
 
               const txnOperation = document.createElement("p");
               txnOperation.style = "flex: 0 0 auto; width: 10%;";
@@ -446,8 +397,6 @@ const page = "index4";
               button.type = "button";
               button.className = "btn btn-tool col-md-1";
               button.setAttribute("data-lte-toggle", "card-maximize");
-              //button.style.color = "black";
-              //button.title = "Txn Number";
 
               const maxIcon = document.createElement("i");
               maxIcon.className = "bi bi-fullscreen";
@@ -464,7 +413,7 @@ const page = "index4";
               cardTools.className = "card-tools";
               cardTools.appendChild(button);
 
-              cardHeaderContent.appendChild(txnNum);
+              cardHeaderContent.appendChild(txnId);
               cardHeaderContent.appendChild(txnOperation);
               cardHeaderContent.appendChild(txnAmount);
               cardHeaderContent.appendChild(txnTimeStamp);
@@ -486,10 +435,11 @@ const page = "index4";
               tbody.appendChild(row);
 
               button.addEventListener("click", function () {
+                NETWORK = !NETWORK;
                 if (card) {
                   if (card.classList.contains("card-outline")) {
                     card.classList.remove("card-outline");
-                    txnNum.style.display = "none";
+                    txnId.style.display = "none";
                     txnOperation.style.display = "none";
                     txnAmount.style.display = "none";
                     txnTimeStamp.style.display = "none";
@@ -499,7 +449,7 @@ const page = "index4";
                     txnTimer.style.display = "none";
                   } else {
                     card.classList.add("card-outline");
-                    txnNum.style.display = "block";
+                    txnId.style.display = "block";
                     txnAmount.style.display = "block";
                     txnOperation.style.display = "block";
                     txnTimeStamp.style.display = "block";
@@ -522,6 +472,7 @@ const page = "index4";
             }
           }
           function createTxnCardBodyElement(txn) {
+            console.log(txn);
             const txnCardBodyElement = document.createElement("div");
             txnCardBodyElement.className = "txnCardBodyElement";
             //header部分
@@ -561,15 +512,15 @@ const page = "index4";
 
             //展示内容
             const txnInfo = [
-              { label: "事务编号:", value: txn.txnNum, mode: "Num" },
+              { label: "事务编号:", value: txn.txnId, mode: "Num" },
               { label: "事务状态:", value: txn.txnStatus, mode: "Status" },
-              { label: "事务时间戳:", value: txn.txnTimeStamp, mode: "TimeStamp" },
-              { label: "事务哈希:", value: txn.txnHash, mode: "" },
               {
-                label: "事务各阶段计时:",
-                value: txn.txnTimer,
-                mode: "Timer",
+                label: "事务时间戳:",
+                value: txn.txnTimeStamp,
+                mode: "TimeStamp",
               },
+              { label: "事务哈希:", value: txn.txnHash, mode: "" },
+              { label: "事务各阶段计时:", value: txn.txnTimer, mode: "Timer" },
               { label: "来自:", value: txn.txnFrom, mode: "" },
               { label: "发往:", value: txn.txnTo, mode: "" },
               { label: "操作:", value: txn.txnOperation, mode: "" },
@@ -615,10 +566,8 @@ const page = "index4";
                   "确认:" +
                   info.value[3] +
                   "ms";
-              }
-              else if(info.mode=="TimeStamp")
-              {
-                valueCol.textContent = formatTimestamp(info.value,"0");
+              } else if (info.mode == "TimeStamp") {
+                valueCol.textContent = formatTimestamp(info.value, "0");
               }
 
               const hr = document.createElement("hr");
@@ -666,7 +615,7 @@ const page = "index4";
             txnCardBodyElement.appendChild(tabContentElement);
             return txnCardBodyElement;
           }
-          function fillComponentsWithData(txnList) {
+          function fillTxnInfoComponentsWithData(txnList) {
             const itemsPerPage = 10;
             const tbody = document.getElementById("txnInfoTableBody");
 
@@ -678,15 +627,14 @@ const page = "index4";
               const card = tbody.children[i];
               card.style.display = "none";
               const dataIndex = startIndex + i;
-              // txnNum.style.display = "block";
-              // txnOperation.style.display = "block";
-              // txnTimeStamp.style.display = "block";
-              // txnFrom.style.display = "block";
-              // txnTo.style.display = "block";
-              // txnStatus.style.display = "block";
-              // txnTimer.style.display = "block";
               if (dataIndex < txnList.length) {
                 const txn = txnList[dataIndex];
+                txn.txnTimer = [
+                  txn.txnTimer[0] - txn.txnTimeStamp,
+                  txn.txnTimer[1] - txn.txnTimeStamp,
+                  txn.txnTimer[2] - txn.txnTimeStamp,
+                  txn.txnTimer[3] - txn.txnTimeStamp,
+                ];
                 card.className =
                   "card card-outline " +
                   "card-" +
@@ -695,7 +643,7 @@ const page = "index4";
                 cardChildren.forEach((childElement) => {
                   childElement.className = card.className;
                 });
-                const txnNum = card.querySelector(".card-title");
+                const txnId = card.querySelector(".card-title");
                 const txnOperation = card.querySelector(
                   ".card-header p:nth-child(2)",
                 );
@@ -718,10 +666,13 @@ const page = "index4";
 
                 const cardBody = card.querySelector(".card-body");
 
-                txnNum.textContent = `#${txn.txnNum}`;
+                txnId.textContent = `#${txn.txnId}`;
                 txnOperation.textContent = `${txn.txnOperation}`;
                 txnAmount.textContent = `${txn.txnValue}`;
-                txnTimeStamp.textContent = `${formatTimestamp(txn.txnTimeStamp,"0")}`;
+                txnTimeStamp.textContent = `${formatTimestamp(
+                  txn.txnTimeStamp,
+                  "0",
+                )}`;
                 txnFrom.textContent = `${txn.txnFrom}`;
                 txnTo.textContent = `${txn.txnTo}`;
                 txnStatus.innerHTML = "";
@@ -729,11 +680,12 @@ const page = "index4";
                 txnStatus.className =
                   "badge text-bg-" + getStatusClassName(txn.txnStatus);
                 txnTimer.innerHTML = "";
-                const sparklineDiv = document.createElement("div");
-                sparklineDiv.id = "table-sparkline-" + txn.txnNum;
+                chartList[i].updateSeries([{ data: txn.txnTimer }]);
+                const sparklineDiv = chartDivList[i];
+                sparklineDiv.style.display = "block";
+
                 txnTimer.appendChild(sparklineDiv);
-                renderChart("#" + sparklineDiv.id, txn.txnTimer);
-                //const cardBodyElement = document.createElement("div");
+
                 const cardBodyElement = createTxnCardBodyElement(txn);
 
                 cardBody.innerHTML = "";
@@ -745,12 +697,12 @@ const page = "index4";
               }
             }
           }
-          renderEmptyComponents();
+          renderEmptyTxnInfoComponents();
           fetchTxn();
+          setInterval(fetchTxn, 5000);
           // 初始页面加载时调用一次 fetchTxn，更新表格内容
         </script>
-        <!--end::Script-->
-      </main><!--end::Body-->
+      </main>
     </div>
   </body>
 </html>

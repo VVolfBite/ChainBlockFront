@@ -238,7 +238,6 @@ onDOMContentLoaded(() => {
 
   maxBtn.forEach(btn => {
     btn.addEventListener('click', event => {
-      console.log(12312);
       event.preventDefault()
       const target = event.target as HTMLElement
       const data = new CardWidget(target, Default)

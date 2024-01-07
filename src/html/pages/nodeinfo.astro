@@ -445,7 +445,7 @@ const page = "index5";
             <script is:inline>
               let totalNodeList = "";
               function fetchNodeInfo() {
-                fetch("http://localhost:8000/AllNode")
+                fetch("http://localhost:8000/allNode")
                   .then((response) => {
                     if (response.ok) {
                       return response.json();

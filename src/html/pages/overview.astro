@@ -94,7 +94,7 @@ const page = "overview";
               </div>
             </div>
             <script is:inline>
-              function requestnormalInfo() {
+              function requestNormalInfo() {
                 fetch("http://localhost:8000/normalInfo")
                   .then((response) => {
                     if (response.ok) {
@@ -119,8 +119,8 @@ const page = "overview";
                     console.error("Error:", error);
                   });
               }
-              requestnormalInfo();
-              setInterval(requestnormalInfo, 5000);
+              requestNormalInfo();
+              setInterval(requestNormalInfo, 5000);
             </script>
 
             <div class="row">
@@ -290,7 +290,7 @@ const page = "overview";
                           <span class="text-uppercase">平均块时延</span>
                         </div>
                       </div>
-                    </div>
+                    </div>chartDivList
                   </div>
                 </div>
               </div>
@@ -453,7 +453,6 @@ const page = "overview";
 
                     chartData.blockLatencyChart.data.shift();
                     chartData.blockLatencyChart.data.push(data.blockLatency);
-
                     latencyThroughputChart.updateOptions({});
                   })
                   .catch((error) => {
@@ -518,38 +517,55 @@ const page = "overview";
                   </div>
                 </div>
               </div>
+              <script
+                src="https://cdn.jsdelivr.net/npm/apexcharts@3.37.1/dist/apexcharts.min.js"
+                integrity="sha256-+vh8GkaU7C9/wbSLIcwq82tQ2wTf44aOHA8HlBMwRI8="
+                crossorigin="anonymous"></script>
               <script is:inline>
-                function renderChart(selector, data) {
-                  const options = {
-                    series: [{ data }],
-                    xaxis: { categories: ["发布", "排队", "提交", "确认"] },
-                    chart: {
-                      type: "line",
-                      width: 150,
-                      height: 30,
-                      sparkline: { enabled: true },
-                    },
-                    colors: ["var(--bs-primary)"],
-                    stroke: { width: 2 },
-                    tooltip: {
-                      fixed: { enabled: false },
-                      x: { show: true },
-                      y: {
-                        title: {
-                          formatter: function (seriesName) {
-                            return "计时:";
-                          },
-                        },
-                        formatter: function (value) {
-                          return value + "ms";
+                const CHART_NUMBER = 30; // 你需要的图表数量
+                const timerChartOptions = {
+                  series: [],
+                  xaxis: { categories: ["发布", "排队", "提交", "确认"] },
+                  chart: {
+                    type: "line",
+                    width: 150,
+                    height: 30,
+                    sparkline: { enabled: true },
+                  },
+                  colors: ["var(--bs-primary)"],
+                  stroke: { width: 2 },
+                  tooltip: {
+                    fixed: { enabled: false },
+                    x: { show: true },
+                    y: {
+                      title: {
+                        formatter: function (seriesName) {
+                          return "计时:";
                         },
                       },
-                      marker: { show: false },
+                      formatter: function (value) {
+                        return value + "ms";
+                      },
                     },
-                  };
+                    marker: { show: false },
+                  },
+                };
 
-                  const chart = new ApexCharts(document.querySelector(selector),options,);
+                const chartList = [];
+                const chartDivList = [];
+
+                for (let i = 1; i <= CHART_NUMBER; i++) {
+                  const chartDiv = document.createElement("div");
+                  chartDiv.id = `timerChart${i}`;
+                  document.body.appendChild(chartDiv); // Assuming you want to append the charts to the body element
+                  const chart = new ApexCharts(
+                    document.querySelector(`#${chartDiv.id}`),
+                    timerChartOptions,
+                  );
+                  chartDiv.style.display = "none";
                   chart.render();
+                  chartList.push(chart);
+                  chartDivList.push(chartDiv);
                 }
 
                 function getStatusBadgeClassName(status) {
@@ -562,14 +578,13 @@ const page = "overview";
                       return "badge text-bg-warning";
                     case "Failed":
                       return "badge text-bg-danger";
-                    case "Successed":
+                    case "Success":
                       return "badge text-bg-success";
                     default:
                       // 默认情况下使用蓝色
                       return "badge text-bg-success";
                   }
                 }
-
                 function requestBlockInfo() {
                   fetch("http://localhost:8000/latestBlock")
                     .then((response) => {
@@ -580,43 +595,57 @@ const page = "overview";
                       }
                     })
                     .then((data) => {
+
+                      chartDivList.forEach((chartDiv)=>{
+                        chartDiv.style.display="none";
+                      });
+                      
                       const parentElement =
                         document.getElementById("latestBlockTable");
                       const blockList = data;
                       parentElement.innerHTML = "";
-                      console.log(blockList);
-                      blockList.forEach((block) => {
-                        console.log(block);
+                      blockList.forEach((block, index) => {
+                        block.blockTimer = [
+                          block.blockTimer[0] - block.blockAge,
+                          block.blockTimer[1] - block.blockAge,
+                          block.blockTimer[2] - block.blockAge,
+                          block.blockTimer[3] - block.blockAge,
+                        ];
+
                         const newRow = document.createElement("tr");
                         const cell1 = document.createElement("td");
-                        const blockNum = document.createElement("b");
-                        blockNum.textContent = "#" + block.blockNum;
-                        cell1.appendChild(blockNum);
+                        const blockId = document.createElement("b");
+                        blockId.textContent = "#" + block.blockId;
+                        cell1.appendChild(blockId);
                         const cell2 = document.createElement("td");
                         cell2.textContent = block.blockTxnNum;
                         const cell3 = document.createElement("td");
                         const statusBadge = document.createElement("span");
                         statusBadge.textContent = block.blockStatus;
-                        statusBadge.className = getStatusBadgeClassName(block.blockStatus,);
+                        statusBadge.className = getStatusBadgeClassName(
+                          block.blockStatus,
+                        );
                         cell3.appendChild(statusBadge);
                         const cell4 = document.createElement("td");
-                        const sparklineDiv = document.createElement("div");
-                        sparklineDiv.id = "table-sparkline-" + block.blockNum;
+                        chartList[index].updateSeries([
+                          { data: block.blockTimer },
+                        ]);
+                        const sparklineDiv = chartDivList[index];
+                        sparklineDiv.style.display = "block";
                         cell4.appendChild(sparklineDiv);
-                        
                         newRow.appendChild(cell1);
                         newRow.appendChild(cell2);
                         newRow.appendChild(cell3);
                         newRow.appendChild(cell4);
-                        
+
                         parentElement.appendChild(newRow);
-                        renderChart("#" + sparklineDiv.id, block.blockTimer);
                       });
                     })
                     .catch((error) => {
                       console.error("Error:", error);
                     });
                 }
+                requestBlockInfo();
                 setInterval(requestBlockInfo, 5000);
               </script>
 
@@ -680,36 +709,11 @@ const page = "overview";
                   </div>
                 </div>
               </div>
-              <script is:inline>
-                const pie_chart_options = {
-                  series: [700, 500, 400, 600, 300, 100],
-                  chart: {
-                    type: "donut",
-                  },
-                  labels: ["Chrome", "Edge", "FireFox", "Safari", "Opera", "IE"],
-                  dataLabels: {
-                    enabled: false,
-                  },
-                  colors: [
-                    "#0d6efd",
-                    "#20c997",
-                    "#ffc107",
-                    "#d63384",
-                    "#6f42c1",
-                    "#adb5bd",
-                  ],
-                };     
-                const pie_chart = new ApexCharts(
-                  document.querySelector("#pie-chart"),
-                  pie_chart_options,
-                );
-                pie_chart.render();
-              </script>
             </div>
           </div>
         </div>
+        <Footer />
       </main>
-      <Footer />
     </div>
     <Scripts path={path} />
   </body>

@@ -23,7 +23,7 @@ BATCH_SIZE = 30
 txnCount=1
 blockCount=1  
 nodeCount=1
-clientCount=1
+userCount=1
 def generateTxn(blockNum,blockStatus,blockTimer):
     global txnCount,totalTxnList
     txnNum=txnCount
@@ -112,34 +112,34 @@ def generateBlock():
     return block_data
 
 def generateClient():
-    global clientCount,totalClientList,totalTxnList
-    clientNum=clientCount
-    clientName="client"+str(clientNum)
-    clientAddress= clientCount
-    # hashlib.sha256("client"+str(clientCount).encode()).hexdigest()[:32]
-    clientCommitedNonce=random.randint(0,100)
-    clientVerifiedNonce=random.randint(clientCommitedNonce-random.randint(0,clientCommitedNonce),clientCommitedNonce)
-    clientPublishedTxnNum=clientCommitedNonce
-    clientPublishedTxnList=[]
-    for i in range(0,clientPublishedTxnNum):
-        clientPublishedTxnList.append(totalTxnList[random.randint(0,len(totalTxnList)-1)])
-    clientAssetList=[]
-    clientAssetList.append(["USD",random.randint(0,10000)])
-    clientAssetList.append(["YUAN",random.randint(0,10000)])
-    clientAssetList.append(["ERU",random.randint(0,10000)])
-    client_data={
-        "clientNum":clientNum,
-        "clientName":clientName,
-        "clientAddress":clientAddress,
-        "clientCommitedNonce":clientCommitedNonce,
-        "clientVerifiedNonce":clientVerifiedNonce,
-        "clientPublishedTxnNum":clientPublishedTxnNum,
-        "clientPublishedTxnList":clientPublishedTxnList,
-        "clientAssetList":clientAssetList,
+    global userCount,totalClientList,totalTxnList
+    userNum=userCount
+    userName="user"+str(userNum)
+    userAddress= userCount
+    # hashlib.sha256("user"+str(userCount).encode()).hexdigest()[:32]
+    userCommitedNonce=random.randint(0,100)
+    userVerifiedNonce=random.randint(userCommitedNonce-random.randint(0,userCommitedNonce),userCommitedNonce)
+    userPublishedTxnNum=userCommitedNonce
+    userPublishedTxnList=[]
+    for i in range(0,userPublishedTxnNum):
+        userPublishedTxnList.append(totalTxnList[random.randint(0,len(totalTxnList)-1)])
+    userAssetList=[]
+    userAssetList.append(["USD",random.randint(0,10000)])
+    userAssetList.append(["YUAN",random.randint(0,10000)])
+    userAssetList.append(["ERU",random.randint(0,10000)])
+    user_data={
+        "userNum":userNum,
+        "userName":userName,
+        "userAddress":userAddress,
+        "userCommitedNonce":userCommitedNonce,
+        "userVerifiedNonce":userVerifiedNonce,
+        "userPublishedTxnNum":userPublishedTxnNum,
+        "userPublishedTxnList":userPublishedTxnList,
+        "userAssetList":userAssetList,
     }
-    clientCount+=1
-    totalClientList.append(client_data)
-    return client_data
+    userCount+=1
+    totalClientList.append(user_data)
+    return user_data
 
 
 # 暂时节点模拟在这里
@@ -252,7 +252,7 @@ def returnTxnInfo():
     latestTxn = totalTxnList[-30:][::-1] 
     return jsonify(latestTxn)
 
-@app.route('/AllBlock',methods=['GET'])
+@app.route('/allBlock',methods=['GET'])
 def returnAllBlockInfo():
     return jsonify(totalBlockList[::-1] )
 
@@ -267,9 +267,9 @@ def returnNodeInfo():
 @app.route('/GetClient',methods=['POST'])
 def getOneClient():
     if request.method == 'POST':
-        clientAddress = request.form.get("clientAddress")
-        print(clientAddress)
-        return totalClientList[int(clientAddress)]
+        userAddress = request.form.get("userAddress")
+        print(userAddress)
+        return totalClientList[int(userAddress)]
     
 @app.route('/SubmitTxn',methods=['POST'])
 def receivingOneTxn():

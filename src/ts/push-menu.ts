@@ -52,7 +52,6 @@ class PushMenu {
     this._config = { ...Defaults, ...config }
   }
 
-  // TODO
   menusClose() {
     const navTreeview = document.querySelectorAll<HTMLElement>(SELECTOR_NAV_TREEVIEW)
 

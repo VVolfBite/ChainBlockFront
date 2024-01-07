@@ -26,7 +26,7 @@ def generateUser(email,password,_type,privateKey):
         'userCommittedNonce':0,
         'userVerifiedNonce':0,
         'userBalance':2000,
-        'userAssetList':[],
+        'userAssetList':{'USD':100,'CNY':200},
     }
     userDict[email] = user_info
     return user_info
@@ -50,24 +50,25 @@ def generateNode(name,mode,publicKey,privateKey,address,config):
     nodeList.append(node_info)
     return node_info
 
-def generateTxn(_from,_to,operation,nonce,value,data,info):
+def generateTxn(_from,_to,operation,value,data,info):
     txn_info={
         'txnFrom':_from,
         'txnTo':_to,
         'txnOperation': operation,
-        'txnNonce':nonce,
+        'txnNonce':userDict[_from]['userCommittedNonce'],
         'txnValue':value,
         'txnData':data,
         'txnInfo':info,
         'txnId':len(txnList),
         'txnHash':'',
-        'txnStamp': math.floor(datetime.now().timestamp() / 1000),        
+        'txnTimeStamp': math.floor(datetime.now().timestamp()),        
         # 从这里开始 以上为静态信息 以下为动态信息(需要维护的信息)
         'txnStatus':'Pending',
         'txnBelongBlock':None,
         'txnBelongBatch':None,
-        'txnTimer':[math.floor(datetime.now().timestamp() / 1000),0,0,0]
+        'txnTimer':[math.floor(datetime.now().timestamp()),math.floor(datetime.now().timestamp()),math.floor(datetime.now().timestamp()),math.floor(datetime.now().timestamp())]
     }
+    userDict[_from]['userCommittedNonce'] +=1
     txnList.append(txn_info)
     return txn_info
 
@@ -75,12 +76,10 @@ def spamTxn(low,high,txnCount):
     for i in range(0,txnCount):
         _from = str(random.randint(low,high))+'@example.com'
         _to = str(random.randint(low,high))+'@example.com'            
-        nonce = userDict[_from]['userCommittedNonce']
-        userDict[_from]['userCommittedNonce']+=1
         if random.randint(0,10) % 5 == 0:
-            generateTxn(_from,_from,'mint',nonce, random.randint(0,10) ,None,None)
+            generateTxn(_from,_from,'mint', random.randint(0,10) ,None,None)
         else:
-            generateTxn(_from,_to,'transfer',nonce, random.randint(0,10) ,None,None)
+            generateTxn(_from,_to,'transfer', random.randint(0,10) ,None,None)
 
 
 def executeTxn(txn):
@@ -128,12 +127,12 @@ block_genesis={
     "blockId":0,
     "blockHeight":0,
     "blockParentHash":'',
-    "blockAge": math.floor(datetime.now().timestamp() / 1000),
+    "blockAge": math.floor(datetime.now().timestamp()),
     'blockBelongBatch':0, 
     "blockHash": '',
     "blockStatus": 'Success',
     "blockTimer": [0,0,0,0],
-    "blockTxnNum": None,
+    "blockTxnNum": 0,
     "blockTxnList": [],
     "blockInfo": '',
 }
@@ -143,12 +142,12 @@ def generateBlock():
     "blockId": len(blockList),
     "blockHeight": len(blockList),
     "blockParentHash": blockList[len(blockList)-1]['blockHash'],
-    "blockAge": math.floor(datetime.now().timestamp() / 1000),
+    "blockAge": math.floor(datetime.now().timestamp()),
     'blockBelongBatch':int(len(blockList)/2),    
     "blockHash": '',
     # 从这里开始 以上为静态信息 以下为动态信息(需要维护的信息)
     "blockStatus": 'Pending',    
-    "blockTimer": [math.floor(datetime.now().timestamp() / 1000),0,0,0],
+    "blockTimer": [math.floor(datetime.now().timestamp()),math.floor(datetime.now().timestamp()),math.floor(datetime.now().timestamp()),math.floor(datetime.now().timestamp())],
     "blockTxnNum": None,
     "blockTxnList": [],
     "blockInfo": '',
@@ -172,13 +171,15 @@ def processBlock():
         if block["blockStatus"] == 'Pending':
             print("Block commit:",block['blockId'])
             block["blockStatus"] = 'Committed'
-            block['blockTimer'][1] = math.floor(datetime.now().timestamp() / 1000)
+            block['blockTimer'][1] = math.floor(datetime.now().timestamp())
             for node in nodeList:
                 node['nodeCurrentEpoch']+=1
                 node['nodeCurrentPhase']=0
             for txn in block['blockTxnList']:
                 txn['txnStatus'] = 'Committed'
-                txn['txnTimer'][1]= math.floor(datetime.now().timestamp() / 1000)
+                txn['txnTimer'][1]= math.floor(datetime.now().timestamp())
+
+
             break
         if block['blockStatus'] == 'Committed' and nodeList[0]['nodeCurrentPhase']==0:
             print("Block p1:",block['blockId'])
@@ -193,10 +194,10 @@ def processBlock():
         if block['blockStatus'] == 'Committed' and nodeList[0]['nodeCurrentPhase']==2:
             print("Block finalized:",block['blockId'])
             block["blockStatus"] = 'Finalized'
-            block['blockTimer'][2] = math.floor(datetime.now().timestamp() / 1000)
+            block['blockTimer'][2] = math.floor(datetime.now().timestamp())
             for txn in block['blockTxnList']:
                 txn['txnStatus'] = 'Finalized'
-                txn['txnTimer'][2]= math.floor(datetime.now().timestamp() / 1000)
+                txn['txnTimer'][2]= math.floor(datetime.now().timestamp())
             for node in nodeList:
                 node['nodeCurrentPhase'] +=1
                 node['nodeCurrentBlockHeight'] +=1
@@ -206,17 +207,17 @@ def processBlock():
             print("Block sealed:",block['blockId'])
             if random.randint(0,100) % 50 != 0:
                 block["blockStatus"] = 'Success'
-                block['blockTimer'][3] = math.floor(datetime.now().timestamp() / 1000)
+                block['blockTimer'][3] = math.floor(datetime.now().timestamp())
                 for txn in block['blockTxnList']:
                     txn['txnStatus'] = 'Success'
-                    txn['txnTimer'][3]= math.floor(datetime.now().timestamp() / 1000)
+                    txn['txnTimer'][3]= math.floor(datetime.now().timestamp())
                     executeTxn(txn)
             else:
                 block["blockStatus"] = 'Failed'
-                block['blockTimer'][3] = math.floor(datetime.now().timestamp() / 1000)
+                block['blockTimer'][3] = math.floor(datetime.now().timestamp())
                 for txn in block['blockTxnList']:
                     txn['txnStatus'] = 'Failed'
-                    txn['txnTimer'][3]= math.floor(datetime.now().timestamp() / 1000)
+                    txn['txnTimer'][3]= math.floor(datetime.now().timestamp())
             break
                     
 
@@ -246,9 +247,7 @@ class InitGen:
     @staticmethod
     def generateInitTxn(txnInitCount):
         for i in range(0,len(userDict)-1):
-            nonce = userDict[str(i)+'@example.com']['userCommittedNonce']
-            userDict[str(i)+'@example.com']['userCommittedNonce']+=1
-            generateTxn(str(i)+'@example.com',str(i)+'@example.com','mint',nonce, 10000 ,None,None)
+            generateTxn(str(i)+'@example.com',str(i)+'@example.com','mint',10000 ,None,None)
         for i in range(0,txnInitCount):
             _from = str(random.randint(0,len(userDict)-1))+'@example.com'
             _to = str(random.randint(0,len(userDict)-1))+'@example.com'            
@@ -256,9 +255,9 @@ class InitGen:
             userDict[_from]['userCommittedNonce']+=1
 
             if random.randint(0,10) % 5 == 0:
-                generateTxn(_from,_from,'mint',nonce, random.randint(0,10) ,None,None)
+                generateTxn(_from,_from,'mint', random.randint(0,10) ,None,None)
             else:
-                generateTxn(_from,_to,'transfer',nonce, random.randint(0,10) ,None,None)
+                generateTxn(_from,_to,'transfer', random.randint(0,10) ,None,None)
 
 InitGen.generateInitNode(5)
 InitGen.generateInitUser(10)
@@ -269,11 +268,11 @@ def makeBlock():
     while True:
         spamTxn(0,9,random.randint(10,30))
         generateBlock() 
-        time.sleep(8)   
+        time.sleep(32)   
 def proBlock():
     while True:
         processBlock()
-        time.sleep(2)
+        time.sleep(8)
 
 makeBlockThread = threading.Thread(target=makeBlock)
 makeBlockThread.start()
@@ -290,14 +289,15 @@ CORS(app)
 # @TODO 将token改为鉴权应用到接口上
 SECRET_KEY = "your-secret-key"
 
+
 @app.route('/login', methods=['POST'])
 def login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
         if email in userDict and userDict[email]['userPassword'] == password:
-            token = jwt.encode({"email": email}, SECRET_KEY, algorithm="HS256")
-            userDict[email]['userToken']=token
+            token = jwt.encode({"email": email,"password":password}, SECRET_KEY, algorithm="HS256")
+            print(token)
             return jsonify({"token": token}), 200
         else:
             print(userDict)
@@ -313,17 +313,77 @@ def register():
         if email in userDict :
             return jsonify({"error": "User Exist"}), 401
         
-        generateUser(email=email,password=password,type=1,privateKey="")
+        generateUser(email=email,password=password,_type=1,privateKey="")
 
-        token = jwt.encode({"email": email}, SECRET_KEY, algorithm="HS256")
-        userDict[email]['userToken']=token
+        token = jwt.encode({"email": email,"password":password}, SECRET_KEY, algorithm="HS256")
         
         return jsonify({"token": token}), 200
+
+@app.route('/user',methods=['POST'])
+def user():
+    if request.method == 'POST':
+        email = request.form.get('userEmail')
+        token = request.form.get('userToken')
+        password = userDict[email]['userPassword']
+        if email in userDict and jwt.encode({"email": email,"password":password}, SECRET_KEY, algorithm="HS256")==token:
+            return jsonify(userDict[email])
+        
+@app.route('/txnByUser',methods=['POST'])
+def getTxnByUser():
+    if request.method == 'POST':
+        email = request.form.get('userEmail')
+        token = request.form.get('userToken')
+        password = userDict[email]['userPassword']
+        if email in userDict and jwt.encode({"email": email,"password":password}, SECRET_KEY, algorithm="HS256")==token:
+            data=[]
+            for txn in txnList:
+                if txn['txnFrom'] == email or txn['txnTo']==email:
+                    data.append(txn)
+            return jsonify(data)
     
+@app.route('/submitTxn',methods=['POST'])
+def submitTxn():
+    if request.method == 'POST':
+        _from= request.form.get('txnFrom')
+        _to = request.form.get('txnTo')
+        operation = request.form.get('txnOperation')
+        value = float(request.form.get("txnValue"))
+        data = request.form.get("txnData")
+        info = request.form.get("txnInfo")
+        node= request.form.get("txnNode")
+        generateTxn(_from,_to,operation, value ,data,info)
+        return ' ', 200
+    
+@app.route('/submitSpamTxn',methods=['POST'])
+def submitSpamTxn():
+    if request.method == 'POST':
+        num = int(request.form.get("spamTxnNum"))
+        fromList= request.form.get('spamTxnFrom').split(',')
+        toList = request.form.get('spamTxnTo').split(',')
+        operationList = request.form.get('spamTxnOperation').split(',')
+        valueMin = float(request.form.get("spamTxnValueMin"))
+        valueMax = float(request.form.get("spamTxnValueMax"))
+        data = request.form.get("spamTxnData")
+        info = request.form.get("spamTxnInfo")
+        node= request.form.get("spamTxnNode")
+        for i in range(0,num):
+            _from = random.choice(fromList)
+            _to =random.choice(toList)
+            operation = random.choice(operationList)
+            value = random.uniform(valueMin,valueMax)
+            data = data
+            info = info
+            node = node
+            print(_from,_to,operation,value,data,info,node)
+            
+            generateTxn(_from,_to,operation,value,data,info)    
+        return ' ', 200
+
+@app.route('/')
 
 # 总览面板数据一
 @app.route('/normalInfo', methods=['GET'])
-def returnnormalInfo():
+def normalInfo():
     blockNum = len(blockList)
     txnNum = len(txnList)
     nodeNum = len(nodeList)
@@ -348,7 +408,7 @@ BLOCK_MAX_THROUGHTOUT = 30
 
 # @TODO 改为模拟数据
 @app.route('/runningInfo', methods=['GET'])
-def returnRunningInfo():
+def runningInfo():
     blockLatencyAvg = random.randint(BLOCK_MIN_LANTENCY,BLOCK_MAX_LANTENCY)
     blockLatency = random.randint(blockLatencyAvg-50,blockLatencyAvg+50)
     blockLatencyMax = BLOCK_MAX_LANTENCY
@@ -382,9 +442,23 @@ def returnRunningInfo():
     return jsonify(data)
 
 @app.route('/latestBlock', methods=['GET'])
-def returnBlockInfo():
+def blockInfoLastTen():
     latestBlock = blockList[-10:][::-1] 
     return jsonify(latestBlock)
+
+@app.route('/allBlock',methods=['GET'])
+def blockInfo():
+    return jsonify(blockList[::-1] )
+
+@app.route('/allTxn',methods=['GET'])
+def txnInfo():
+    return jsonify(txnList[::-1] )
+
+@app.route('/allNode',methods=['GET'])
+def nodeInfo():
+    return jsonify(nodeList[::-1] )
+
+
 
 
     
